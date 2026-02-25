@@ -83,6 +83,7 @@ header{position:relative;z-index:10;border-bottom:1px solid var(--border);backgr
 .npc-name{font-family:'Cinzel',serif;font-size:12px;font-weight:700;color:var(--gold3);line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .npc-class{font-size:11px;color:var(--text2);margin-top:1px;font-style:italic}
 .npc-faction{display:inline-block;font-family:'Cinzel',serif;font-size:8px;letter-spacing:.1em;text-transform:uppercase;padding:2px 6px;border-radius:8px;margin-top:4px;border:1px solid}
+.npc-rol{display:inline-block;font-family:'Cinzel',serif;font-size:8px;letter-spacing:.1em;text-transform:uppercase;padding:2px 6px;border-radius:8px;margin-top:3px;margin-left:4px;border:1px solid rgba(232,201,122,.3);background:rgba(201,168,76,.06);color:var(--gold2)}
 .dp-badge{min-width:44px;height:44px;border-radius:9px;border:1px solid;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0}
 .dp-badge .n{font-family:'Cinzel Decorative',serif;font-size:15px;font-weight:900;line-height:1}
 .dp-badge .u{font-family:'Cinzel',serif;font-size:7px;letter-spacing:.1em;margin-top:1px}
@@ -281,8 +282,6 @@ function calcDP(n) {
 
   add(parseInt(n.cargos)||0, `Cargos importantes ×${n.cargos}`);
   if(n.donEstrellas) add(2,"Don de las Estrellas");
-  if(n.armaArca) add(2,"Arma Proyecto Arca");
-  if(n.armaArcaDespertada) add(2,"Arma Arca Despertada");
   if(n.doteHeroico) add(1,"Dote Heroico");
   if(n.piedad) add(1,"Poseer una Piedad");
   const pant = parseInt(n.panteismo)||0;
@@ -308,10 +307,21 @@ function calcDP(n) {
   const ap = parseInt(n.altoPoder)||0;
   add(ap*3, `Armamento Alto Poder ×${ap} → +${ap*3} DP`);
   add(parseInt(n.consumibles)||0, `Consumibles Alto Poder ×${n.consumibles||0} tipos`);
+  // Tesoro divino/legendario ×5
+  const td = parseInt(n.tesoroDivino)||0;
+  add(td*5, `Tesoro Divino/Legendario ×${td} → +${td*5} DP`);
+  // Cartas del mazo
   const cm = parseInt(n.cartasMazo)||0;
   add(cm, `Cartas Mazo (atributos) ×${cm}`);
-  if(n.cartaEstrella) add(4,"Carta: La Estrella");
+  // Carta La Estrella ×3 por cada vez
+  const ce = parseInt(n.cartaEstrella)||0;
+  add(ce*3, `Carta La Estrella ×${ce} → +${ce*3} DP`);
+  // Carta El Árbol +4
+  if(n.cartaArbol) add(4,"Carta: El Árbol");
   add(parseInt(n.objAtrib)||0, `Objetos/Modif. de atributos ×${n.objAtrib||0}`);
+  // Transformación sobrenatural ×2
+  const ts = parseInt(n.transformacion)||0;
+  add(ts*2, `Transformación Sobrenatural ×${ts} → +${ts*2} DP`);
   if(n.avatar){
     add(3,"Avatar de Divinidad");
     const rp = parseInt(n.rupturas)||0;
@@ -409,12 +419,14 @@ let editingId = null;
 let pendingImg = "";
 
 // ─── TAGS ───
+const ROLES = ["Tanque","Coloso","Asesino","Luchador","Especialista","Artillero Mágico","Tirador","Soporte"];
+const ROL_EMOJI = {"Tanque":"🛡️","Coloso":"💪","Asesino":"🗡️","Luchador":"⚔️","Especialista":"🔧","Artillero Mágico":"🔮","Tirador":"🏹","Soporte":"💚"};
+
 function buildTags(n){
   if(n.dpPendiente) return [{t:"⏳ DP pendientes",c:"pend"}];
   const t=[];
   if((parseInt(n.cargos)||0)>0) t.push({t:`Cargos ×${n.cargos}`,c:"cg"});
   if(n.donEstrellas) t.push({t:"✦ Don de las Estrellas",c:"sp"});
-  if(n.armaArca) t.push({t:n.armaArcaDespertada?"⚡ Arma Arca (Despertada)":"⚔️ Arma Proyecto Arca",c:n.armaArcaDespertada?"wa":"wp"});
   if(n.doteHeroico) t.push({t:"Dote Heroico",c:"my"});
   if(n.piedad) t.push({t:"Piedad",c:"ep"});
   if((parseInt(n.panteismo)||0)>0) t.push({t:`Panteísmo ×${n.panteismo}`,c:"ep"});
@@ -427,6 +439,10 @@ function buildTags(n){
   if(n.armtoLegendario) t.push({t:"Armamento Legendario",c:"my"});
   if(n.armtoMuyRaro) t.push({t:"Armamento Muy Raro",c:"ep"});
   if((parseInt(n.altoPoder)||0)>0) t.push({t:`Alto Poder ×${n.altoPoder}`,c:"wp"});
+  if((parseInt(n.tesoroDivino)||0)>0) t.push({t:`Tesoro Divino ×${n.tesoroDivino}`,c:"my"});
+  if((parseInt(n.cartaEstrella)||0)>0) t.push({t:`⭐ La Estrella ×${n.cartaEstrella}`,c:"sp"});
+  if(n.cartaArbol) t.push({t:"🌳 El Árbol",c:"gr"});
+  if((parseInt(n.transformacion)||0)>0) t.push({t:`✨ Transformación ×${n.transformacion}`,c:"sp"});
   if(n.avatar) t.push({t:`Avatar${(parseInt(n.rupturas)||0)>0?` (${n.rupturas} rupt.)`:""}`,c:"sp"});
   if(n.setPrimordial) t.push({t:"⚜️ Set Primordial",c:"sp"});
   return t;
@@ -461,6 +477,7 @@ function renderCard(npc){
         <div class="npc-name">${npc.name}</div>
         <div class="npc-class">${npc.cls}</div>
         <span class="npc-faction ${fi.cls}">${fi.emoji} ${npc.faction}</span>
+        ${npc.rol?`<span class="npc-rol">${ROL_EMOJI[npc.rol]||""} ${npc.rol}</span>`:""}
       </div>
       <div class="dp-badge ${dpc}"><span class="n">${dp}</span><span class="u">DP</span></div>
     </div>
@@ -700,7 +717,7 @@ function buildModalForm(n){
   const campOpts=campaigns.map(c=>`<option value="${c.id}"${n&&n.camp===c.id?" selected":""}>${c.name}</option>`).join("");
   const facOpts=Object.keys(FI).map(f=>`<option value="${f}"${n&&n.faction===f?" selected":""}>${FI[f].emoji} ${f}</option>`).join("")
     +`<option value="__new">+ Nueva Facción…</option>`;
-
+  const rolOpts=`<option value="">— Sin rol —</option>`+ROLES.map(r=>`<option value="${r}"${n?.rol===r?" selected":""}>${ROL_EMOJI[r]||""} ${r}</option>`).join("");
   const imgPreview=n?.img?`<img class="img-prev" id="img-prev" src="${n.img}">`:`<div id="img-prev"></div>`;
 
   document.getElementById("modal-body").innerHTML=`
@@ -715,7 +732,10 @@ function buildModalForm(n){
     <div class="fg"><label>Facción</label><select id="f_fac" onchange="onFacChange(this)">${facOpts}</select></div>
   </div>
   <div class="frow">
+    <div class="fg"><label>Rol</label><select id="f_rol">${rolOpts}</select></div>
     <div class="fg"><label>Emoji</label><input type="text" id="f_emoji" value="${n?.emoji||"⚔️"}" maxlength="4"></div>
+  </div>
+  <div class="frow">
     <div class="fg"><label>Link Level20</label><input type="text" id="f_url" value="${n?.url||""}"></div>
   </div>
   <div class="frow full">
@@ -740,8 +760,6 @@ function buildModalForm(n){
 
     ${cr("f_cargos","Cargos Importantes","×1 DP c/u","f_cargos_n",n?.cargos)}
     ${cr("f_donEstrellas","Don de las Estrellas","+2 DP")}
-    ${cr("f_armaArca","Arma del Proyecto Arca","+2 DP")}
-    ${sub("f_armaArca",sr("f_armaArcaDespertada","Arma Arca Despertada","+2 DP"))}
     ${cr("f_doteHeroico","Dote Heroico","+1 DP")}
     ${cr("f_piedad","Poseer una Piedad","+1 DP")}
     ${cr("f_panteismo","Piedad de Panteísmo","×1 DP/dios","f_panteismo_n",n?.panteismo)}
@@ -770,12 +788,17 @@ function buildModalForm(n){
     ${sub("f_armtoLegendario",sr("f_armtoLegendarioMas2","Más de 2 piezas Legendarias","+2 DP"))}
     ${cr("f_altoPoder","Armamento Alto Poder Destructivo","×3 DP c/u","f_altoPoder_n",n?.altoPoder)}
     ${cr("f_consumibles","Consumibles/Munición Alto Poder","×1 DP/tipo","f_consumibles_n",n?.consumibles)}
+    ${cr("f_tesoroDivino","Tesoro Divino/Legendario","×5 DP c/u","f_tesoroDivino_n",n?.tesoroDivino)}
+
+    <div style="margin:10px 0 6px;font-family:'Cinzel',serif;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3)">Cartas</div>
+    ${cr("f_cartasMazo","Cartas Mazo Muchas Cosas (atributos)","×1 DP c/u","f_cartasMazo_n",n?.cartasMazo)}
+    ${cr("f_cartaEstrella","Carta: La Estrella","×3 DP c/vez","f_cartaEstrella_n",n?.cartaEstrella)}
+    ${cr("f_cartaArbol","Carta: El Árbol","+4 DP")}
 
     <div style="margin:10px 0 6px;font-family:'Cinzel',serif;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3)">Otros</div>
     ${cr("f_setPrimordial","Set Primordial Completo","+4 DP")}
-    ${cr("f_cartasMazo","Cartas Mazo Muchas Cosas (atributos)","×1 DP c/u","f_cartasMazo_n",n?.cartasMazo)}
-    ${sub("f_cartasMazo",sr("f_cartaEstrella","Una de ellas es La Estrella","+4 DP adicional"))}
     ${cr("f_objAtrib","Objetos/Modif. que suban Atributos","×1 DP c/u","f_objAtrib_n",n?.objAtrib)}
+    ${cr("f_transformacion","Transformación Sobrenatural","×2 DP c/u","f_transformacion_n",n?.transformacion)}
     ${cr("f_avatar","Avatar de una Divinidad","+3 DP")}
     ${sub("f_avatar",
       `<div class="sr"><label style="flex:1">Rupturas del Límite</label><span class="dph">×2 DP c/u</span><input type="number" id="f_rupturas" min="0" value="${n?.rupturas||0}" disabled style="width:52px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:4px 8px;color:var(--text);font-size:13px;outline:none"></div>`
@@ -787,21 +810,30 @@ function buildModalForm(n){
   // Set checked states if editing
   if(n && n.dpPendiente===false){
     const checks={
-      f_cargos:n.cargos>0,f_donEstrellas:n.donEstrellas,f_armaArca:n.armaArca,f_armaArcaDespertada:n.armaArcaDespertada,
-      f_doteHeroico:n.doteHeroico,f_piedad:n.piedad,f_panteismo:n.panteismo>0,
-      f_bendEpicas:n.bendEpicas>0,f_bendMiticas:n.bendMiticas>0,f_conjMiticos:n.conjMiticos>0,f_maniMiticas:n.maniMiticas>0,
-      f_entrAtrib:n.entrAtrib>0,f_entrSalv:n.entrSalv>0,f_dotesEntr:n.dotesEntr>0,f_rasgosEntr:n.rasgosEntr>0,
-      f_equipCompleto:n.equipCompleto,f_armMuyRara:n.armMuyRara,f_escMuyRaro:n.escMuyRaro,f_servoMuyRara:n.servoMuyRara,
-      f_armLegendaria:n.armLegendaria,f_escLegendario:n.escLegendario,f_servoLegendaria:n.servoLegendaria,
-      f_armtoMuyRaro:n.armtoMuyRaro,f_armtoMuyRaroMas2:n.armtoMuyRaroMas2,f_armtoLegendario:n.armtoLegendario,f_armtoLegendarioMas2:n.armtoLegendarioMas2,
-      f_altoPoder:n.altoPoder>0,f_consumibles:n.consumibles>0,f_setPrimordial:n.setPrimordial,
-      f_cartasMazo:n.cartasMazo>0,f_cartaEstrella:n.cartaEstrella,f_objAtrib:n.objAtrib>0,f_avatar:n.avatar,
+      f_cargos:(n.cargos||0)>0, f_donEstrellas:n.donEstrellas,
+      f_doteHeroico:n.doteHeroico, f_piedad:n.piedad, f_panteismo:(n.panteismo||0)>0,
+      f_bendEpicas:(n.bendEpicas||0)>0, f_bendMiticas:(n.bendMiticas||0)>0,
+      f_conjMiticos:(n.conjMiticos||0)>0, f_maniMiticas:(n.maniMiticas||0)>0,
+      f_entrAtrib:(n.entrAtrib||0)>0, f_entrSalv:(n.entrSalv||0)>0,
+      f_dotesEntr:(n.dotesEntr||0)>0, f_rasgosEntr:(n.rasgosEntr||0)>0,
+      f_equipCompleto:n.equipCompleto, f_armMuyRara:n.armMuyRara,
+      f_escMuyRaro:n.escMuyRaro, f_servoMuyRara:n.servoMuyRara,
+      f_armLegendaria:n.armLegendaria, f_escLegendario:n.escLegendario, f_servoLegendaria:n.servoLegendaria,
+      f_armtoMuyRaro:n.armtoMuyRaro, f_armtoMuyRaroMas2:n.armtoMuyRaroMas2,
+      f_armtoLegendario:n.armtoLegendario, f_armtoLegendarioMas2:n.armtoLegendarioMas2,
+      f_altoPoder:(n.altoPoder||0)>0, f_consumibles:(n.consumibles||0)>0,
+      f_tesoroDivino:(n.tesoroDivino||0)>0,
+      f_cartasMazo:(n.cartasMazo||0)>0, f_cartaEstrella:(n.cartaEstrella||0)>0,
+      f_cartaArbol:n.cartaArbol,
+      f_setPrimordial:n.setPrimordial, f_objAtrib:(n.objAtrib||0)>0,
+      f_transformacion:(n.transformacion||0)>0, f_avatar:n.avatar,
     };
     Object.entries(checks).forEach(([id,val])=>{const el=document.getElementById(id);if(el)el.checked=!!val;});
 
     // enable num fields
     ["f_cargos","f_panteismo","f_bendEpicas","f_bendMiticas","f_conjMiticos","f_maniMiticas",
-     "f_entrAtrib","f_entrSalv","f_dotesEntr","f_rasgosEntr","f_altoPoder","f_consumibles","f_cartasMazo","f_objAtrib"].forEach(id=>{
+     "f_entrAtrib","f_entrSalv","f_dotesEntr","f_rasgosEntr","f_altoPoder","f_consumibles",
+     "f_tesoroDivino","f_cartasMazo","f_cartaEstrella","f_objAtrib","f_transformacion"].forEach(id=>{
       const cb=document.getElementById(id);const numEl=document.getElementById(id+"_n");
       if(cb&&numEl)numEl.disabled=!cb.checked;
     });
@@ -809,23 +841,24 @@ function buildModalForm(n){
     if(av&&ru)ru.disabled=!av.checked;
 
     // show sub-lists
-    ["f_armaArca","f_armMuyRara","f_armLegendaria","f_armtoMuyRaro","f_armtoLegendario","f_cartasMazo","f_avatar"].forEach(id=>{
+    ["f_armMuyRara","f_armLegendaria","f_armtoMuyRaro","f_armtoLegendario","f_avatar"].forEach(id=>{
       const cb=document.getElementById(id);const sub=document.getElementById("sub_"+id);
-      if(cb&&sub){sub.classList.toggle("show",cb.checked);}
+      if(cb&&sub) sub.classList.toggle("show",cb.checked);
     });
   }
 
-  // Attach change listeners for checkboxes
+  // Attach change listeners
   setTimeout(()=>{
     ["f_cargos","f_panteismo","f_bendEpicas","f_bendMiticas","f_conjMiticos","f_maniMiticas",
-     "f_entrAtrib","f_entrSalv","f_dotesEntr","f_rasgosEntr","f_altoPoder","f_consumibles","f_cartasMazo","f_objAtrib"].forEach(id=>{
+     "f_entrAtrib","f_entrSalv","f_dotesEntr","f_rasgosEntr","f_altoPoder","f_consumibles",
+     "f_tesoroDivino","f_cartasMazo","f_cartaEstrella","f_objAtrib","f_transformacion"].forEach(id=>{
       const cb=document.getElementById(id);if(!cb)return;
       cb.addEventListener("change",()=>{
         const numEl=document.getElementById(id+"_n");
         if(numEl){numEl.disabled=!cb.checked;if(cb.checked)numEl.focus();}
       });
     });
-    ["f_armaArca","f_armMuyRara","f_armLegendaria","f_armtoMuyRaro","f_armtoLegendario","f_cartasMazo","f_avatar"].forEach(id=>{
+    ["f_armMuyRara","f_armLegendaria","f_armtoMuyRaro","f_armtoLegendario","f_avatar"].forEach(id=>{
       const cb=document.getElementById(id);if(!cb)return;
       cb.addEventListener("change",()=>{
         const sub=document.getElementById("sub_"+id);if(sub)sub.classList.toggle("show",cb.checked);
@@ -873,10 +906,10 @@ async function saveNPC(){
   const imgData=pendingImg||(editingId?NPCS.find(n=>n.id===editingId)?.img:"");
   const data={
     name,cls:gv("f_cls")||"—",camp:parseInt(gv("f_camp")),faction:gv("f_fac"),
+    rol:gv("f_rol")||"",
     emoji:gv("f_emoji")||"⚔️",url:gv("f_url"),img:imgData||"",
     dpPendiente:gc("f_dpPend"),
     cargos:gn("f_cargos_n"),donEstrellas:gc("f_donEstrellas"),
-    armaArca:gc("f_armaArca"),armaArcaDespertada:gc("f_armaArcaDespertada"),
     doteHeroico:gc("f_doteHeroico"),piedad:gc("f_piedad"),panteismo:gn("f_panteismo_n"),
     bendEpicas:gn("f_bendEpicas_n"),bendMiticas:gn("f_bendMiticas_n"),
     conjMiticos:gn("f_conjMiticos_n"),maniMiticas:gn("f_maniMiticas_n"),
@@ -887,9 +920,11 @@ async function saveNPC(){
     armtoMuyRaro:gc("f_armtoMuyRaro"),armtoMuyRaroMas2:gc("f_armtoMuyRaroMas2"),
     armtoLegendario:gc("f_armtoLegendario"),armtoLegendarioMas2:gc("f_armtoLegendarioMas2"),
     altoPoder:gn("f_altoPoder_n"),consumibles:gn("f_consumibles_n"),
+    tesoroDivino:gn("f_tesoroDivino_n"),
     setPrimordial:gc("f_setPrimordial"),
-    cartasMazo:gn("f_cartasMazo_n"),cartaEstrella:gc("f_cartaEstrella"),
-    objAtrib:gn("f_objAtrib_n"),avatar:gc("f_avatar"),rupturas:gn("f_rupturas"),
+    cartasMazo:gn("f_cartasMazo_n"),cartaEstrella:gn("f_cartaEstrella_n"),cartaArbol:gc("f_cartaArbol"),
+    objAtrib:gn("f_objAtrib_n"),transformacion:gn("f_transformacion_n"),
+    avatar:gc("f_avatar"),rupturas:gn("f_rupturas"),
   };
 
   showToast("Guardando…",false);
@@ -938,11 +973,10 @@ async function sbFetch(path, opts={}){
 function rowToNPC(r){
   return {
     id:r.id, camp:r.camp, name:r.name, cls:r.cls||"—", faction:r.faction||"",
-    emoji:r.emoji||"⚔️", url:r.url||"", img:r.img||"",
+    rol:r.rol||"", emoji:r.emoji||"⚔️", url:r.url||"", img:r.img||"",
     dpPendiente:r.dp_pendiente,
-    cargos:r.cargos||0, donEstrellas:r.don_estrellas, armaArca:r.arma_arca,
-    armaArcaDespertada:r.arma_arca_despertada, doteHeroico:r.dote_heroico,
-    piedad:r.piedad, panteismo:r.panteismo||0,
+    cargos:r.cargos||0, donEstrellas:r.don_estrellas,
+    doteHeroico:r.dote_heroico, piedad:r.piedad, panteismo:r.panteismo||0,
     bendEpicas:r.bend_epicas||0, bendMiticas:r.bend_miticas||0,
     conjMiticos:r.conj_miticos||0, maniMiticas:r.mani_miticas||0,
     entrAtrib:r.entr_atrib||0, entrSalv:r.entr_salv||0,
@@ -953,20 +987,20 @@ function rowToNPC(r){
     armtoMuyRaro:r.armto_muy_raro, armtoMuyRaroMas2:r.armto_muy_raro_mas2,
     armtoLegendario:r.armto_legendario, armtoLegendarioMas2:r.armto_legendario_mas2,
     altoPoder:r.alto_poder||0, consumibles:r.consumibles||0,
-    cartasMazo:r.cartas_mazo||0, cartaEstrella:r.carta_estrella,
-    objAtrib:r.obj_atrib||0, avatar:r.avatar, rupturas:r.rupturas||0,
-    setPrimordial:r.set_primordial,
+    tesoroDivino:r.tesoro_divino||0,
+    cartasMazo:r.cartas_mazo||0, cartaEstrella:r.carta_estrella||0, cartaArbol:r.carta_arbol||false,
+    objAtrib:r.obj_atrib||0, transformacion:r.transformacion||0,
+    avatar:r.avatar, rupturas:r.rupturas||0, setPrimordial:r.set_primordial,
   };
 }
 
 function npcToRow(n){
   return {
     id:n.id, camp:n.camp, name:n.name, cls:n.cls||"—", faction:n.faction,
-    emoji:n.emoji||"⚔️", url:n.url||"", img:n.img||"",
+    rol:n.rol||"", emoji:n.emoji||"⚔️", url:n.url||"", img:n.img||"",
     dp_pendiente:n.dpPendiente,
-    cargos:n.cargos||0, don_estrellas:!!n.donEstrellas, arma_arca:!!n.armaArca,
-    arma_arca_despertada:!!n.armaArcaDespertada, dote_heroico:!!n.doteHeroico,
-    piedad:!!n.piedad, panteismo:n.panteismo||0,
+    cargos:n.cargos||0, don_estrellas:!!n.donEstrellas,
+    dote_heroico:!!n.doteHeroico, piedad:!!n.piedad, panteismo:n.panteismo||0,
     bend_epicas:n.bendEpicas||0, bend_miticas:n.bendMiticas||0,
     conj_miticos:n.conjMiticos||0, mani_miticas:n.maniMiticas||0,
     entr_atrib:n.entrAtrib||0, entr_salv:n.entrSalv||0,
@@ -977,9 +1011,10 @@ function npcToRow(n){
     armto_muy_raro:!!n.armtoMuyRaro, armto_muy_raro_mas2:!!n.armtoMuyRaroMas2,
     armto_legendario:!!n.armtoLegendario, armto_legendario_mas2:!!n.armtoLegendarioMas2,
     alto_poder:n.altoPoder||0, consumibles:n.consumibles||0,
-    cartas_mazo:n.cartasMazo||0, carta_estrella:!!n.cartaEstrella,
-    obj_atrib:n.objAtrib||0, avatar:!!n.avatar, rupturas:n.rupturas||0,
-    set_primordial:!!n.setPrimordial,
+    tesoro_divino:n.tesoroDivino||0,
+    cartas_mazo:n.cartasMazo||0, carta_estrella:n.cartaEstrella||0, carta_arbol:!!n.cartaArbol,
+    obj_atrib:n.objAtrib||0, transformacion:n.transformacion||0,
+    avatar:!!n.avatar, rupturas:n.rupturas||0, set_primordial:!!n.setPrimordial,
   };
 }
 
