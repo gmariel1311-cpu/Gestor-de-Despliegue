@@ -624,14 +624,19 @@ function clearAll(){
 }
 
 // ─── CAMPAIGN MANAGEMENT ───
-function addCampaign(){
+async function addCampaign(){
   const name=prompt("Nombre de la nueva campaña:");
   if(!name?.trim()) return;
   const newId=Math.max(...campaigns.map(c=>c.id))+1;
+  await sbFetch("campaigns",{method:"POST",body:JSON.stringify({id:newId,name:name.trim()})});
   campaigns.push({id:newId,name:name.trim()});
   activeFaction[newId]=null;
   fullRender();
   switchTab(newId);
+}
+
+async function renameCampaign(campId, newName){
+  await sbFetch("campaigns?id=eq."+campId,{method:"PATCH",body:JSON.stringify({name:newName})});
 }
 
 function startEditCampName(campId){
@@ -642,7 +647,11 @@ function startEditCampName(campId){
   input.type="text";input.className="camp-name-input";input.value=camp.name;
   titleEl.replaceWith(input);
   input.focus();input.select();
-  const done=()=>{camp.name=input.value.trim()||camp.name;fullRender();};
+  const done=()=>{
+    const newName=input.value.trim()||camp.name;
+    if(newName!==camp.name){ camp.name=newName; renameCampaign(campId,newName); }
+    fullRender();
+  };
   input.addEventListener("blur",done);
   input.addEventListener("keydown",e=>{if(e.key==="Enter")done();if(e.key==="Escape"){input.value=camp.name;done();}});
 }
@@ -859,7 +868,7 @@ function gv(id){const el=document.getElementById(id);return el?el.value:"";}
 function gc(id){const el=document.getElementById(id);return el?el.checked:false;}
 function gn(id){const el=document.getElementById(id);return el&&!el.disabled?parseInt(el.value)||0:0;}
 
-function saveNPC(){
+async function saveNPC(){
   const name=gv("f_name").trim();if(!name){alert("El nombre es obligatorio.");return;}
   const imgData=pendingImg||(editingId?NPCS.find(n=>n.id===editingId)?.img:"");
   const data={
@@ -882,22 +891,96 @@ function saveNPC(){
     cartasMazo:gn("f_cartasMazo_n"),cartaEstrella:gc("f_cartaEstrella"),
     objAtrib:gn("f_objAtrib_n"),avatar:gc("f_avatar"),rupturas:gn("f_rupturas"),
   };
+
+  showToast("Guardando…",false);
+
   if(editingId){
+    data.id=editingId;
+    const row=npcToRow(data);
+    await sbFetch("npcs?id=eq."+editingId,{method:"PATCH",body:JSON.stringify(row)});
     const idx=NPCS.findIndex(n=>n.id===editingId);
     if(idx>=0)NPCS[idx]={...NPCS[idx],...data};
   } else {
     data.id="npc_"+Date.now();
+    const row=npcToRow(data);
+    await sbFetch("npcs",{method:"POST",body:JSON.stringify(row)});
     NPCS.push(data);
   }
+  showToast("✓ Guardado");
   pendingImg="";closeModal();fullRender();updatePanel();
 }
 
-function deleteNPC(){
+async function deleteNPC(){
   if(!editingId)return;
   const npc=NPCS.find(n=>n.id===editingId);
   if(!confirm(`¿Eliminar a ${npc?.name}? No se puede deshacer.`))return;
+  await sbFetch("npcs?id=eq."+editingId,{method:"DELETE"});
   selected.delete(editingId);NPCS=NPCS.filter(n=>n.id!==editingId);
+  showToast("✓ Eliminado");
   closeModal();fullRender();updatePanel();
+}
+
+// ─── SUPABASE CONFIG ───
+const SB_URL = "https://rabupsafjsaahebpnzxq.supabase.co";
+const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJhYnVwc2FmanNhYWhlYnBuenhxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5ODg4NjgsImV4cCI6MjA4NzU2NDg2OH0.lnIt6E65BRGAZOHXnELTT3A1-AZuXi8-PGaji4Dtobw";
+
+async function sbFetch(path, opts={}){
+  const res = await fetch(SB_URL+"/rest/v1/"+path, {
+    headers:{"apikey":SB_KEY,"Authorization":"Bearer "+SB_KEY,"Content-Type":"application/json","Prefer":"return=representation",...(opts.headers||{})},
+    ...opts
+  });
+  if(!res.ok){ const e=await res.text(); console.error("SB error:",e); return null; }
+  const txt=await res.text();
+  return txt?JSON.parse(txt):null;
+}
+
+// NPC row ↔ JS object mappers
+function rowToNPC(r){
+  return {
+    id:r.id, camp:r.camp, name:r.name, cls:r.cls||"—", faction:r.faction||"",
+    emoji:r.emoji||"⚔️", url:r.url||"", img:r.img||"",
+    dpPendiente:r.dp_pendiente,
+    cargos:r.cargos||0, donEstrellas:r.don_estrellas, armaArca:r.arma_arca,
+    armaArcaDespertada:r.arma_arca_despertada, doteHeroico:r.dote_heroico,
+    piedad:r.piedad, panteismo:r.panteismo||0,
+    bendEpicas:r.bend_epicas||0, bendMiticas:r.bend_miticas||0,
+    conjMiticos:r.conj_miticos||0, maniMiticas:r.mani_miticas||0,
+    entrAtrib:r.entr_atrib||0, entrSalv:r.entr_salv||0,
+    dotesEntr:r.dotes_entr||0, rasgosEntr:r.rasgos_entr||0,
+    equipCompleto:r.equip_completo,
+    armMuyRara:r.arm_muy_rara, escMuyRaro:r.esc_muy_raro, servoMuyRara:r.servo_muy_rara,
+    armLegendaria:r.arm_legendaria, escLegendario:r.esc_legendario, servoLegendaria:r.servo_legendaria,
+    armtoMuyRaro:r.armto_muy_raro, armtoMuyRaroMas2:r.armto_muy_raro_mas2,
+    armtoLegendario:r.armto_legendario, armtoLegendarioMas2:r.armto_legendario_mas2,
+    altoPoder:r.alto_poder||0, consumibles:r.consumibles||0,
+    cartasMazo:r.cartas_mazo||0, cartaEstrella:r.carta_estrella,
+    objAtrib:r.obj_atrib||0, avatar:r.avatar, rupturas:r.rupturas||0,
+    setPrimordial:r.set_primordial,
+  };
+}
+
+function npcToRow(n){
+  return {
+    id:n.id, camp:n.camp, name:n.name, cls:n.cls||"—", faction:n.faction,
+    emoji:n.emoji||"⚔️", url:n.url||"", img:n.img||"",
+    dp_pendiente:n.dpPendiente,
+    cargos:n.cargos||0, don_estrellas:!!n.donEstrellas, arma_arca:!!n.armaArca,
+    arma_arca_despertada:!!n.armaArcaDespertada, dote_heroico:!!n.doteHeroico,
+    piedad:!!n.piedad, panteismo:n.panteismo||0,
+    bend_epicas:n.bendEpicas||0, bend_miticas:n.bendMiticas||0,
+    conj_miticos:n.conjMiticos||0, mani_miticas:n.maniMiticas||0,
+    entr_atrib:n.entrAtrib||0, entr_salv:n.entrSalv||0,
+    dotes_entr:n.dotesEntr||0, rasgos_entr:n.rasgosEntr||0,
+    equip_completo:!!n.equipCompleto,
+    arm_muy_rara:!!n.armMuyRara, esc_muy_raro:!!n.escMuyRaro, servo_muy_rara:!!n.servoMuyRara,
+    arm_legendaria:!!n.armLegendaria, esc_legendario:!!n.escLegendario, servo_legendaria:!!n.servoLegendaria,
+    armto_muy_raro:!!n.armtoMuyRaro, armto_muy_raro_mas2:!!n.armtoMuyRaroMas2,
+    armto_legendario:!!n.armtoLegendario, armto_legendario_mas2:!!n.armtoLegendarioMas2,
+    alto_poder:n.altoPoder||0, consumibles:n.consumibles||0,
+    cartas_mazo:n.cartasMazo||0, carta_estrella:!!n.cartaEstrella,
+    obj_atrib:n.objAtrib||0, avatar:!!n.avatar, rupturas:n.rupturas||0,
+    set_primordial:!!n.setPrimordial,
+  };
 }
 
 // ─── AUTH ───
@@ -951,12 +1034,49 @@ function logout(){
   document.querySelectorAll(".edit-cn-btn").forEach(b=>b.style.display="none");
 }
 
+// ─── TOAST ───
+function showToast(msg, success=true){
+  let t=document.getElementById("toast");
+  if(!t){t=document.createElement("div");t.id="toast";t.style.cssText="position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:var(--bg3);border:1px solid var(--border2);color:var(--text);font-family:'Cinzel',serif;font-size:11px;letter-spacing:.1em;padding:10px 20px;border-radius:10px;z-index:500;transition:opacity .4s;pointer-events:none";document.body.appendChild(t);}
+  t.textContent=msg;
+  t.style.borderColor=success?"rgba(76,168,76,.5)":"var(--border2)";
+  t.style.color=success?"var(--green2)":"var(--text2)";
+  t.style.opacity="1";
+  clearTimeout(t._to);t._to=setTimeout(()=>t.style.opacity="0",2000);
+}
+
 // ─── INIT ───
-campaigns.forEach(c=>activeFaction[c.id]=null);
-fullRender();
-// hide edit controls until logged in
-document.querySelectorAll(".cedit").forEach(b=>b.style.display="none");
-document.querySelectorAll(".edit-cn-btn").forEach(b=>b.style.display="none");
+async function init(){
+  showToast("Cargando datos…", false);
+
+  // load campaigns
+  const campRows = await sbFetch("campaigns?select=*&order=id");
+  if(campRows && campRows.length){
+    campaigns = campRows.map(r=>({id:r.id, name:r.name}));
+  }
+
+  // load NPCs from Supabase
+  const npcRows = await sbFetch("npcs?select=*&order=camp,name");
+  if(npcRows && npcRows.length){
+    NPCS = npcRows.map(rowToNPC);
+  }
+  // if no NPCs in DB yet, seed with default data then push to Supabase
+  else {
+    showToast("Subiendo datos iniciales…", false);
+    for(const n of NPCS){
+      await sbFetch("npcs",{method:"POST",body:JSON.stringify(npcToRow(n))});
+    }
+    showToast("✓ Datos iniciales guardados");
+  }
+
+  campaigns.forEach(c=>activeFaction[c.id]=null);
+  fullRender();
+  document.querySelectorAll(".cedit").forEach(b=>b.style.display="none");
+  document.querySelectorAll(".edit-cn-btn").forEach(b=>b.style.display="none");
+  showToast("✓ Listo");
+}
+
+init();
 </script>
 </body>
 </html>
