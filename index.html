@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gestor de Despliegue</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#080b0f;--bg2:#0e1219;--bg3:#131820;--bg4:#1a2130;--border:#232f40;--border2:#2e3f58;--gold:#c9a84c;--gold2:#e8c97a;--gold3:#f5dfa0;--red:#c94c4c;--red2:#e87a7a;--blue:#4c7ec9;--blue2:#7aaae8;--teal:#4ca8a0;--teal2:#7accc4;--purple:#8a4cc9;--purple2:#b47ae8;--orange:#c97a4c;--orange2:#e8a87a;--green:#4ca84c;--green2:#7ae87a;--text:#d4c9b8;--text2:#8a9ab0;--text3:#4a5a6a}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Crimson Pro',Georgia,serif;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 15% 10%,rgba(201,168,76,.05) 0%,transparent 45%),radial-gradient(ellipse at 85% 85%,rgba(76,126,201,.04) 0%,transparent 45%);pointer-events:none;z-index:0}
+header{position:relative;z-index:10;border-bottom:1px solid var(--border);background:linear-gradient(180deg,rgba(201,168,76,.06) 0%,transparent 100%)}
+.hdr{max-width:1500px;margin:0 auto;padding:18px 40px 14px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.logo h1{font-family:'Cinzel Decorative',serif;font-size:18px;color:var(--gold);letter-spacing:.04em;text-shadow:0 0 24px rgba(201,168,76,.35)}
+.logo p{font-family:'Cinzel',serif;font-size:9px;color:var(--text3);letter-spacing:.2em;text-transform:uppercase;margin-top:3px}
+.mission-box{display:flex;align-items:center;gap:14px;background:var(--bg3);border:1px solid var(--border2);border-radius:12px;padding:10px 18px}
+.mdp .n{font-family:'Cinzel Decorative',serif;font-size:30px;font-weight:900;color:var(--gold2);text-shadow:0 0 20px rgba(232,201,122,.5);line-height:1}
+.mdp .l{font-family:'Cinzel',serif;font-size:8px;color:var(--text3);letter-spacing:.2em;text-transform:uppercase;margin-top:2px}
+.mdiv{width:1px;height:32px;background:var(--border2)}
+.minfo{font-family:'Cinzel',serif;font-size:8px;color:var(--text3);letter-spacing:.1em;text-transform:uppercase}
+.minfo span{display:block;font-size:13px;color:var(--text2);margin-top:2px;letter-spacing:0;font-family:'Crimson Pro',serif;font-style:italic}
+.clear-btn{background:transparent;border:1px solid var(--border2);color:var(--text3);font-family:'Cinzel',serif;font-size:8px;letter-spacing:.12em;text-transform:uppercase;padding:7px 12px;border-radius:7px;cursor:pointer;transition:all .2s}
+.clear-btn:hover{border-color:var(--red);color:var(--red2)}
+.auth-btn{background:transparent;border:1px solid var(--border2);color:var(--text3);font-family:'Cinzel',serif;font-size:8px;letter-spacing:.12em;text-transform:uppercase;padding:7px 12px;border-radius:7px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:5px}
+.auth-btn:hover{border-color:var(--gold);color:var(--gold)}
+.auth-btn.logged{border-color:rgba(76,168,76,.5);color:var(--green2)}
+.auth-btn.logged:hover{border-color:var(--red);color:var(--red2)}
+.login-ov{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:300;display:none;align-items:center;justify-content:center}
+.login-ov.open{display:flex}
+.login-box{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:32px 36px;width:100%;max-width:380px;text-align:center}
+.login-box h2{font-family:'Cinzel Decorative',serif;font-size:15px;color:var(--gold2);margin-bottom:6px}
+.login-box p{font-size:13px;color:var(--text3);margin-bottom:24px;font-style:italic}
+.login-box input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-family:'Crimson Pro',serif;font-size:15px;outline:none;margin-bottom:10px;transition:border-color .2s}
+.login-box input:focus{border-color:var(--gold)}
+.login-err{color:var(--red2);font-size:12px;margin-bottom:10px;min-height:18px}
+.login-submit{width:100%;background:rgba(201,168,76,.15);border:1px solid var(--gold);color:var(--gold2);font-family:'Cinzel',serif;font-size:10px;letter-spacing:.12em;text-transform:uppercase;padding:11px;border-radius:8px;cursor:pointer;transition:all .2s;margin-top:4px}
+.login-submit:hover{background:rgba(201,168,76,.28)}
+.login-cancel{background:none;border:none;color:var(--text3);font-size:12px;cursor:pointer;margin-top:12px;font-family:'Cinzel',serif;letter-spacing:.1em;text-transform:uppercase;transition:color .2s;display:block;width:100%}
+.login-cancel:hover{color:var(--text2)}
+.tabs-wrap{position:relative;z-index:10;max-width:1500px;margin:0 auto;padding:18px 40px 0}
+.tabs{display:flex;gap:3px;border-bottom:1px solid var(--border);align-items:flex-end;overflow-x:auto}
+.tab-btn{font-family:'Cinzel',serif;font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:10px 18px;background:transparent;border:1px solid transparent;border-bottom:none;color:var(--text3);cursor:pointer;transition:all .2s;border-radius:8px 8px 0 0;position:relative;bottom:-1px;white-space:nowrap;flex-shrink:0}
+.tab-btn:hover{color:var(--text2)}
+.tab-btn.active{color:var(--gold2);background:var(--bg2);border-color:var(--border);border-bottom-color:var(--bg2)}
+.tab-btn .cnt{display:inline-block;background:var(--bg4);border:1px solid var(--border);border-radius:10px;font-size:9px;padding:1px 5px;margin-left:5px;color:var(--text3)}
+.tab-actions{display:flex;gap:8px;margin-left:auto;padding-bottom:6px;flex-shrink:0}
+.tbtn{font-family:'Cinzel',serif;font-size:9px;letter-spacing:.1em;text-transform:uppercase;padding:7px 14px;border-radius:7px;cursor:pointer;transition:all .2s;white-space:nowrap}
+.tbtn-camp{background:transparent;border:1px solid var(--border2);color:var(--text2)}
+.tbtn-camp:hover{border-color:var(--gold);color:var(--gold)}
+.tbtn-npc{background:rgba(201,168,76,.12);border:1px solid var(--gold);color:var(--gold2)}
+.tbtn-npc:hover{background:rgba(201,168,76,.25)}
+.main{position:relative;z-index:10;max-width:1500px;margin:0 auto;padding:20px 40px 130px}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+.camp-title-row{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+.camp-title{font-family:'Cinzel',serif;font-size:16px;font-weight:700;color:var(--gold3);letter-spacing:.06em}
+.edit-cn-btn{background:none;border:none;color:var(--text3);cursor:pointer;font-size:13px;padding:2px 5px;border-radius:5px;transition:color .2s}
+.edit-cn-btn:hover{color:var(--gold)}
+.camp-name-input{font-family:'Cinzel',serif;font-size:16px;font-weight:700;color:var(--gold3);background:transparent;border:none;border-bottom:2px solid var(--gold);outline:none;letter-spacing:.06em;width:320px}
+.filters{display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+.filter-lbl{font-family:'Cinzel',serif;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--text3);white-space:nowrap}
+.faction-btns{display:flex;gap:5px;flex-wrap:wrap}
+.fbtn{font-family:'Crimson Pro',serif;font-size:13px;font-weight:600;padding:4px 12px;border-radius:18px;border:1px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;transition:all .2s;white-space:nowrap}
+.fbtn:hover{border-color:var(--gold);color:var(--gold)}
+.fbtn.active{background:rgba(201,168,76,.1);border-color:var(--gold);color:var(--gold2)}
+.search{margin-left:auto;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:7px 13px;color:var(--text);font-family:'Crimson Pro',serif;font-size:14px;width:200px;outline:none;transition:border-color .2s}
+.search:focus{border-color:var(--gold)}
+.search::placeholder{color:var(--text3)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px}
+.empty-grid{grid-column:1/-1;text-align:center;padding:60px;color:var(--text3);font-style:italic}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:13px;overflow:hidden;cursor:pointer;transition:transform .2s,border-color .2s,box-shadow .2s;position:relative}
+.card:hover{transform:translateY(-2px);border-color:var(--border2);box-shadow:0 6px 28px rgba(0,0,0,.4)}
+.card.selected{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold),0 6px 28px rgba(201,168,76,.18)}
+.card.selected::after{content:'✓';position:absolute;top:9px;right:9px;width:20px;height:20px;background:var(--gold);color:#080b0f;border-radius:50%;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;z-index:5;line-height:20px;text-align:center}
+.cedit{position:absolute;top:9px;right:34px;background:rgba(8,11,15,.7);border:none;color:var(--text3);cursor:pointer;font-size:12px;z-index:5;transition:color .2s;padding:2px 4px;border-radius:5px}
+.cedit:hover{color:var(--gold)}
+.card.selected .cedit{right:36px}
+.card-head{padding:12px 13px 10px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:9px}
+.ava{width:46px;height:46px;border-radius:9px;background:var(--bg4);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;overflow:hidden}
+.ava img{width:100%;height:100%;object-fit:cover}
+.name-area{flex:1;min-width:0}
+.npc-name{font-family:'Cinzel',serif;font-size:12px;font-weight:700;color:var(--gold3);line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.npc-class{font-size:11px;color:var(--text2);margin-top:1px;font-style:italic}
+.npc-faction{display:inline-block;font-family:'Cinzel',serif;font-size:8px;letter-spacing:.1em;text-transform:uppercase;padding:2px 6px;border-radius:8px;margin-top:4px;border:1px solid}
+.dp-badge{min-width:44px;height:44px;border-radius:9px;border:1px solid;display:flex;flex-direction:column;align-items:center;justify-content:center;flex-shrink:0}
+.dp-badge .n{font-family:'Cinzel Decorative',serif;font-size:15px;font-weight:900;line-height:1}
+.dp-badge .u{font-family:'Cinzel',serif;font-size:7px;letter-spacing:.1em;margin-top:1px}
+.dp-lo{background:rgba(76,168,76,.08);border-color:#4ca84c;color:#7ae87a}
+.dp-md{background:rgba(201,168,76,.08);border-color:var(--gold);color:var(--gold2)}
+.dp-hi{background:rgba(201,76,76,.08);border-color:var(--red);color:var(--red2)}
+.dp-pend{background:rgba(74,90,106,.15);border-color:var(--border2);color:var(--text3)}
+.card-body{padding:10px 13px}
+.tags{display:flex;flex-wrap:wrap;gap:4px;min-height:22px}
+.tag{font-size:10px;padding:2px 7px;border-radius:9px;border:1px solid var(--border);color:var(--text2);background:var(--bg3);white-space:nowrap}
+.tag.sp{border-color:var(--purple);color:var(--purple2);background:rgba(138,76,201,.06)}
+.tag.wp{border-color:var(--red);color:var(--red2);background:rgba(201,76,76,.06)}
+.tag.wa{border-color:var(--orange);color:var(--orange2);background:rgba(201,122,76,.06)}
+.tag.ep{border-color:var(--blue);color:var(--blue2);background:rgba(76,126,201,.06)}
+.tag.my{border-color:var(--gold);color:var(--gold2);background:rgba(201,168,76,.06)}
+.tag.gr{border-color:var(--teal);color:var(--teal2);background:rgba(76,168,160,.06)}
+.tag.cg{border-color:#a08060;color:#c8a880;background:rgba(160,128,96,.06)}
+.tag.pend{border-color:var(--border2);color:var(--text3);font-style:italic}
+.bd-toggle{width:100%;background:transparent;border:none;border-top:1px solid var(--border);padding:7px 13px;color:var(--text3);font-family:'Cinzel',serif;font-size:9px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:color .2s}
+.bd-toggle:hover{color:var(--gold)}
+.bd-toggle .arr{transition:transform .2s;display:inline-block}
+.bd-toggle.open .arr{transform:rotate(180deg)}
+.breakdown{display:none;padding:9px 13px 12px;border-top:1px solid var(--border);background:rgba(0,0,0,.25)}
+.breakdown.open{display:block}
+.brow{display:flex;justify-content:space-between;align-items:center;padding:3px 0;font-size:11px;color:var(--text2);border-bottom:1px solid rgba(35,47,64,.5)}
+.brow:last-child{border-bottom:none}
+.brow .bv{font-weight:600;color:var(--gold);font-family:'Cinzel',serif;font-size:11px}
+.n20-link{display:inline-flex;align-items:center;gap:5px;margin-top:8px;font-family:'Cinzel',serif;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--blue2);text-decoration:none;padding:4px 10px;border:1px solid rgba(76,126,201,.3);border-radius:6px;transition:all .2s}
+.n20-link:hover{background:rgba(76,126,201,.1);border-color:var(--blue2)}
+.sel-panel{position:fixed;bottom:0;left:0;right:0;padding:16px 40px 22px;z-index:100;display:none;background:linear-gradient(180deg,transparent 0%,rgba(8,11,15,.98) 12px)}
+.sel-panel.vis{display:block}
+.sel-inner{max-width:1500px;margin:0 auto;background:var(--bg3);border:1px solid var(--border2);border-radius:13px;padding:12px 18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;box-shadow:0 -8px 40px rgba(0,0,0,.7)}
+.sel-lbl{font-family:'Cinzel',serif;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--text3);white-space:nowrap}
+.sel-chips{display:flex;gap:6px;flex-wrap:wrap;flex:1}
+.chip{display:flex;align-items:center;gap:5px;background:var(--bg4);border:1px solid var(--border2);border-radius:18px;padding:4px 10px 4px 9px;font-size:13px}
+.chip-dp{font-family:'Cinzel',serif;font-size:9px;font-weight:600;color:var(--gold);background:rgba(201,168,76,.1);border-radius:9px;padding:1px 5px}
+.chip-x{background:none;border:none;color:var(--text3);cursor:pointer;font-size:14px;line-height:1;padding:0;margin-left:1px;transition:color .2s}
+.chip-x:hover{color:var(--red2)}
+.total-dp{display:flex;align-items:baseline;gap:5px;margin-left:auto;white-space:nowrap}
+.total-dp .n{font-family:'Cinzel Decorative',serif;font-size:28px;font-weight:900;color:var(--gold2);text-shadow:0 0 18px rgba(232,201,122,.4)}
+.total-dp .u{font-family:'Cinzel',serif;font-size:10px;color:var(--text3);letter-spacing:.1em}
+/* faction colors */
+.f-sf{color:#7ab0e8;border-color:rgba(76,126,201,.45);background:rgba(76,126,201,.08)}
+.f-vt{color:var(--purple2);border-color:rgba(138,76,201,.45);background:rgba(138,76,201,.08)}
+.f-mc{color:var(--orange2);border-color:rgba(201,122,76,.45);background:rgba(201,122,76,.08)}
+.f-xi{color:#e87a4c;border-color:rgba(201,76,46,.45);background:rgba(201,76,46,.08)}
+.f-est{color:var(--gold2);border-color:rgba(201,168,76,.45);background:rgba(201,168,76,.08)}
+.f-rep{color:var(--teal2);border-color:rgba(76,168,160,.45);background:rgba(76,168,160,.08)}
+.f-hd{color:var(--green2);border-color:rgba(76,168,76,.45);background:rgba(76,168,76,.08)}
+.f-sig{color:#c8a880;border-color:rgba(160,128,96,.45);background:rgba(160,128,96,.08)}
+.f-nav{color:#a0c8e8;border-color:rgba(100,168,220,.45);background:rgba(100,168,220,.08)}
+.f-nom{color:#c8c880;border-color:rgba(168,168,96,.45);background:rgba(168,168,96,.08)}
+.f-tri{color:var(--red2);border-color:rgba(201,76,76,.45);background:rgba(201,76,76,.08)}
+.f-def{color:var(--text2);border-color:var(--border2);background:var(--bg4)}
+/* MODAL */
+.modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:200;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-ov.open{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;width:100%;max-width:700px;max-height:90vh;overflow-y:auto;position:relative}
+.modal-hdr{padding:20px 26px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--bg2);z-index:2}
+.modal-hdr h2{font-family:'Cinzel',serif;font-size:14px;font-weight:700;color:var(--gold3);letter-spacing:.06em}
+.mcl{background:none;border:none;color:var(--text3);cursor:pointer;font-size:22px;line-height:1;padding:2px;transition:color .2s}
+.mcl:hover{color:var(--red2)}
+.mbody{padding:20px 26px 24px}
+.fsec{margin-bottom:18px}
+.fsec-t{font-family:'Cinzel',serif;font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.frow.full{grid-template-columns:1fr}
+.fg{display:flex;flex-direction:column;gap:4px}
+.fg label{font-family:'Cinzel',serif;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3)}
+.fg input[type=text],.fg input[type=number],.fg select,.fg textarea{background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:7px 11px;color:var(--text);font-family:'Crimson Pro',serif;font-size:14px;outline:none;transition:border-color .2s;width:100%}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--gold)}
+.fg select option{background:var(--bg3)}
+.img-area{border:2px dashed var(--border2);border-radius:10px;padding:20px;text-align:center;cursor:pointer;transition:border-color .2s;position:relative}
+.img-area:hover{border-color:var(--gold)}
+.img-area input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.img-prev{width:72px;height:72px;border-radius:10px;object-fit:cover;margin:0 auto 8px;display:block}
+.img-txt{font-size:11px;color:var(--text3);font-style:italic}
+.cr{display:flex;align-items:center;gap:9px;padding:6px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;margin-bottom:5px;transition:border-color .2s}
+.cr:hover{border-color:var(--border2)}
+.cr.active{border-color:rgba(201,168,76,.35);background:rgba(201,168,76,.04)}
+.cr input[type=checkbox]{width:14px;height:14px;accent-color:var(--gold);cursor:pointer;flex-shrink:0}
+.cr label{font-size:13px;color:var(--text2);cursor:pointer;flex:1;line-height:1.3}
+.cr .dph{font-family:'Cinzel',serif;font-size:9px;color:var(--text3);white-space:nowrap;flex-shrink:0}
+.cnum{width:56px!important;padding:4px 7px!important;font-size:13px!important;text-align:center!important;flex-shrink:0}
+.cnum:disabled{opacity:.3}
+.sub-list{padding:5px 0 2px 22px;display:none;flex-direction:column;gap:4px}
+.sub-list.show{display:flex}
+.sr{display:flex;align-items:center;gap:8px;padding:5px 9px;background:rgba(0,0,0,.18);border:1px solid var(--border);border-radius:7px}
+.sr input[type=checkbox]{width:13px;height:13px;accent-color:var(--gold);cursor:pointer}
+.sr label{font-size:12px;color:var(--text2);cursor:pointer;flex:1}
+.sr .dph{font-family:'Cinzel',serif;font-size:9px;color:var(--text3)}
+.modal-ftr{padding:14px 26px 18px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:9px;position:sticky;bottom:0;background:var(--bg2)}
+.btn-del{background:rgba(201,76,76,.1);border:1px solid var(--red);color:var(--red2);font-family:'Cinzel',serif;font-size:9px;letter-spacing:.1em;text-transform:uppercase;padding:9px 14px;border-radius:8px;cursor:pointer;transition:all .2s;margin-right:auto}
+.btn-del:hover{background:rgba(201,76,76,.25)}
+.btn-can{background:transparent;border:1px solid var(--border2);color:var(--text2);font-family:'Cinzel',serif;font-size:9px;letter-spacing:.1em;text-transform:uppercase;padding:9px 16px;border-radius:8px;cursor:pointer;transition:all .2s}
+.btn-can:hover{border-color:var(--red);color:var(--red2)}
+.btn-sav{background:rgba(201,168,76,.15);border:1px solid var(--gold);color:var(--gold2);font-family:'Cinzel',serif;font-size:9px;letter-spacing:.1em;text-transform:uppercase;padding:9px 20px;border-radius:8px;cursor:pointer;transition:all .2s}
+.btn-sav:hover{background:rgba(201,168,76,.28)}
+@media(max-width:768px){.hdr,.tabs-wrap,.main{padding-left:16px;padding-right:16px}.sel-panel{padding:12px 16px 16px}.grid{grid-template-columns:1fr}.search{width:100%;margin-left:0}.frow{grid-template-columns:1fr}.mbody,.modal-hdr,.modal-ftr{padding-left:16px;padding-right:16px}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hdr">
+    <div class="logo">
+      <h1>Gestor de Despliegue</h1>
+      <p>Sistema de Puntos de Despliegue · NPC</p>
+    </div>
+    <div class="mission-box">
+      <div class="mdp"><div class="n" id="hdr-dp">0</div><div class="l">DP Totales</div></div>
+      <div class="mdiv"></div>
+      <div class="minfo">En misión<span id="hdr-cnt">Ninguno</span></div>
+      <button class="clear-btn" id="clear-btn" onclick="clearAll()">✕ Limpiar</button>
+      <button class="auth-btn" id="auth-btn" onclick="authClick()">🔒 Editar</button>
+    </div>
+  </div>
+</header>
+
+<!-- LOGIN MODAL -->
+<div class="login-ov" id="loginModal">
+  <div class="login-box">
+    <h2>Modo Edición</h2>
+    <p>Introduce tus credenciales para editar</p>
+    <input type="text" id="login-user" placeholder="Usuario" autocomplete="username">
+    <input type="password" id="login-pass" placeholder="Contraseña" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+    <div class="login-err" id="login-err"></div>
+    <button class="login-submit" onclick="doLogin()">Entrar</button>
+    <button class="login-cancel" onclick="closeLogin()">Cancelar</button>
+  </div>
+</div>
+
+<div class="tabs-wrap">
+  <div class="tabs" id="tabs-container">
+    <div class="tab-actions" id="tab-actions">
+      <button class="tbtn tbtn-npc" id="btn-new-npc" onclick="openNewNPC()" style="display:none">+ Nuevo Personaje</button>
+      <button class="tbtn tbtn-camp" id="btn-new-camp" onclick="addCampaign()" style="display:none">+ Nueva Campaña</button>
+    </div>
+  </div>
+</div>
+
+<div class="main" id="main-panels"></div>
+
+<div class="sel-panel" id="selPanel">
+  <div class="sel-inner">
+    <span class="sel-lbl">En misión:</span>
+    <div class="sel-chips" id="selChips"></div>
+    <div class="total-dp"><span class="n" id="totalDP">0</span><span class="u">DP</span></div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-ov" id="npcModal">
+  <div class="modal">
+    <div class="modal-hdr">
+      <h2 id="modal-title">Nuevo Personaje</h2>
+      <button class="mcl" onclick="closeModal()">×</button>
+    </div>
+    <div class="mbody" id="modal-body"></div>
+    <div class="modal-ftr">
+      <button class="btn-del" id="btn-del" onclick="deleteNPC()" style="display:none">🗑 Eliminar</button>
+      <button class="btn-can" onclick="closeModal()">Cancelar</button>
+      <button class="btn-sav" onclick="saveNPC()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── FACTION INFO ───
+const FI = {
+  "Star Force":                   {cls:"f-sf",  emoji:"⭐"},
+  "Liga de los Vottan":           {cls:"f-vt",  emoji:"🔮"},
+  "Mercenarios":                  {cls:"f-mc",  emoji:"⚔️"},
+  "Dioses de Xibalba":            {cls:"f-xi",  emoji:"🔥"},
+  "Dioses Estelares":             {cls:"f-est", emoji:"✨"},
+  "República Interestelar":       {cls:"f-rep", emoji:"🌌"},
+  "Helldivers":                   {cls:"f-hd",  emoji:"🪖"},
+  "Imperio de Sigmar":            {cls:"f-sig", emoji:"🏛️"},
+  "Navegantes del Valhalla":      {cls:"f-nav", emoji:"🚢"},
+  "Pasajeros Nómadas":            {cls:"f-nom", emoji:"🧳"},
+  "Tripulación Stultifera Navis": {cls:"f-tri", emoji:"🛸"},
+};
+
+// ─── CAMPAIGNS ───
+let campaigns = [
+  {id:0, name:"Stultifera Navis"},
+  {id:1, name:"Campaña 2"},
+];
+
+// ─── DP CALC ───
+function calcDP(n) {
+  if (n.dpPendiente) return {dp:"?", bd:[], pend:true};
+  let dp = 2;
+  const bd = [{l:"Base (ficha de personaje)", v:2}];
+  const add = (v,l) => { if(v>0){dp+=v;bd.push({l,v});} };
+
+  add(parseInt(n.cargos)||0, `Cargos importantes ×${n.cargos}`);
+  if(n.donEstrellas) add(2,"Don de las Estrellas");
+  if(n.armaArca) add(2,"Arma Proyecto Arca");
+  if(n.armaArcaDespertada) add(2,"Arma Arca Despertada");
+  if(n.doteHeroico) add(1,"Dote Heroico");
+  if(n.piedad) add(1,"Poseer una Piedad");
+  const pant = parseInt(n.panteismo)||0;
+  add(pant, `Piedad de Panteísmo ×${pant} dioses`);
+  add(parseInt(n.bendEpicas)||0,  `Bendiciones Épicas ×${n.bendEpicas||0}`);
+  add(parseInt(n.bendMiticas)||0, `Bendiciones Míticas ×${n.bendMiticas||0}`);
+  add(parseInt(n.conjMiticos)||0, `Conjuros Míticos ×${n.conjMiticos||0}`);
+  add(parseInt(n.maniMiticas)||0, `Maniobras Míticas ×${n.maniMiticas||0}`);
+  if((parseInt(n.entrAtrib)||0)>=2)  add(1,`Entrenam. Atributos ×${n.entrAtrib}`);
+  if((parseInt(n.entrSalv)||0)>=2)   add(1,`Entrenam. Salvaciones ×${n.entrSalv}`);
+  if((parseInt(n.dotesEntr)||0)>=2)  add(1,`Dotes Entrenados ×${n.dotesEntr}`);
+  const rb = Math.floor((parseInt(n.rasgosEntr)||0)/2);
+  add(rb, `Rasgos Especiales ×${n.rasgosEntr||0} → +${rb} DP`);
+  if(n.equipCompleto) add(1,"Equipamiento Completo");
+  if(n.armMuyRara) add(2,"Armadura Muy Rara");
+  if(n.escMuyRaro) add(2,"Escudo Muy Raro");
+  if(n.servoMuyRara) add(1,"Servo-Armadura (Muy Rara)");
+  if(n.armLegendaria) add(4,"Armadura Legendaria");
+  if(n.escLegendario) add(4,"Escudo Legendario");
+  if(n.servoLegendaria) add(2,"Servo-Armadura (Legendaria)");
+  if(n.armtoMuyRaro){ add(2,"Armamento Muy Raro"); if(n.armtoMuyRaroMas2) add(1,"Armamento Muy Raro (>2 piezas)"); }
+  if(n.armtoLegendario){ add(4,"Armamento Legendario"); if(n.armtoLegendarioMas2) add(2,"Armamento Legendario (>2 piezas)"); }
+  const ap = parseInt(n.altoPoder)||0;
+  add(ap*3, `Armamento Alto Poder ×${ap} → +${ap*3} DP`);
+  add(parseInt(n.consumibles)||0, `Consumibles Alto Poder ×${n.consumibles||0} tipos`);
+  const cm = parseInt(n.cartasMazo)||0;
+  add(cm, `Cartas Mazo (atributos) ×${cm}`);
+  if(n.cartaEstrella) add(4,"Carta: La Estrella");
+  add(parseInt(n.objAtrib)||0, `Objetos/Modif. de atributos ×${n.objAtrib||0}`);
+  if(n.avatar){
+    add(3,"Avatar de Divinidad");
+    const rp = parseInt(n.rupturas)||0;
+    add(rp*2, `Rupturas del Límite ×${rp} → +${rp*2} DP`);
+  }
+  if(n.setPrimordial) add(4,"Set Primordial Completo");
+  return {dp, bd, pend:false};
+}
+function dpCls(dp){ if(dp==="?") return "dp-pend"; if(dp<=4) return "dp-lo"; if(dp<=8) return "dp-md"; return "dp-hi"; }
+
+// ─── NPCs ───
+let NPCS = [
+  // STAR FORCE
+  {id:"majestic-red",camp:0,emoji:"🛡️",name:"Majestic Red",cls:"Guerrero · Nivel 19",faction:"Star Force",url:"https://nivel20.com/games/dnd-5/campaigns/45678-stultifera-navis/creatures/263328-majestic-red",img:"",dpPendiente:false,cargos:1,donEstrellas:false,armaArca:true,armaArcaDespertada:true,doteHeroico:true,piedad:false,panteismo:0,bendEpicas:1,bendMiticas:0,conjMiticos:0,maniMiticas:2,entrAtrib:3,entrSalv:2,dotesEntr:3,rasgosEntr:4,equipCompleto:true,armMuyRara:false,escMuyRaro:false,servoMuyRara:false,armLegendaria:true,escLegendario:false,servoLegendaria:false,armtoMuyRaro:false,armtoMuyRaroMas2:false,armtoLegendario:true,armtoLegendarioMas2:false,altoPoder:0,consumibles:0,cartasMazo:0,cartaEstrella:false,objAtrib:0,avatar:false,rupturas:0,setPrimordial:false},
+  {id:"subaru",camp:0,emoji:"⚡",name:"Subaru Hoshikawa",cls:"Guerrero Psiónico · Nivel 19",faction:"Star Force",url:"https://nivel20.com/s/19x03zczc",img:"",dpPendiente:true},
+  // LIGA DE LOS VOTTAN
+  {id:"natalia",camp:0,emoji:"⚗️",name:"Natalia Alekseeva",cls:"Artífice · Nivel 19",faction:"Liga de los Vottan",url:"https://nivel20.com/s/12cf5zczc",img:"",dpPendiente:true},
+  // MERCENARIOS
+  {id:"acolmiztli",camp:0,emoji:"🦁",name:"Acolmiztli",cls:"—",faction:"Mercenarios",url:"https://nivel20.com/s/124lmzczc",img:"",dpPendiente:true},
+  {id:"marcus",camp:0,emoji:"🗡️",name:"Marcus Aquilus",cls:"—",faction:"Mercenarios",url:"https://nivel20.com/s/ulrpzczc",img:"",dpPendiente:true},
+  {id:"ingrid",camp:0,emoji:"🪓",name:"Ingrid Skjoldr",cls:"—",faction:"Mercenarios",url:"https://nivel20.com/s/jvhizczc",img:"",dpPendiente:true},
+  {id:"elena",camp:0,emoji:"🌿",name:"Elena Navarro",cls:"—",faction:"Mercenarios",url:"https://nivel20.com/s/uls0zczc",img:"",dpPendiente:true},
+  {id:"freya-f",camp:0,emoji:"❄️",name:"Freya Frostveil",cls:"—",faction:"Mercenarios",url:"https://nivel20.com/s/jwb4zczc",img:"",dpPendiente:true},
+  {id:"sora",camp:0,emoji:"🌊",name:"Sora Nakamura",cls:"—",faction:"Mercenarios",url:"https://nivel20.com/s/jvirzczc",img:"",dpPendiente:true},
+  {id:"isabella",camp:0,emoji:"🌸",name:"Isabella García",cls:"—",faction:"Mercenarios",url:"https://nivel20.com/s/umx6zczc",img:"",dpPendiente:true},
+  {id:"into-abyss",camp:0,emoji:"🕳️",name:"Into the Abyss",cls:"—",faction:"Mercenarios",url:"https://nivel20.com/s/x43tzczc",img:"",dpPendiente:true},
+  // DIOSES DE XIBALBA
+  {id:"tlaloc",camp:0,emoji:"🌧️",name:"Tláloc",cls:"—",faction:"Dioses de Xibalba",url:"https://nivel20.com/s/12bfizczc",img:"",dpPendiente:true},
+  {id:"xi2",camp:0,emoji:"💀",name:"— (Xibalba 2)",cls:"— (link privado)",faction:"Dioses de Xibalba",url:"https://nivel20.com/s/wk6fzczc",img:"",dpPendiente:true},
+  {id:"xi3",camp:0,emoji:"🔥",name:"— (Xibalba 3)",cls:"— (link privado)",faction:"Dioses de Xibalba",url:"https://nivel20.com/s/wls3zczc",img:"",dpPendiente:true},
+  // DIOSES ESTELARES
+  {id:"ishtar",camp:0,emoji:"⭐",name:"Ishtar",cls:"—",faction:"Dioses Estelares",url:"https://nivel20.com/s/w3xtzczc",img:"",dpPendiente:true},
+  {id:"poseidon",camp:0,emoji:"🔱",name:"Poseidón",cls:"—",faction:"Dioses Estelares",url:"https://nivel20.com/s/w36ozczc",img:"",dpPendiente:true},
+  // REPÚBLICA INTERESTELAR
+  {id:"leonhard",camp:0,emoji:"🧪",name:"Leonhard von Braun",cls:"—",faction:"República Interestelar",url:"https://nivel20.com/s/lycjzczc",img:"",dpPendiente:true},
+  {id:"emily",camp:0,emoji:"⚡",name:"Emily Tesla",cls:"—",faction:"República Interestelar",url:"https://nivel20.com/s/vbyrzczc",img:"",dpPendiente:true},
+  {id:"julius",camp:0,emoji:"💡",name:"Julius Edison",cls:"—",faction:"República Interestelar",url:"https://nivel20.com/s/jprmzczc",img:"",dpPendiente:true},
+  // HELLDIVERS
+  {id:"esmeralda",camp:0,emoji:"🪖",name:"Esmeralda Cisneros",cls:"—",faction:"Helldivers",url:"https://nivel20.com/s/sj26zczc",img:"",dpPendiente:true},
+  {id:"samanta",camp:0,emoji:"💥",name:"Samanta Noriega",cls:"—",faction:"Helldivers",url:"https://nivel20.com/s/sj22zczc",img:"",dpPendiente:true},
+  {id:"bruno",camp:0,emoji:"🔫",name:"Bruno Martínez",cls:"—",faction:"Helldivers",url:"https://nivel20.com/s/11topzczc",img:"",dpPendiente:true},
+  {id:"miguel-x",camp:0,emoji:"⚔️",name:"Miguel Xabat, el Aniquilador",cls:"—",faction:"Helldivers",url:"https://nivel20.com/s/10gp1zczc",img:"",dpPendiente:true},
+  {id:"selene-x",camp:0,emoji:"🌙",name:"Selene Xabat, la Insólita",cls:"—",faction:"Helldivers",url:"https://nivel20.com/s/1178gzczc",img:"",dpPendiente:true},
+  {id:"lucia-x",camp:0,emoji:"🛡️",name:"Lucía Xabat, la Inamovible",cls:"—",faction:"Helldivers",url:"https://nivel20.com/s/117gtzczc",img:"",dpPendiente:true},
+  {id:"isabel-x",camp:0,emoji:"💨",name:"Isabel Xabat, la Inalcanzable",cls:"—",faction:"Helldivers",url:"https://nivel20.com/s/117d0zczc",img:"",dpPendiente:true},
+  // IMPERIO DE SIGMAR
+  {id:"anacoreta",camp:0,emoji:"📿",name:"Anacoreta",cls:"—",faction:"Imperio de Sigmar",url:"https://nivel20.com/s/wjgkzczc",img:"",dpPendiente:true},
+  {id:"neoth",camp:0,emoji:"👑",name:"Neoth (Emperador de la Humanidad)",cls:"—",faction:"Imperio de Sigmar",url:"https://nivel20.com/s/wdouzczc",img:"",dpPendiente:true},
+  {id:"marina",camp:0,emoji:"🔬",name:"Marina Curie",cls:"—",faction:"Imperio de Sigmar",url:"https://nivel20.com/s/wdqezczc",img:"",dpPendiente:true},
+  {id:"khuree",camp:0,emoji:"🏹",name:"Khuree Zoriktogtokh",cls:"—",faction:"Imperio de Sigmar",url:"https://nivel20.com/s/wdjkzczc",img:"",dpPendiente:true},
+  {id:"mikhail",camp:0,emoji:"🧠",name:"Mikhail Xavier",cls:"—",faction:"Imperio de Sigmar",url:"https://nivel20.com/s/wdj6zczc",img:"",dpPendiente:true},
+  {id:"dakari",camp:0,emoji:"⚡",name:"Dakari Jorun",cls:"—",faction:"Imperio de Sigmar",url:"https://nivel20.com/s/uys7zczc",img:"",dpPendiente:true},
+  {id:"quintus",camp:0,emoji:"⚖️",name:"Quintus Valerius",cls:"—",faction:"Imperio de Sigmar",url:"https://nivel20.com/s/w9s3zczc",img:"",dpPendiente:true},
+  {id:"dimitrius",camp:0,emoji:"☀️",name:"Dimitrius Lucis",cls:"—",faction:"Imperio de Sigmar",url:"https://nivel20.com/s/xl4gzczc",img:"",dpPendiente:true},
+  {id:"garviel",camp:0,emoji:"🏰",name:"Garviel Castellan",cls:"—",faction:"Imperio de Sigmar",url:"https://nivel20.com/s/wdhyzczc",img:"",dpPendiente:true},
+  {id:"arcadio",camp:0,emoji:"📖",name:"Arcadio Albus",cls:"—",faction:"Imperio de Sigmar",url:"https://nivel20.com/s/uyu5zczc",img:"",dpPendiente:true},
+  {id:"kael",camp:0,emoji:"🌫️",name:"Kael Haze",cls:"—",faction:"Imperio de Sigmar",url:"https://nivel20.com/s/v68kzczc",img:"",dpPendiente:true},
+  {id:"caleus",camp:0,emoji:"🌿",name:"Caleus",cls:"—",faction:"Imperio de Sigmar",url:"https://nivel20.com/s/m0d8zczc",img:"",dpPendiente:true},
+  {id:"isolde",camp:0,emoji:"🌹",name:"Isolde Valeria",cls:"—",faction:"Imperio de Sigmar",url:"https://nivel20.com/s/19yqezczc",img:"",dpPendiente:true},
+  // NAVEGANTES DEL VALHALLA
+  {id:"lunaria",camp:0,emoji:"🌙",name:"Lunaria",cls:"—",faction:"Navegantes del Valhalla",url:"https://nivel20.com/s/we8rzczc",img:"",dpPendiente:true},
+  {id:"arlan",camp:0,emoji:"⚓",name:"Arlan",cls:"—",faction:"Navegantes del Valhalla",url:"https://nivel20.com/s/t5shzczc",img:"",dpPendiente:true},
+  {id:"gale",camp:0,emoji:"🌬️",name:"Gale",cls:"—",faction:"Navegantes del Valhalla",url:"https://nivel20.com/s/we0rzczc",img:"",dpPendiente:true},
+  {id:"ragnar",camp:0,emoji:"🪓",name:"Ragnar",cls:"—",faction:"Navegantes del Valhalla",url:"https://nivel20.com/s/18akczczc",img:"",dpPendiente:true},
+  // PASAJEROS NÓMADAS
+  {id:"suu",camp:0,emoji:"🌺",name:"Suu",cls:"—",faction:"Pasajeros Nómadas",url:"https://nivel20.com/s/yx2yzczc",img:"",dpPendiente:true},
+  {id:"miel",camp:0,emoji:"🍯",name:"Miel",cls:"—",faction:"Pasajeros Nómadas",url:"https://nivel20.com/s/r30yzczc",img:"",dpPendiente:true},
+  {id:"julian",camp:0,emoji:"🎯",name:"Julian",cls:"—",faction:"Pasajeros Nómadas",url:"https://nivel20.com/s/r0ymzczc",img:"",dpPendiente:true},
+  {id:"aarav",camp:0,emoji:"🕷️",name:"Aarav, la Aranara",cls:"—",faction:"Pasajeros Nómadas",url:"https://nivel20.com/s/r1mszczc",img:"",dpPendiente:true},
+  {id:"aaron",camp:0,emoji:"🔩",name:"Aaron Roberts",cls:"—",faction:"Pasajeros Nómadas",url:"https://nivel20.com/s/r1khzczc",img:"",dpPendiente:true},
+  {id:"anker",camp:0,emoji:"⚓",name:"Anker",cls:"—",faction:"Pasajeros Nómadas",url:"https://nivel20.com/s/shwuzczc",img:"",dpPendiente:true},
+  {id:"marius-b",camp:0,emoji:"🧲",name:"Marius Brackman",cls:"—",faction:"Pasajeros Nómadas",url:"https://nivel20.com/s/16w0nzczc",img:"",dpPendiente:true},
+  {id:"titanoclad",camp:0,emoji:"🤖",name:"Titanoclad",cls:"—",faction:"Pasajeros Nómadas",url:"https://nivel20.com/s/x4wuzczc",img:"",dpPendiente:true},
+  {id:"setaru",camp:0,emoji:"♾️",name:"Setaru Gojo",cls:"—",faction:"Pasajeros Nómadas",url:"https://nivel20.com/s/12nqizczc",img:"",dpPendiente:true},
+  {id:"orianna",camp:0,emoji:"🎶",name:"Orianna Áxander",cls:"—",faction:"Pasajeros Nómadas",url:"https://nivel20.com/s/12ugezczc",img:"",dpPendiente:true},
+  {id:"luis-m",camp:0,emoji:"🗡️",name:"Luis Montenegro",cls:"—",faction:"Pasajeros Nómadas",url:"https://nivel20.com/s/lqr2zczc",img:"",dpPendiente:true},
+  {id:"freya-c",camp:0,emoji:"🌿",name:"Freya Casey",cls:"—",faction:"Pasajeros Nómadas",url:"https://nivel20.com/s/xnw9zczc",img:"",dpPendiente:true},
+  // TRIPULACIÓN
+  {id:"johanna",camp:0,emoji:"🌊",name:"Johanna Alcala",cls:"—",faction:"Tripulación Stultifera Navis",url:"https://nivel20.com/s/x7vyzczc",img:"",dpPendiente:true},
+  {id:"conrad",camp:0,emoji:"⚙️",name:"Conrad Alcala",cls:"—",faction:"Tripulación Stultifera Navis",url:"https://nivel20.com/s/1359bzczc",img:"",dpPendiente:true},
+  {id:"mon3tr",camp:0,emoji:"🤖",name:"Mon3tr",cls:"—",faction:"Tripulación Stultifera Navis",url:"https://nivel20.com/s/12nk9zczc",img:"",dpPendiente:true},
+  {id:"sol-rojo",camp:0,emoji:"☀️",name:"Maquinaria Valerosa: Sol Rojo",cls:"—",faction:"Tripulación Stultifera Navis",url:"https://nivel20.com/s/12ni8zczc",img:"",dpPendiente:true},
+  {id:"cepheus",camp:0,emoji:"🚀",name:"Cepheus Kirk",cls:"—",faction:"Tripulación Stultifera Navis",url:"https://nivel20.com/s/11tglzczc",img:"",dpPendiente:true},
+  {id:"erica",camp:0,emoji:"🔬",name:"Erica Browning",cls:"—",faction:"Tripulación Stultifera Navis",url:"https://nivel20.com/s/ux5vzczc",img:"",dpPendiente:true},
+  {id:"alia",camp:0,emoji:"✨",name:"Alia",cls:"—",faction:"Tripulación Stultifera Navis",url:"https://nivel20.com/games/dnd-5/campaigns/45678-stultifera-navis/creatures/48366-alia",img:"",dpPendiente:true},
+  {id:"ayre",camp:0,emoji:"🌸",name:"Ayre Edelweiss",cls:"—",faction:"Tripulación Stultifera Navis",url:"https://nivel20.com/s/1a4bvzczc",img:"",dpPendiente:true},
+  {id:"pandora",camp:0,emoji:"📦",name:"Pandora",cls:"—",faction:"Tripulación Stultifera Navis",url:"https://nivel20.com/s/1a7gwzczc",img:"",dpPendiente:true},
+];
+
+// ─── STATE ───
+let selected = new Set();
+let activeTab = 0;
+let activeFaction = {};
+let editingId = null;
+let pendingImg = "";
+
+// ─── TAGS ───
+function buildTags(n){
+  if(n.dpPendiente) return [{t:"⏳ DP pendientes",c:"pend"}];
+  const t=[];
+  if((parseInt(n.cargos)||0)>0) t.push({t:`Cargos ×${n.cargos}`,c:"cg"});
+  if(n.donEstrellas) t.push({t:"✦ Don de las Estrellas",c:"sp"});
+  if(n.armaArca) t.push({t:n.armaArcaDespertada?"⚡ Arma Arca (Despertada)":"⚔️ Arma Proyecto Arca",c:n.armaArcaDespertada?"wa":"wp"});
+  if(n.doteHeroico) t.push({t:"Dote Heroico",c:"my"});
+  if(n.piedad) t.push({t:"Piedad",c:"ep"});
+  if((parseInt(n.panteismo)||0)>0) t.push({t:`Panteísmo ×${n.panteismo}`,c:"ep"});
+  if((parseInt(n.bendEpicas)||0)>0) t.push({t:`Bend. Épica ×${n.bendEpicas}`,c:"ep"});
+  if((parseInt(n.bendMiticas)||0)>0) t.push({t:`Bend. Mítica ×${n.bendMiticas}`,c:"my"});
+  if((parseInt(n.conjMiticos)||0)>0) t.push({t:`Conjuro Mítico ×${n.conjMiticos}`,c:"my"});
+  if((parseInt(n.maniMiticas)||0)>0) t.push({t:`Maniobra Mítica ×${n.maniMiticas}`,c:"my"});
+  if(n.armLegendaria) t.push({t:"Armadura Legendaria",c:"my"});
+  if(n.armMuyRara) t.push({t:"Armadura Muy Rara",c:"ep"});
+  if(n.armtoLegendario) t.push({t:"Armamento Legendario",c:"my"});
+  if(n.armtoMuyRaro) t.push({t:"Armamento Muy Raro",c:"ep"});
+  if((parseInt(n.altoPoder)||0)>0) t.push({t:`Alto Poder ×${n.altoPoder}`,c:"wp"});
+  if(n.avatar) t.push({t:`Avatar${(parseInt(n.rupturas)||0)>0?` (${n.rupturas} rupt.)`:""}`,c:"sp"});
+  if(n.setPrimordial) t.push({t:"⚜️ Set Primordial",c:"sp"});
+  return t;
+}
+
+// ─── RENDER CARD ───
+function renderCard(npc){
+  const {dp,bd,pend}=calcDP(npc);
+  const fi=FI[npc.faction]||{cls:"f-def",emoji:"?"};
+  const isSel=selected.has(npc.id);
+  const tags=buildTags(npc);
+  const dpc=dpCls(dp);
+
+  const tagHTML=tags.slice(0,5).map(t=>`<span class="tag ${t.c}">${t.t}</span>`).join("")
+    +(tags.length>5?`<span class="tag">+${tags.length-5} más</span>`:"");
+
+  const bdHTML=pend
+    ?`<p style="font-size:12px;color:var(--text3);font-style:italic">Usa el botón ✏️ para configurar los DP de este personaje.</p>`
+    :bd.map(r=>`<div class="brow"><span>${r.l}</span><span class="bv">+${r.v}</span></div>`).join("");
+
+  const linkHTML=npc.url
+    ?`<a class="n20-link" href="${npc.url}" target="_blank" rel="noopener" onclick="event.stopPropagation()"><svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 2H3a1 1 0 00-1 1v10a1 1 0 001 1h10a1 1 0 001-1V9M13 3l-6 6M9 3h4v4"/></svg>Ver en Level20</a>`:"";
+
+  const div=document.createElement("div");
+  div.className=`card${isSel?" selected":""}`;
+  div.id=`c-${npc.id}`;
+  div.innerHTML=`
+    <button class="cedit" title="Editar personaje">✏️</button>
+    <div class="card-head">
+      <div class="ava">${npc.img?`<img src="${npc.img}" alt="${npc.name}">`:npc.emoji}</div>
+      <div class="name-area">
+        <div class="npc-name">${npc.name}</div>
+        <div class="npc-class">${npc.cls}</div>
+        <span class="npc-faction ${fi.cls}">${fi.emoji} ${npc.faction}</span>
+      </div>
+      <div class="dp-badge ${dpc}"><span class="n">${dp}</span><span class="u">DP</span></div>
+    </div>
+    <div class="card-body"><div class="tags">${tagHTML||'<span class="tag pend">Sin rasgos especiales</span>'}</div></div>
+    <button class="bd-toggle" id="bt-${npc.id}"><span>${pend?"Configurar DP →":`Desglose (${bd.length} factores)`}</span><span class="arr">▾</span></button>
+    <div class="breakdown" id="bd-${npc.id}">${bdHTML}${linkHTML}</div>`;
+
+  div.querySelector(".cedit").addEventListener("click",e=>{e.stopPropagation();openEditNPC(npc.id);});
+  div.querySelector(".bd-toggle").addEventListener("click",e=>{
+    e.stopPropagation();
+    div.querySelector(`#bd-${npc.id}`).classList.toggle("open");
+    div.querySelector(`#bt-${npc.id}`).classList.toggle("open");
+  });
+  div.addEventListener("click",()=>toggleNPC(npc.id));
+  return div;
+}
+
+// ─── RENDER GRID ───
+function renderGrid(campId,faction,search){
+  const grid=document.getElementById(`grid${campId}`);
+  if(!grid) return;
+  let list=NPCS.filter(n=>n.camp===campId);
+  if(faction) list=list.filter(n=>n.faction===faction);
+  if(search) list=list.filter(n=>n.name.toLowerCase().includes(search.toLowerCase()));
+  grid.innerHTML="";
+  if(!list.length){grid.innerHTML='<div class="empty-grid">No se encontraron personajes.</div>';return;}
+  list.forEach(n=>grid.appendChild(renderCard(n)));
+}
+
+// ─── RENDER FACTION BTNS ───
+function renderFactionBtns(campId){
+  const cont=document.getElementById(`fb${campId}`);
+  if(!cont) return;
+  cont.innerHTML="";
+  const factions=[...new Set(NPCS.filter(n=>n.camp===campId).map(n=>n.faction))];
+  const allBtn=document.createElement("button");
+  allBtn.className="fbtn active";
+  allBtn.textContent="Todas";
+  allBtn.addEventListener("click",()=>{
+    activeFaction[campId]=null;
+    cont.querySelectorAll(".fbtn").forEach(b=>b.classList.remove("active"));
+    allBtn.classList.add("active");
+    renderGrid(campId,null,getSearch(campId));
+  });
+  cont.appendChild(allBtn);
+  factions.forEach(f=>{
+    const fi=FI[f]||{emoji:""};
+    const btn=document.createElement("button");
+    btn.className="fbtn";
+    btn.textContent=`${fi.emoji} ${f}`;
+    btn.addEventListener("click",()=>{
+      activeFaction[campId]=f;
+      cont.querySelectorAll(".fbtn").forEach(b=>b.classList.remove("active"));
+      btn.classList.add("active");
+      renderGrid(campId,f,getSearch(campId));
+    });
+    cont.appendChild(btn);
+  });
+}
+
+function getSearch(campId){
+  return document.querySelector(`#panel${campId} .search`)?.value||"";
+}
+
+// ─── RENDER TABS & PANELS ───
+function renderTabs(){
+  const container=document.getElementById("tabs-container");
+  const actions=document.getElementById("tab-actions");
+  container.innerHTML="";
+  container.appendChild(actions);
+  campaigns.forEach(c=>{
+    const cnt=NPCS.filter(n=>n.camp===c.id).length;
+    const btn=document.createElement("button");
+    btn.className=`tab-btn${c.id===activeTab?" active":""}`;
+    btn.innerHTML=`${c.name}<span class="cnt">${cnt}</span>`;
+    btn.addEventListener("click",()=>switchTab(c.id));
+    container.insertBefore(btn,actions);
+  });
+}
+
+function renderPanels(){
+  const main=document.getElementById("main-panels");
+  main.innerHTML="";
+  campaigns.forEach(c=>{
+    const panel=document.createElement("div");
+    panel.className=`tab-panel${c.id===activeTab?" active":""}`;
+    panel.id=`panel${c.id}`;
+    panel.innerHTML=`
+      <div class="camp-title-row">
+        <span class="camp-title" id="ctitle${c.id}">${c.name}</span>
+        <button class="edit-cn-btn" title="Renombrar" onclick="startEditCampName(${c.id})">✏️</button>
+      </div>
+      <div class="filters">
+        <span class="filter-lbl">Facción:</span>
+        <div class="faction-btns" id="fb${c.id}"></div>
+        <input type="text" class="search" placeholder="Buscar…" oninput="renderGrid(${c.id},activeFaction[${c.id}],this.value)">
+      </div>
+      <div class="grid" id="grid${c.id}"></div>`;
+    main.appendChild(panel);
+  });
+}
+
+function fullRender(){
+  renderTabs();
+  renderPanels();
+  campaigns.forEach(c=>{renderFactionBtns(c.id);renderGrid(c.id,activeFaction[c.id],null);});
+  // respect auth state
+  if(!isLoggedIn){
+    document.querySelectorAll(".cedit").forEach(b=>b.style.display="none");
+    document.querySelectorAll(".edit-cn-btn").forEach(b=>b.style.display="none");
+  }
+}
+
+// ─── INTERACTIONS ───
+function switchTab(id){
+  activeTab=id;
+  document.querySelectorAll(".tab-btn").forEach(b=>{
+    b.classList.remove("active");
+    if(b.textContent.startsWith(campaigns.find(c=>c.id===id)?.name)) b.classList.add("active");
+  });
+  document.querySelectorAll(".tab-panel").forEach(p=>p.classList.toggle("active",p.id===`panel${id}`));
+  // re-activate correct tab btn
+  renderTabs();
+}
+
+function toggleNPC(id){
+  selected.has(id)?selected.delete(id):selected.add(id);
+  const card=document.getElementById(`c-${id}`);
+  if(card) card.classList.toggle("selected",selected.has(id));
+  updatePanel();
+}
+
+function updatePanel(){
+  const panel=document.getElementById("selPanel");
+  const chips=document.getElementById("selChips");
+  const totalEl=document.getElementById("totalDP");
+  const hdrDp=document.getElementById("hdr-dp");
+  const hdrCnt=document.getElementById("hdr-cnt");
+  if(!selected.size){
+    panel.classList.remove("vis");totalEl.textContent="0";hdrDp.textContent="0";hdrCnt.textContent="Ninguno";return;
+  }
+  panel.classList.add("vis");
+  let total=0,hasPend=false,html="";
+  selected.forEach(id=>{
+    const npc=NPCS.find(n=>n.id===id);if(!npc)return;
+    const {dp,pend}=calcDP(npc);
+    if(pend)hasPend=true;else total+=dp;
+    const avaHtml=npc.img?`<img src="${npc.img}" style="width:18px;height:18px;border-radius:50%;object-fit:cover">`:npc.emoji;
+    html+=`<div class="chip">${avaHtml} ${npc.name}<span class="chip-dp">${pend?"?":dp} DP</span><button class="chip-x" onclick="event.stopPropagation();toggleNPC('${id}')">×</button></div>`;
+  });
+  chips.innerHTML=html;
+  const disp=hasPend?`${total}+`:String(total);
+  totalEl.textContent=disp;hdrDp.textContent=disp;
+  hdrCnt.textContent=`${selected.size} NPC${selected.size>1?"s":""}`;
+}
+
+function clearAll(){
+  selected.clear();
+  document.querySelectorAll(".card.selected").forEach(c=>c.classList.remove("selected"));
+  updatePanel();
+}
+
+// ─── CAMPAIGN MANAGEMENT ───
+function addCampaign(){
+  const name=prompt("Nombre de la nueva campaña:");
+  if(!name?.trim()) return;
+  const newId=Math.max(...campaigns.map(c=>c.id))+1;
+  campaigns.push({id:newId,name:name.trim()});
+  activeFaction[newId]=null;
+  fullRender();
+  switchTab(newId);
+}
+
+function startEditCampName(campId){
+  const titleEl=document.getElementById(`ctitle${campId}`);
+  const camp=campaigns.find(c=>c.id===campId);
+  if(!camp||!titleEl) return;
+  const input=document.createElement("input");
+  input.type="text";input.className="camp-name-input";input.value=camp.name;
+  titleEl.replaceWith(input);
+  input.focus();input.select();
+  const done=()=>{camp.name=input.value.trim()||camp.name;fullRender();};
+  input.addEventListener("blur",done);
+  input.addEventListener("keydown",e=>{if(e.key==="Enter")done();if(e.key==="Escape"){input.value=camp.name;done();}});
+}
+
+// ─── MODAL ───
+function openNewNPC(){
+  editingId=null;pendingImg="";
+  document.getElementById("modal-title").textContent="Nuevo Personaje";
+  document.getElementById("btn-del").style.display="none";
+  buildModalForm(null);
+  document.getElementById("npcModal").classList.add("open");
+}
+
+function openEditNPC(id){
+  editingId=id;pendingImg="";
+  const npc=NPCS.find(n=>n.id===id);
+  document.getElementById("modal-title").textContent=`Editar: ${npc.name}`;
+  document.getElementById("btn-del").style.display="block";
+  buildModalForm(npc);
+  document.getElementById("npcModal").classList.add("open");
+}
+
+function closeModal(){
+  document.getElementById("npcModal").classList.remove("open");
+  editingId=null;pendingImg="";
+}
+
+// helper: check row with optional number field
+function cr(id,label,dph,numId,v){
+  const hasNum=!!numId;
+  return `<div class="cr" id="cr_${id}">
+    <input type="checkbox" id="${id}">
+    <label for="${id}">${label}</label>
+    <span class="dph">${dph}</span>
+    ${hasNum?`<input type="number" class="cnum" id="${numId}" min="0" value="${v||0}" disabled>`:``}
+  </div>`;
+}
+function sr(id,label,dph){
+  return `<div class="sr"><input type="checkbox" id="${id}"><label for="${id}">${label}</label><span class="dph">${dph}</span></div>`;
+}
+function sub(id,html){
+  return `<div class="sub-list" id="sub_${id}">${html}</div>`;
+}
+
+function buildModalForm(n){
+  const campOpts=campaigns.map(c=>`<option value="${c.id}"${n&&n.camp===c.id?" selected":""}>${c.name}</option>`).join("");
+  const facOpts=Object.keys(FI).map(f=>`<option value="${f}"${n&&n.faction===f?" selected":""}>${FI[f].emoji} ${f}</option>`).join("")
+    +`<option value="__new">+ Nueva Facción…</option>`;
+
+  const imgPreview=n?.img?`<img class="img-prev" id="img-prev" src="${n.img}">`:`<div id="img-prev"></div>`;
+
+  document.getElementById("modal-body").innerHTML=`
+<div class="fsec">
+  <div class="fsec-t">Información General</div>
+  <div class="frow">
+    <div class="fg"><label>Nombre</label><input type="text" id="f_name" value="${n?.name||""}"></div>
+    <div class="fg"><label>Clase / Nivel</label><input type="text" id="f_cls" value="${n?.cls||""}"></div>
+  </div>
+  <div class="frow">
+    <div class="fg"><label>Campaña</label><select id="f_camp">${campOpts}</select></div>
+    <div class="fg"><label>Facción</label><select id="f_fac" onchange="onFacChange(this)">${facOpts}</select></div>
+  </div>
+  <div class="frow">
+    <div class="fg"><label>Emoji</label><input type="text" id="f_emoji" value="${n?.emoji||"⚔️"}" maxlength="4"></div>
+    <div class="fg"><label>Link Level20</label><input type="text" id="f_url" value="${n?.url||""}"></div>
+  </div>
+  <div class="frow full">
+    <div class="fg">
+      <label>Imagen</label>
+      <div class="img-area">
+        <input type="file" accept="image/*" onchange="onImgUpload(this)">
+        ${imgPreview}
+        <div class="img-txt" id="img-txt">${n?.img?"Clic para cambiar":"Clic o arrastra una imagen"}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="fsec">
+  <div class="fsec-t">Puntos de Despliegue</div>
+  <div style="display:flex;align-items:center;gap:9px;margin-bottom:12px">
+    <input type="checkbox" id="f_dpPend" onchange="toggleDP(this)" ${n?.dpPendiente!==false?"checked":""}>
+    <label for="f_dpPend" style="font-size:13px;color:var(--text2)">DP Pendientes de configurar</label>
+  </div>
+  <div id="dp_fields" style="${n?.dpPendiente===false?"":"display:none"}">
+
+    ${cr("f_cargos","Cargos Importantes","×1 DP c/u","f_cargos_n",n?.cargos)}
+    ${cr("f_donEstrellas","Don de las Estrellas","+2 DP")}
+    ${cr("f_armaArca","Arma del Proyecto Arca","+2 DP")}
+    ${sub("f_armaArca",sr("f_armaArcaDespertada","Arma Arca Despertada","+2 DP"))}
+    ${cr("f_doteHeroico","Dote Heroico","+1 DP")}
+    ${cr("f_piedad","Poseer una Piedad","+1 DP")}
+    ${cr("f_panteismo","Piedad de Panteísmo","×1 DP/dios","f_panteismo_n",n?.panteismo)}
+
+    <div style="margin:10px 0 6px;font-family:'Cinzel',serif;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3)">Poderes Míticos y Épicos</div>
+    ${cr("f_bendEpicas","Bendiciones Épicas","×1 DP c/u","f_bendEpicas_n",n?.bendEpicas)}
+    ${cr("f_bendMiticas","Bendiciones Míticas","×1 DP c/u","f_bendMiticas_n",n?.bendMiticas)}
+    ${cr("f_conjMiticos","Conjuros Míticos","×1 DP c/u","f_conjMiticos_n",n?.conjMiticos)}
+    ${cr("f_maniMiticas","Maniobras Míticas","×1 DP c/u","f_maniMiticas_n",n?.maniMiticas)}
+
+    <div style="margin:10px 0 6px;font-family:'Cinzel',serif;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3)">Entrenamientos</div>
+    ${cr("f_entrAtrib","≥2 Entrenamientos de Atributos","+1 DP","f_entrAtrib_n",n?.entrAtrib)}
+    ${cr("f_entrSalv","≥2 Entrenamientos de Salvaciones","+1 DP","f_entrSalv_n",n?.entrSalv)}
+    ${cr("f_dotesEntr","≥2 Dotes Entrenados","+1 DP","f_dotesEntr_n",n?.dotesEntr)}
+    ${cr("f_rasgosEntr","Rasgos Especiales Entrenados","cada 2 = +1 DP","f_rasgosEntr_n",n?.rasgosEntr)}
+
+    <div style="margin:10px 0 6px;font-family:'Cinzel',serif;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3)">Equipamiento</div>
+    ${cr("f_equipCompleto","Equipamiento Completo","+1 DP")}
+    ${cr("f_armMuyRara","Armadura Muy Rara (ej. Elerio)","+2 DP")}
+    ${sub("f_armMuyRara",sr("f_escMuyRaro","Escudo Muy Raro","+2 DP")+sr("f_servoMuyRara","Servo-Armadura (Muy Rara)","+1 DP"))}
+    ${cr("f_armLegendaria","Armadura Legendaria (ej. Auramita)","+4 DP")}
+    ${sub("f_armLegendaria",sr("f_escLegendario","Escudo Legendario","+4 DP")+sr("f_servoLegendaria","Servo-Armadura (Legendaria)","+2 DP"))}
+    ${cr("f_armtoMuyRaro","Armamento Muy Raro","+2 DP")}
+    ${sub("f_armtoMuyRaro",sr("f_armtoMuyRaroMas2","Más de 2 piezas Muy Raras","+1 DP"))}
+    ${cr("f_armtoLegendario","Armamento Legendario","+4 DP")}
+    ${sub("f_armtoLegendario",sr("f_armtoLegendarioMas2","Más de 2 piezas Legendarias","+2 DP"))}
+    ${cr("f_altoPoder","Armamento Alto Poder Destructivo","×3 DP c/u","f_altoPoder_n",n?.altoPoder)}
+    ${cr("f_consumibles","Consumibles/Munición Alto Poder","×1 DP/tipo","f_consumibles_n",n?.consumibles)}
+
+    <div style="margin:10px 0 6px;font-family:'Cinzel',serif;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3)">Otros</div>
+    ${cr("f_setPrimordial","Set Primordial Completo","+4 DP")}
+    ${cr("f_cartasMazo","Cartas Mazo Muchas Cosas (atributos)","×1 DP c/u","f_cartasMazo_n",n?.cartasMazo)}
+    ${sub("f_cartasMazo",sr("f_cartaEstrella","Una de ellas es La Estrella","+4 DP adicional"))}
+    ${cr("f_objAtrib","Objetos/Modif. que suban Atributos","×1 DP c/u","f_objAtrib_n",n?.objAtrib)}
+    ${cr("f_avatar","Avatar de una Divinidad","+3 DP")}
+    ${sub("f_avatar",
+      `<div class="sr"><label style="flex:1">Rupturas del Límite</label><span class="dph">×2 DP c/u</span><input type="number" id="f_rupturas" min="0" value="${n?.rupturas||0}" disabled style="width:52px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:4px 8px;color:var(--text);font-size:13px;outline:none"></div>`
+    )}
+
+  </div>
+</div>`;
+
+  // Set checked states if editing
+  if(n && n.dpPendiente===false){
+    const checks={
+      f_cargos:n.cargos>0,f_donEstrellas:n.donEstrellas,f_armaArca:n.armaArca,f_armaArcaDespertada:n.armaArcaDespertada,
+      f_doteHeroico:n.doteHeroico,f_piedad:n.piedad,f_panteismo:n.panteismo>0,
+      f_bendEpicas:n.bendEpicas>0,f_bendMiticas:n.bendMiticas>0,f_conjMiticos:n.conjMiticos>0,f_maniMiticas:n.maniMiticas>0,
+      f_entrAtrib:n.entrAtrib>0,f_entrSalv:n.entrSalv>0,f_dotesEntr:n.dotesEntr>0,f_rasgosEntr:n.rasgosEntr>0,
+      f_equipCompleto:n.equipCompleto,f_armMuyRara:n.armMuyRara,f_escMuyRaro:n.escMuyRaro,f_servoMuyRara:n.servoMuyRara,
+      f_armLegendaria:n.armLegendaria,f_escLegendario:n.escLegendario,f_servoLegendaria:n.servoLegendaria,
+      f_armtoMuyRaro:n.armtoMuyRaro,f_armtoMuyRaroMas2:n.armtoMuyRaroMas2,f_armtoLegendario:n.armtoLegendario,f_armtoLegendarioMas2:n.armtoLegendarioMas2,
+      f_altoPoder:n.altoPoder>0,f_consumibles:n.consumibles>0,f_setPrimordial:n.setPrimordial,
+      f_cartasMazo:n.cartasMazo>0,f_cartaEstrella:n.cartaEstrella,f_objAtrib:n.objAtrib>0,f_avatar:n.avatar,
+    };
+    Object.entries(checks).forEach(([id,val])=>{const el=document.getElementById(id);if(el)el.checked=!!val;});
+
+    // enable num fields
+    ["f_cargos","f_panteismo","f_bendEpicas","f_bendMiticas","f_conjMiticos","f_maniMiticas",
+     "f_entrAtrib","f_entrSalv","f_dotesEntr","f_rasgosEntr","f_altoPoder","f_consumibles","f_cartasMazo","f_objAtrib"].forEach(id=>{
+      const cb=document.getElementById(id);const numEl=document.getElementById(id+"_n");
+      if(cb&&numEl)numEl.disabled=!cb.checked;
+    });
+    const av=document.getElementById("f_avatar");const ru=document.getElementById("f_rupturas");
+    if(av&&ru)ru.disabled=!av.checked;
+
+    // show sub-lists
+    ["f_armaArca","f_armMuyRara","f_armLegendaria","f_armtoMuyRaro","f_armtoLegendario","f_cartasMazo","f_avatar"].forEach(id=>{
+      const cb=document.getElementById(id);const sub=document.getElementById("sub_"+id);
+      if(cb&&sub){sub.classList.toggle("show",cb.checked);}
+    });
+  }
+
+  // Attach change listeners for checkboxes
+  setTimeout(()=>{
+    ["f_cargos","f_panteismo","f_bendEpicas","f_bendMiticas","f_conjMiticos","f_maniMiticas",
+     "f_entrAtrib","f_entrSalv","f_dotesEntr","f_rasgosEntr","f_altoPoder","f_consumibles","f_cartasMazo","f_objAtrib"].forEach(id=>{
+      const cb=document.getElementById(id);if(!cb)return;
+      cb.addEventListener("change",()=>{
+        const numEl=document.getElementById(id+"_n");
+        if(numEl){numEl.disabled=!cb.checked;if(cb.checked)numEl.focus();}
+      });
+    });
+    ["f_armaArca","f_armMuyRara","f_armLegendaria","f_armtoMuyRaro","f_armtoLegendario","f_cartasMazo","f_avatar"].forEach(id=>{
+      const cb=document.getElementById(id);if(!cb)return;
+      cb.addEventListener("change",()=>{
+        const sub=document.getElementById("sub_"+id);if(sub)sub.classList.toggle("show",cb.checked);
+        if(id==="f_avatar"){const ru=document.getElementById("f_rupturas");if(ru)ru.disabled=!cb.checked;}
+      });
+    });
+  },0);
+}
+
+function toggleDP(cb){
+  document.getElementById("dp_fields").style.display=cb.checked?"none":"block";
+}
+
+function onFacChange(sel){
+  if(sel.value==="__new"){
+    const name=prompt("Nombre de la nueva facción:");
+    if(name?.trim()){
+      FI[name.trim()]={cls:"f-def",emoji:"⚔️"};
+      const opt=document.createElement("option");
+      opt.value=name.trim();opt.textContent=name.trim();opt.selected=true;
+      sel.insertBefore(opt,sel.lastElementChild);sel.value=name.trim();
+    } else sel.value=Object.keys(FI)[0];
+  }
+}
+
+function onImgUpload(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    pendingImg=e.target.result;
+    const prev=document.getElementById("img-prev");
+    if(prev.tagName==="IMG"){prev.src=pendingImg;}
+    else{const img=document.createElement("img");img.className="img-prev";img.id="img-prev";img.src=pendingImg;prev.replaceWith(img);}
+    const txt=document.getElementById("img-txt");if(txt)txt.textContent="Clic para cambiar";
+  };
+  reader.readAsDataURL(file);
+}
+
+function gv(id){const el=document.getElementById(id);return el?el.value:"";}
+function gc(id){const el=document.getElementById(id);return el?el.checked:false;}
+function gn(id){const el=document.getElementById(id);return el&&!el.disabled?parseInt(el.value)||0:0;}
+
+function saveNPC(){
+  const name=gv("f_name").trim();if(!name){alert("El nombre es obligatorio.");return;}
+  const imgData=pendingImg||(editingId?NPCS.find(n=>n.id===editingId)?.img:"");
+  const data={
+    name,cls:gv("f_cls")||"—",camp:parseInt(gv("f_camp")),faction:gv("f_fac"),
+    emoji:gv("f_emoji")||"⚔️",url:gv("f_url"),img:imgData||"",
+    dpPendiente:gc("f_dpPend"),
+    cargos:gn("f_cargos_n"),donEstrellas:gc("f_donEstrellas"),
+    armaArca:gc("f_armaArca"),armaArcaDespertada:gc("f_armaArcaDespertada"),
+    doteHeroico:gc("f_doteHeroico"),piedad:gc("f_piedad"),panteismo:gn("f_panteismo_n"),
+    bendEpicas:gn("f_bendEpicas_n"),bendMiticas:gn("f_bendMiticas_n"),
+    conjMiticos:gn("f_conjMiticos_n"),maniMiticas:gn("f_maniMiticas_n"),
+    entrAtrib:gn("f_entrAtrib_n"),entrSalv:gn("f_entrSalv_n"),dotesEntr:gn("f_dotesEntr_n"),rasgosEntr:gn("f_rasgosEntr_n"),
+    equipCompleto:gc("f_equipCompleto"),
+    armMuyRara:gc("f_armMuyRara"),escMuyRaro:gc("f_escMuyRaro"),servoMuyRara:gc("f_servoMuyRara"),
+    armLegendaria:gc("f_armLegendaria"),escLegendario:gc("f_escLegendario"),servoLegendaria:gc("f_servoLegendaria"),
+    armtoMuyRaro:gc("f_armtoMuyRaro"),armtoMuyRaroMas2:gc("f_armtoMuyRaroMas2"),
+    armtoLegendario:gc("f_armtoLegendario"),armtoLegendarioMas2:gc("f_armtoLegendarioMas2"),
+    altoPoder:gn("f_altoPoder_n"),consumibles:gn("f_consumibles_n"),
+    setPrimordial:gc("f_setPrimordial"),
+    cartasMazo:gn("f_cartasMazo_n"),cartaEstrella:gc("f_cartaEstrella"),
+    objAtrib:gn("f_objAtrib_n"),avatar:gc("f_avatar"),rupturas:gn("f_rupturas"),
+  };
+  if(editingId){
+    const idx=NPCS.findIndex(n=>n.id===editingId);
+    if(idx>=0)NPCS[idx]={...NPCS[idx],...data};
+  } else {
+    data.id="npc_"+Date.now();
+    NPCS.push(data);
+  }
+  pendingImg="";closeModal();fullRender();updatePanel();
+}
+
+function deleteNPC(){
+  if(!editingId)return;
+  const npc=NPCS.find(n=>n.id===editingId);
+  if(!confirm(`¿Eliminar a ${npc?.name}? No se puede deshacer.`))return;
+  selected.delete(editingId);NPCS=NPCS.filter(n=>n.id!==editingId);
+  closeModal();fullRender();updatePanel();
+}
+
+// ─── AUTH ───
+const AUTH_USER = "jugador";
+const AUTH_PASS = "sabydom2026";
+let isLoggedIn = false;
+
+function authClick(){
+  if(isLoggedIn){ logout(); } else { openLogin(); }
+}
+function openLogin(){
+  document.getElementById("loginModal").classList.add("open");
+  document.getElementById("login-user").value="";
+  document.getElementById("login-pass").value="";
+  document.getElementById("login-err").textContent="";
+  setTimeout(()=>document.getElementById("login-user").focus(),50);
+}
+function closeLogin(){
+  document.getElementById("loginModal").classList.remove("open");
+}
+function doLogin(){
+  const u=document.getElementById("login-user").value.trim();
+  const p=document.getElementById("login-pass").value;
+  if(u===AUTH_USER && p===AUTH_PASS){
+    isLoggedIn=true;
+    closeLogin();
+    const btn=document.getElementById("auth-btn");
+    btn.textContent="🔓 jugador";
+    btn.classList.add("logged");
+    document.getElementById("btn-new-npc").style.display="";
+    document.getElementById("btn-new-camp").style.display="";
+    // show edit buttons on all cards
+    document.querySelectorAll(".cedit").forEach(b=>b.style.display="");
+    // show campaign rename buttons
+    document.querySelectorAll(".edit-cn-btn").forEach(b=>b.style.display="");
+  } else {
+    document.getElementById("login-err").textContent="Usuario o contraseña incorrectos.";
+    document.getElementById("login-pass").value="";
+    document.getElementById("login-pass").focus();
+  }
+}
+function logout(){
+  if(!confirm("¿Salir del modo edición?")) return;
+  isLoggedIn=false;
+  const btn=document.getElementById("auth-btn");
+  btn.innerHTML="🔒 Editar";
+  btn.classList.remove("logged");
+  document.getElementById("btn-new-npc").style.display="none";
+  document.getElementById("btn-new-camp").style.display="none";
+  document.querySelectorAll(".cedit").forEach(b=>b.style.display="none");
+  document.querySelectorAll(".edit-cn-btn").forEach(b=>b.style.display="none");
+}
+
+// ─── INIT ───
+campaigns.forEach(c=>activeFaction[c.id]=null);
+fullRender();
+// hide edit controls until logged in
+document.querySelectorAll(".cedit").forEach(b=>b.style.display="none");
+document.querySelectorAll(".edit-cn-btn").forEach(b=>b.style.display="none");
+</script>
+</body>
+</html>
