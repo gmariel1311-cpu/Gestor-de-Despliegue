@@ -356,6 +356,16 @@ function calcDP(n) {
     add(rp*2, `Rupturas del Límite ×${rp} → +${rp*2} DP`);
   }
   if(n.setPrimordial) add(4,"Set Primordial Completo");
+  // Familiares en combate
+  if(n.familiares){ add(2,"Familiares en Combate"); if(n.familiaresAltoPoder) add(4,"Familiares de Alto Poder"); }
+  // Clase adicional +3 base + (número × 2)
+  if(n.claseAdicional){
+    add(3,"Clase Adicional");
+    const ca = parseInt(n.clasesExtra)||0;
+    add(ca*2, `Clases Extra ×${ca} → +${ca*2} DP`);
+  }
+  // Carta La Lanza +3 + subcasilla honor y cordura +1
+  if(n.cartaLanza){ add(3,"Carta: La Lanza"); if(n.cartaLanzaHonor) add(1,"La Lanza: Honor y Cordura"); }
   return {dp, bd, pend:false};
 }
 function dpCls(dp){ if(dp==="?") return "dp-pend"; if(dp<=4) return "dp-lo"; if(dp<=8) return "dp-md"; return "dp-hi"; }
@@ -473,6 +483,9 @@ function buildTags(n){
   if((parseInt(n.transformacion)||0)>0) t.push({t:`✨ Transformación ×${n.transformacion}`,c:"sp"});
   if(n.avatar) t.push({t:`Avatar${(parseInt(n.rupturas)||0)>0?` (${n.rupturas} rupt.)`:""}`,c:"sp"});
   if(n.setPrimordial) t.push({t:"⚜️ Set Primordial",c:"sp"});
+  if(n.familiares) t.push({t:n.familiaresAltoPoder?"👾 Familiares Alto Poder":"👾 Familiares",c:n.familiaresAltoPoder?"wp":"ep"});
+  if(n.claseAdicional) t.push({t:`Clase Adicional${(parseInt(n.clasesExtra)||0)>0?` ×${n.clasesExtra}`:""}`,c:"cg"});
+  if(n.cartaLanza) t.push({t:n.cartaLanzaHonor?"🗡️ La Lanza (Honor)":"🗡️ La Lanza",c:"wp"});
   return t;
 }
 
@@ -822,15 +835,19 @@ function buildModalForm(n){
     ${cr("f_cartasMazo","Cartas Mazo Muchas Cosas (atributos)","×1 DP c/u","f_cartasMazo_n",n?.cartasMazo)}
     ${cr("f_cartaEstrella","Carta: La Estrella","×3 DP c/vez","f_cartaEstrella_n",n?.cartaEstrella)}
     ${cr("f_cartaArbol","Carta: El Árbol","+4 DP")}
+    ${cr("f_cartaLanza","Carta: La Lanza","+3 DP")}
+    ${sub("f_cartaLanza",sr("f_cartaLanzaHonor","Se juega con Honor y Cordura","+1 DP"))}
 
     <div style="margin:10px 0 6px;font-family:'Cinzel',serif;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3)">Otros</div>
     ${cr("f_setPrimordial","Set Primordial Completo","+4 DP")}
+    ${cr("f_familiares","Familiares en Combate","+2 DP")}
+    ${sub("f_familiares",sr("f_familiaresAltoPoder","Familiares de Alto Poder","+4 DP"))}
+    ${cr("f_claseAdicional","Clase Adicional","+3 DP")}
+    ${sub("f_claseAdicional",`<div class="sr"><label style="flex:1">Clases Extra</label><span class="dph">×2 DP c/u</span><input type="number" id="f_clasesExtra" min="0" value="${n?.clasesExtra||0}" disabled style="width:52px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:4px 8px;color:var(--text);font-size:13px;outline:none"></div>`)}
     ${cr("f_objAtrib","Objetos/Modif. que suban Atributos","×1 DP c/u","f_objAtrib_n",n?.objAtrib)}
     ${cr("f_transformacion","Transformación Sobrenatural","×2 DP c/u","f_transformacion_n",n?.transformacion)}
     ${cr("f_avatar","Avatar de una Divinidad","+3 DP")}
-    ${sub("f_avatar",
-      `<div class="sr"><label style="flex:1">Rupturas del Límite</label><span class="dph">×2 DP c/u</span><input type="number" id="f_rupturas" min="0" value="${n?.rupturas||0}" disabled style="width:52px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:4px 8px;color:var(--text);font-size:13px;outline:none"></div>`
-    )}
+    ${sub("f_avatar",`<div class="sr"><label style="flex:1">Rupturas del Límite</label><span class="dph">×2 DP c/u</span><input type="number" id="f_rupturas" min="0" value="${n?.rupturas||0}" disabled style="width:52px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:4px 8px;color:var(--text);font-size:13px;outline:none"></div>`)}
 
   </div>
 </div>`;
@@ -853,7 +870,10 @@ function buildModalForm(n){
       f_tesoroDivino:(n.tesoroDivino||0)>0,
       f_cartasMazo:(n.cartasMazo||0)>0, f_cartaEstrella:(n.cartaEstrella||0)>0,
       f_cartaArbol:n.cartaArbol,
+      f_cartaLanza:(n.cartaLanza||false), f_cartaLanzaHonor:(n.cartaLanzaHonor||false),
       f_setPrimordial:n.setPrimordial, f_objAtrib:(n.objAtrib||0)>0,
+      f_familiares:(n.familiares||false), f_familiaresAltoPoder:(n.familiaresAltoPoder||false),
+      f_claseAdicional:(n.claseAdicional||false),
       f_transformacion:(n.transformacion||0)>0, f_avatar:n.avatar,
     };
     Object.entries(checks).forEach(([id,val])=>{const el=document.getElementById(id);if(el)el.checked=!!val;});
@@ -867,9 +887,11 @@ function buildModalForm(n){
     });
     const av=document.getElementById("f_avatar");const ru=document.getElementById("f_rupturas");
     if(av&&ru)ru.disabled=!av.checked;
+    const clA=document.getElementById("f_claseAdicional");const ceEl=document.getElementById("f_clasesExtra");
+    if(clA&&ceEl)ceEl.disabled=!clA.checked;
 
     // show sub-lists
-    ["f_armMuyRara","f_armLegendaria","f_armtoMuyRaro","f_armtoLegendario","f_avatar"].forEach(id=>{
+    ["f_armMuyRara","f_armLegendaria","f_armtoMuyRaro","f_armtoLegendario","f_familiares","f_claseAdicional","f_cartaLanza","f_avatar"].forEach(id=>{
       const cb=document.getElementById(id);const sub=document.getElementById("sub_"+id);
       if(cb&&sub) sub.classList.toggle("show",cb.checked);
     });
@@ -886,11 +908,12 @@ function buildModalForm(n){
         if(numEl){numEl.disabled=!cb.checked;if(cb.checked)numEl.focus();}
       });
     });
-    ["f_armMuyRara","f_armLegendaria","f_armtoMuyRaro","f_armtoLegendario","f_avatar"].forEach(id=>{
+    ["f_armMuyRara","f_armLegendaria","f_armtoMuyRaro","f_armtoLegendario","f_familiares","f_claseAdicional","f_cartaLanza","f_avatar"].forEach(id=>{
       const cb=document.getElementById(id);if(!cb)return;
       cb.addEventListener("change",()=>{
         const sub=document.getElementById("sub_"+id);if(sub)sub.classList.toggle("show",cb.checked);
         if(id==="f_avatar"){const ru=document.getElementById("f_rupturas");if(ru)ru.disabled=!cb.checked;}
+        if(id==="f_claseAdicional"){const ce=document.getElementById("f_clasesExtra");if(ce)ce.disabled=!cb.checked;}
       });
     });
   },0);
@@ -951,7 +974,10 @@ async function saveNPC(){
     tesoroDivino:gn("f_tesoroDivino_n"),
     setPrimordial:gc("f_setPrimordial"),
     cartasMazo:gn("f_cartasMazo_n"),cartaEstrella:gn("f_cartaEstrella_n"),cartaArbol:gc("f_cartaArbol"),
+    cartaLanza:gc("f_cartaLanza"),cartaLanzaHonor:gc("f_cartaLanzaHonor"),
     objAtrib:gn("f_objAtrib_n"),transformacion:gn("f_transformacion_n"),
+    familiares:gc("f_familiares"),familiaresAltoPoder:gc("f_familiaresAltoPoder"),
+    claseAdicional:gc("f_claseAdicional"),clasesExtra:gc("f_claseAdicional")?parseInt(document.getElementById("f_clasesExtra")?.value)||0:0,
     avatar:gc("f_avatar"),rupturas:gn("f_rupturas"),
   };
 
@@ -1017,7 +1043,10 @@ function rowToNPC(r){
     altoPoder:r.alto_poder||0, consumibles:r.consumibles||0,
     tesoroDivino:r.tesoro_divino||0,
     cartasMazo:r.cartas_mazo||0, cartaEstrella:r.carta_estrella||0, cartaArbol:r.carta_arbol||false,
+    cartaLanza:r.carta_lanza||false, cartaLanzaHonor:r.carta_lanza_honor||false,
     objAtrib:r.obj_atrib||0, transformacion:r.transformacion||0,
+    familiares:r.familiares||false, familiaresAltoPoder:r.familiares_alto_poder||false,
+    claseAdicional:r.clase_adicional||false, clasesExtra:r.clases_extra||0,
     avatar:r.avatar, rupturas:r.rupturas||0, setPrimordial:r.set_primordial,
   };
 }
@@ -1041,7 +1070,10 @@ function npcToRow(n){
     alto_poder:n.altoPoder||0, consumibles:n.consumibles||0,
     tesoro_divino:n.tesoroDivino||0,
     cartas_mazo:n.cartasMazo||0, carta_estrella:n.cartaEstrella||0, carta_arbol:!!n.cartaArbol,
+    carta_lanza:!!n.cartaLanza, carta_lanza_honor:!!n.cartaLanzaHonor,
     obj_atrib:n.objAtrib||0, transformacion:n.transformacion||0,
+    familiares:!!n.familiares, familiares_alto_poder:!!n.familiaresAltoPoder,
+    clase_adicional:!!n.claseAdicional, clases_extra:n.clasesExtra||0,
     avatar:!!n.avatar, rupturas:n.rupturas||0, set_primordial:!!n.setPrimordial,
   };
 }
