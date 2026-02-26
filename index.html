@@ -331,6 +331,16 @@ function calcDP(n) {
   const bd = [{l:"Base (ficha de personaje)", v:2}];
   const add = (v,l) => { if(v>0){dp+=v;bd.push({l,v});} };
 
+  // Tipo de ficha
+  if(n.fichaNivel){
+    add(1,"Ficha de Nivel");
+    if(n.fichaParty){
+      add(1,"Nivel de la Party");
+      const ns = parseInt(n.fichaSuperior)||0;
+      add(ns, `Niveles por encima de la party ×${ns} → +${ns} DP`);
+    }
+  }
+
   add(parseInt(n.cargos)||0, `Cargos importantes ×${n.cargos}`);
   if(n.donEstrellas) add(2,"Don de las Estrellas");
   if(n.doteHeroico) add(1,"Dote Heroico");
@@ -486,6 +496,11 @@ const ROL_EMOJI = {"Tanque":"🛡️","Coloso":"💪","Asesino":"🗡️","Lucha
 function buildTags(n){
   if(n.dpPendiente) return [{t:"⏳ DP pendientes",c:"pend"}];
   const t=[];
+  if(n.fichaNivel){
+    if(n.fichaParty && (parseInt(n.fichaSuperior)||0)>0) t.push({t:`📋 Nivel +${n.fichaSuperior} sobre party`,c:"my"});
+    else if(n.fichaParty) t.push({t:"📋 Nivel de Party",c:"ep"});
+    else t.push({t:"📋 Ficha de Nivel",c:"cg"});
+  }
   if((parseInt(n.cargos)||0)>0) t.push({t:`Cargos ×${n.cargos}`,c:"cg"});
   if(n.donEstrellas) t.push({t:"✦ Don de las Estrellas",c:"sp"});
   if(n.doteHeroico) t.push({t:"Dote Heroico",c:"my"});
@@ -822,6 +837,15 @@ function buildModalForm(n){
   </div>
   <div id="dp_fields" style="${n?.dpPendiente===false?"":"display:none"}">
 
+    <div style="margin:0 0 8px;font-family:'Cinzel',serif;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3)">Tipo de Ficha</div>
+    ${cr("f_fichaNivel","Ficha de Nivel (no de criatura)","+1 DP")}
+    ${sub("f_fichaNivel",
+      sr("f_fichaParty","Nivel de la Party","+1 DP")+
+      `<div class="sub-list" id="sub_f_fichaParty">
+        <div class="sr"><label style="flex:1">Niveles por encima de la party</label><span class="dph">×1 DP c/u</span><input type="number" id="f_fichaSuperior" min="0" value="${n?.fichaSuperior||0}" disabled style="width:52px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:4px 8px;color:var(--text);font-size:13px;outline:none"></div>
+      </div>`
+    )}
+
     ${cr("f_cargos","Cargos Importantes","×1 DP c/u","f_cargos_n",n?.cargos)}
     ${cr("f_donEstrellas","Don de las Estrellas","+2 DP")}
     ${cr("f_doteHeroico","Dote Heroico","+1 DP")}
@@ -878,6 +902,7 @@ function buildModalForm(n){
   // Set checked states if editing
   if(n && n.dpPendiente===false){
     const checks={
+      f_fichaNivel:(n.fichaNivel||false), f_fichaParty:(n.fichaParty||false),
       f_cargos:(n.cargos||0)>0, f_donEstrellas:n.donEstrellas,
       f_doteHeroico:n.doteHeroico, f_piedad:n.piedad, f_panteismo:(n.panteismo||0)>0,
       f_bendEpicas:(n.bendEpicas||0)>0, f_bendMiticas:(n.bendMiticas||0)>0,
@@ -914,10 +939,13 @@ function buildModalForm(n){
     if(clA&&ceEl)ceEl.disabled=!clA.checked;
 
     // show sub-lists
-    ["f_armMuyRara","f_armLegendaria","f_armtoMuyRaro","f_armtoLegendario","f_familiares","f_claseAdicional","f_cartaLanza","f_avatar"].forEach(id=>{
+    ["f_armMuyRara","f_armLegendaria","f_armtoMuyRaro","f_armtoLegendario","f_familiares","f_claseAdicional","f_cartaLanza","f_avatar","f_fichaNivel","f_fichaParty"].forEach(id=>{
       const cb=document.getElementById(id);const sub=document.getElementById("sub_"+id);
       if(cb&&sub) sub.classList.toggle("show",cb.checked);
     });
+    // enable fichaSuperior if fichaParty checked
+    const fp=document.getElementById("f_fichaParty");const fs=document.getElementById("f_fichaSuperior");
+    if(fp&&fs)fs.disabled=!fp.checked;
   }
 
   // Attach change listeners
@@ -931,12 +959,13 @@ function buildModalForm(n){
         if(numEl){numEl.disabled=!cb.checked;if(cb.checked)numEl.focus();}
       });
     });
-    ["f_armMuyRara","f_armLegendaria","f_armtoMuyRaro","f_armtoLegendario","f_familiares","f_claseAdicional","f_cartaLanza","f_avatar"].forEach(id=>{
+    ["f_armMuyRara","f_armLegendaria","f_armtoMuyRaro","f_armtoLegendario","f_familiares","f_claseAdicional","f_cartaLanza","f_avatar","f_fichaNivel","f_fichaParty"].forEach(id=>{
       const cb=document.getElementById(id);if(!cb)return;
       cb.addEventListener("change",()=>{
         const sub=document.getElementById("sub_"+id);if(sub)sub.classList.toggle("show",cb.checked);
         if(id==="f_avatar"){const ru=document.getElementById("f_rupturas");if(ru)ru.disabled=!cb.checked;}
         if(id==="f_claseAdicional"){const ce=document.getElementById("f_clasesExtra");if(ce)ce.disabled=!cb.checked;}
+        if(id==="f_fichaParty"){const fs=document.getElementById("f_fichaSuperior");if(fs){fs.disabled=!cb.checked;if(cb.checked)fs.focus();}}
       });
     });
   },0);
@@ -983,6 +1012,8 @@ async function saveNPC(){
     rol:gv("f_rol")||"",
     emoji:gv("f_emoji")||"⚔️",url:gv("f_url"),img:imgData||"",
     dpPendiente:gc("f_dpPend"),
+    fichaNivel:gc("f_fichaNivel"),fichaParty:gc("f_fichaParty"),
+    fichaSuperior:gc("f_fichaParty")?parseInt(document.getElementById("f_fichaSuperior")?.value)||0:0,
     cargos:gn("f_cargos_n"),donEstrellas:gc("f_donEstrellas"),
     doteHeroico:gc("f_doteHeroico"),piedad:gc("f_piedad"),panteismo:gn("f_panteismo_n"),
     bendEpicas:gn("f_bendEpicas_n"),bendMiticas:gn("f_bendMiticas_n"),
@@ -1052,6 +1083,7 @@ function rowToNPC(r){
     id:r.id, camp:r.camp, name:r.name, cls:r.cls||"—", faction:r.faction||"",
     rol:r.rol||"", emoji:r.emoji||"⚔️", url:r.url||"", img:r.img||"",
     dpPendiente:r.dp_pendiente,
+    fichaNivel:r.ficha_nivel||false, fichaParty:r.ficha_party||false, fichaSuperior:r.ficha_superior||0,
     cargos:r.cargos||0, donEstrellas:r.don_estrellas,
     doteHeroico:r.dote_heroico, piedad:r.piedad, panteismo:r.panteismo||0,
     bendEpicas:r.bend_epicas||0, bendMiticas:r.bend_miticas||0,
@@ -1079,6 +1111,7 @@ function npcToRow(n){
     id:n.id, camp:n.camp, name:n.name, cls:n.cls||"—", faction:n.faction,
     rol:n.rol||"", emoji:n.emoji||"⚔️", url:n.url||"", img:n.img||"",
     dp_pendiente:n.dpPendiente,
+    ficha_nivel:!!n.fichaNivel, ficha_party:!!n.fichaParty, ficha_superior:n.fichaSuperior||0,
     cargos:n.cargos||0, don_estrellas:!!n.donEstrellas,
     dote_heroico:!!n.doteHeroico, piedad:!!n.piedad, panteismo:n.panteismo||0,
     bend_epicas:n.bendEpicas||0, bend_miticas:n.bendMiticas||0,
