@@ -212,6 +212,7 @@ header{position:relative;z-index:10;border-bottom:1px solid var(--border);backgr
       <div class="mdiv"></div>
       <div class="minfo">En misión<span id="hdr-cnt">Ninguno</span></div>
       <button class="clear-btn" id="clear-btn" onclick="clearAll()">✕ Limpiar</button>
+      <button class="auth-btn" onclick="openExport()">📥 Exportar</button>
       <button class="auth-btn" id="auth-btn" onclick="authClick()">🔒 Editar</button>
     </div>
   </div>
@@ -227,6 +228,28 @@ header{position:relative;z-index:10;border-bottom:1px solid var(--border);backgr
     <div class="login-err" id="login-err"></div>
     <button class="login-submit" onclick="doLogin()">Entrar</button>
     <button class="login-cancel" onclick="closeLogin()">Cancelar</button>
+  </div>
+</div>
+
+<!-- EXPORT MODAL -->
+<div class="login-ov" id="exportModal">
+  <div class="login-box" style="max-width:440px;text-align:left">
+    <h2 style="text-align:center;margin-bottom:6px">Exportar Personajes</h2>
+    <p style="text-align:center;margin-bottom:20px">Elige campaña y formato de archivo</p>
+    <div style="margin-bottom:12px">
+      <label style="font-family:'Cinzel',serif;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);display:block;margin-bottom:6px">Campaña</label>
+      <select id="exp-camp" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-family:'Crimson Pro',serif;font-size:14px;outline:none">
+        <option value="all">Todas las campañas</option>
+      </select>
+    </div>
+    <div style="margin-bottom:20px">
+      <label style="font-family:'Cinzel',serif;font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);display:block;margin-bottom:6px">Formato</label>
+      <div style="display:flex;gap:8px">
+        <button class="login-submit" style="margin-top:0" onclick="doExport('csv')">📄 CSV</button>
+        <button class="login-submit" style="margin-top:0;background:rgba(76,126,201,.15);border-color:var(--blue);color:var(--blue2)" onclick="doExport('xlsx')">📊 Excel</button>
+      </div>
+    </div>
+    <button class="login-cancel" onclick="closeExport()">Cancelar</button>
   </div>
 </div>
 
@@ -1127,6 +1150,62 @@ function logout(){
   document.getElementById("btn-new-camp").style.display="none";
   document.querySelectorAll(".cedit").forEach(b=>b.style.display="none");
   document.querySelectorAll(".edit-cn-btn").forEach(b=>b.style.display="none");
+}
+
+// ─── EXPORT ───
+function openExport(){
+  const sel=document.getElementById("exp-camp");
+  sel.innerHTML=`<option value="all">Todas las campañas</option>`
+    +campaigns.map(c=>`<option value="${c.id}">${c.name}</option>`).join("");
+  document.getElementById("exportModal").classList.add("open");
+}
+function closeExport(){
+  document.getElementById("exportModal").classList.remove("open");
+}
+
+function getExportRows(){
+  const campVal=document.getElementById("exp-camp").value;
+  let list = campVal==="all" ? NPCS : NPCS.filter(n=>n.camp===parseInt(campVal));
+  return list.map(n=>{
+    const camp=campaigns.find(c=>c.id===n.camp)?.name||"";
+    const {dp}=calcDP(n);
+    return {
+      "Campaña":camp, "Nombre":n.name, "Clase":n.cls, "Facción":n.faction,
+      "Rol":n.rol||"", "DP":dp==="?"?"Pendiente":dp,
+      "Link Level20":n.url||"",
+      "DP Pendiente":n.dpPendiente?"Sí":"No",
+    };
+  });
+}
+
+function doExport(fmt){
+  const rows=getExportRows();
+  if(!rows.length){alert("No hay personajes para exportar.");return;}
+  const campVal=document.getElementById("exp-camp").value;
+  const campName=campVal==="all"?"Todos":(campaigns.find(c=>c.id===parseInt(campVal))?.name||"export");
+  const filename=`Gestor-DP-${campName.replace(/\s+/g,"-")}`;
+
+  if(fmt==="csv"){
+    const headers=Object.keys(rows[0]);
+    const csv=[headers.join(","), ...rows.map(r=>headers.map(h=>`"${String(r[h]||"").replace(/"/g,'""')}"`).join(","))].join("\n");
+    const blob=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8"});
+    downloadBlob(blob, filename+".csv");
+  } else {
+    // XLSX manual (simple XML-based)
+    const headers=Object.keys(rows[0]);
+    const xmlRows=rows.map(r=>`<Row>${headers.map(h=>`<Cell><Data ss:Type="String">${escXml(String(r[h]||""))}</Data></Cell>`).join("")}</Row>`).join("");
+    const headerRow=`<Row>${headers.map(h=>`<Cell ss:StyleID="h"><Data ss:Type="String">${escXml(h)}</Data></Cell>`).join("")}</Row>`;
+    const xml=`<?xml version="1.0"?><?mso-application progid="Excel.Sheet"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"><Styles><Style ss:ID="h"><Font ss:Bold="1"/><Interior ss:Color="#1a2130" ss:Pattern="Solid"/></Style></Styles><Worksheet ss:Name="Personajes"><Table>${headerRow}${xmlRows}</Table></Worksheet></Workbook>`;
+    const blob=new Blob([xml],{type:"application/vnd.ms-excel;charset=utf-8"});
+    downloadBlob(blob, filename+".xls");
+  }
+  closeExport();
+  showToast("✓ Archivo descargado");
+}
+
+function escXml(s){ return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+function downloadBlob(blob,name){
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;a.click();URL.revokeObjectURL(a.href);
 }
 
 // ─── TOAST ───
