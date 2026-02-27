@@ -197,6 +197,35 @@ header{position:relative;z-index:10;border-bottom:1px solid var(--border);backgr
 .btn-sav{background:rgba(201,168,76,.15);border:1px solid var(--gold);color:var(--gold2);font-family:'Cinzel',serif;font-size:9px;letter-spacing:.1em;text-transform:uppercase;padding:9px 20px;border-radius:8px;cursor:pointer;transition:all .2s}
 .btn-sav:hover{background:rgba(201,168,76,.28)}
 @media(max-width:768px){.hdr,.tabs-wrap,.main{padding-left:16px;padding-right:16px}.sel-panel{padding:12px 16px 16px}.grid{grid-template-columns:1fr}.search{width:100%;margin-left:0}.frow{grid-template-columns:1fr}.mbody,.modal-hdr,.modal-ftr{padding-left:16px;padding-right:16px}}
+
+/* ─── INVENTORY ─── */
+.inv-section{margin-bottom:28px}
+.inv-header{display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.inv-title{font-family:'Cinzel',serif;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);display:flex;align-items:center;gap:7px}
+.inv-count{font-family:'Cinzel',serif;font-size:9px;color:var(--text3);background:var(--bg4);border:1px solid var(--border);border-radius:9px;padding:1px 6px}
+.btn-new-item{margin-left:auto;background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.4);color:var(--gold2);font-family:'Cinzel',serif;font-size:9px;letter-spacing:.1em;text-transform:uppercase;padding:6px 13px;border-radius:7px;cursor:pointer;transition:all .2s}
+.btn-new-item:hover{background:rgba(201,168,76,.22)}
+.inv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.inv-empty{grid-column:1/-1;text-align:center;padding:28px;color:var(--text3);font-style:italic;font-size:13px;border:1px dashed var(--border);border-radius:10px}
+.icard{background:var(--bg2);border:1px solid var(--border);border-radius:11px;overflow:hidden;transition:border-color .2s,transform .2s;position:relative}
+.icard:hover{border-color:var(--border2);transform:translateY(-1px)}
+.icard-edit{position:absolute;top:7px;right:7px;background:rgba(8,11,15,.7);border:none;color:var(--text3);cursor:pointer;font-size:11px;z-index:5;padding:2px 5px;border-radius:5px;transition:color .2s;display:none}
+.icard-edit:hover{color:var(--gold)}
+.icard-img{width:100%;height:110px;object-fit:cover;display:block;background:var(--bg4)}
+.icard-img-placeholder{width:100%;height:110px;background:var(--bg4);display:flex;align-items:center;justify-content:center;font-size:32px;color:var(--border2)}
+.icard-body{padding:10px 12px 12px}
+.icard-name{font-family:'Cinzel',serif;font-size:11px;font-weight:700;color:var(--gold3);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.icard-desc{font-size:12px;color:var(--text2);font-style:italic;line-height:1.4;margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.icard-qty{display:inline-flex;align-items:center;gap:5px;background:var(--bg4);border:1px solid var(--border2);border-radius:7px;padding:3px 9px}
+.icard-qty .ql{font-family:'Cinzel',serif;font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:var(--text3)}
+.icard-qty .qn{font-family:'Cinzel Decorative',serif;font-size:13px;font-weight:900;color:var(--gold2);line-height:1}
+/* item modal quantity controls */
+.qty-ctrl{display:flex;align-items:center;gap:0}
+.qty-ctrl button{width:32px;height:32px;background:var(--bg4);border:1px solid var(--border);color:var(--text2);font-size:16px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.qty-ctrl button:first-child{border-radius:7px 0 0 7px}
+.qty-ctrl button:last-child{border-radius:0 7px 7px 0}
+.qty-ctrl button:hover{background:rgba(201,168,76,.15);border-color:var(--gold);color:var(--gold2)}
+.qty-ctrl input{width:60px;height:32px;background:var(--bg3);border:1px solid var(--border);border-left:none;border-right:none;color:var(--text);font-family:'Cinzel Decorative',serif;font-size:15px;font-weight:900;text-align:center;outline:none}
 </style>
 </head>
 <body>
@@ -284,6 +313,43 @@ header{position:relative;z-index:10;border-bottom:1px solid var(--border);backgr
       <button class="btn-del" id="btn-del" onclick="deleteNPC()" style="display:none">🗑 Eliminar</button>
       <button class="btn-can" onclick="closeModal()">Cancelar</button>
       <button class="btn-sav" onclick="saveNPC()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ITEM MODAL -->
+<div class="modal-ov" id="itemModal">
+  <div class="modal" style="max-width:500px">
+    <div class="modal-hdr">
+      <h2 id="item-modal-title">Nuevo Artículo</h2>
+      <button class="mcl" onclick="closeItemModal()">×</button>
+    </div>
+    <div class="mbody" id="item-modal-body">
+      <div class="fsec">
+        <div class="fsec-t">Información del Artículo</div>
+        <div class="frow full"><div class="fg"><label>Nombre</label><input type="text" id="if_name" placeholder="Nombre del artículo"></div></div>
+        <div class="frow full"><div class="fg"><label>Descripción</label><textarea id="if_desc" rows="3" placeholder="Descripción del artículo…" style="resize:vertical"></textarea></div></div>
+        <div class="frow"><div class="fg"><label>Cantidad</label>
+          <div class="qty-ctrl">
+            <button type="button" onclick="itemQtyAdj(-1)">−</button>
+            <input type="number" id="if_qty" value="1" min="0">
+            <button type="button" onclick="itemQtyAdj(1)">+</button>
+          </div>
+        </div></div>
+        <div class="frow full"><div class="fg">
+          <label>Imagen <span style="color:var(--text3);font-style:italic">(opcional)</span></label>
+          <div class="img-area" id="item-img-area">
+            <input type="file" accept="image/*" onchange="onItemImgUpload(this)">
+            <div id="item-img-prev"></div>
+            <div class="img-txt" id="item-img-txt">Clic o arrastra una imagen</div>
+          </div>
+        </div></div>
+      </div>
+    </div>
+    <div class="modal-ftr">
+      <button class="btn-del" id="item-btn-del" onclick="deleteItem()" style="display:none">🗑 Eliminar</button>
+      <button class="btn-can" onclick="closeItemModal()">Cancelar</button>
+      <button class="btn-sav" onclick="saveItem()">Guardar</button>
     </div>
   </div>
 </div>
@@ -489,6 +555,11 @@ let activeFaction = {};
 let editingId = null;
 let pendingImg = "";
 
+// ─── INVENTORY STATE ───
+let ITEMS = [];
+let editingItemId = null;
+let pendingItemImg = "";
+
 // ─── TAGS ───
 const ROLES = ["Tanque","Coloso","Asesino","Luchador","Especialista","Artillero Mágico","Tirador","Soporte"];
 const ROL_EMOJI = {"Tanque":"🛡️","Coloso":"💪","Asesino":"🗡️","Luchador":"⚔️","Especialista":"🔧","Artillero Mágico":"🔮","Tirador":"🏹","Soporte":"💚"};
@@ -654,6 +725,13 @@ function renderPanels(){
         <div class="faction-btns" id="fb${c.id}"></div>
         <input type="text" class="search" placeholder="Buscar…" oninput="renderGrid(${c.id},activeFaction[${c.id}],this.value)">
       </div>
+      <div class="inv-section" id="inv-section${c.id}">
+        <div class="inv-header">
+          <span class="inv-title">📦 Inventario de Campaña <span class="inv-count" id="inv-count${c.id}">0</span></span>
+          <button class="btn-new-item" id="btn-new-item-${c.id}" onclick="openNewItem(${c.id})" style="display:none">+ Agregar Artículo</button>
+        </div>
+        <div class="inv-grid" id="inv-grid${c.id}"></div>
+      </div>
       <div class="grid" id="grid${c.id}"></div>`;
     main.appendChild(panel);
   });
@@ -662,11 +740,13 @@ function renderPanels(){
 function fullRender(){
   renderTabs();
   renderPanels();
-  campaigns.forEach(c=>{renderFactionBtns(c.id);renderGrid(c.id,activeFaction[c.id],null);});
+  campaigns.forEach(c=>{renderFactionBtns(c.id);renderGrid(c.id,activeFaction[c.id],null);renderInvGrid(c.id);});
   // respect auth state
   if(!isLoggedIn){
     document.querySelectorAll(".cedit").forEach(b=>b.style.display="none");
     document.querySelectorAll(".edit-cn-btn").forEach(b=>b.style.display="none");
+    document.querySelectorAll(".icard-edit").forEach(b=>b.style.display="none");
+    document.querySelectorAll(".btn-new-item").forEach(b=>b.style.display="none");
   }
 }
 
@@ -1167,6 +1247,9 @@ function doLogin(){
     document.querySelectorAll(".cedit").forEach(b=>b.style.display="");
     // show campaign rename buttons
     document.querySelectorAll(".edit-cn-btn").forEach(b=>b.style.display="");
+    // show inventory edit/add buttons
+    document.querySelectorAll(".icard-edit").forEach(b=>b.style.display="");
+    document.querySelectorAll(".btn-new-item").forEach(b=>b.style.display="");
   } else {
     document.getElementById("login-err").textContent="Usuario o contraseña incorrectos.";
     document.getElementById("login-pass").value="";
@@ -1183,6 +1266,8 @@ function logout(){
   document.getElementById("btn-new-camp").style.display="none";
   document.querySelectorAll(".cedit").forEach(b=>b.style.display="none");
   document.querySelectorAll(".edit-cn-btn").forEach(b=>b.style.display="none");
+  document.querySelectorAll(".icard-edit").forEach(b=>b.style.display="none");
+  document.querySelectorAll(".btn-new-item").forEach(b=>b.style.display="none");
 }
 
 // ─── EXPORT ───
@@ -1252,6 +1337,140 @@ function showToast(msg, success=true){
   clearTimeout(t._to);t._to=setTimeout(()=>t.style.opacity="0",2000);
 }
 
+// ─── INVENTORY RENDER ───
+function renderInvGrid(campId){
+  const grid=document.getElementById(`inv-grid${campId}`);
+  const countEl=document.getElementById(`inv-count${campId}`);
+  if(!grid) return;
+  const items=ITEMS.filter(i=>i.camp===campId);
+  if(countEl) countEl.textContent=items.length;
+  grid.innerHTML="";
+  if(!items.length){
+    grid.innerHTML='<div class="inv-empty">Sin artículos en el inventario.</div>';
+    return;
+  }
+  items.forEach(item=>{
+    const div=document.createElement("div");
+    div.className="icard";
+    div.id=`icard-${item.id}`;
+    const imgHtml=item.img
+      ?`<img class="icard-img" src="${item.img}" alt="${item.name}">`
+      :`<div class="icard-img-placeholder">📦</div>`;
+    div.innerHTML=`
+      <button class="icard-edit" title="Editar artículo">✏️</button>
+      ${imgHtml}
+      <div class="icard-body">
+        <div class="icard-name">${item.name}</div>
+        <div class="icard-desc">${item.desc||'<span style="color:var(--text3)">Sin descripción.</span>'}</div>
+        <div class="icard-qty"><span class="ql">Cant.</span><span class="qn">${item.qty}</span></div>
+      </div>`;
+    div.querySelector(".icard-edit").addEventListener("click",e=>{e.stopPropagation();openEditItem(item.id);});
+    if(!isLoggedIn) div.querySelector(".icard-edit").style.display="none";
+    grid.appendChild(div);
+  });
+}
+
+// ─── ITEM MODAL ───
+function openNewItem(campId){
+  editingItemId=null; pendingItemImg="";
+  document.getElementById("item-modal-title").textContent="Nuevo Artículo";
+  document.getElementById("item-btn-del").style.display="none";
+  document.getElementById("if_name").value="";
+  document.getElementById("if_desc").value="";
+  document.getElementById("if_qty").value="1";
+  // reset image
+  const prev=document.getElementById("item-img-prev");
+  prev.innerHTML=""; prev.className="";
+  document.getElementById("item-img-txt").textContent="Clic o arrastra una imagen";
+  // store which campaign
+  document.getElementById("itemModal").dataset.camp=campId;
+  document.getElementById("itemModal").classList.add("open");
+  setTimeout(()=>document.getElementById("if_name").focus(),50);
+}
+
+function openEditItem(id){
+  const item=ITEMS.find(i=>i.id===id);
+  if(!item) return;
+  editingItemId=id; pendingItemImg="";
+  document.getElementById("item-modal-title").textContent=`Editar: ${item.name}`;
+  document.getElementById("item-btn-del").style.display="block";
+  document.getElementById("if_name").value=item.name;
+  document.getElementById("if_desc").value=item.desc||"";
+  document.getElementById("if_qty").value=item.qty;
+  // image
+  const prev=document.getElementById("item-img-prev");
+  if(item.img){
+    prev.innerHTML=`<img class="img-prev" src="${item.img}">`;
+    document.getElementById("item-img-txt").textContent="Clic para cambiar";
+  } else {
+    prev.innerHTML="";
+    document.getElementById("item-img-txt").textContent="Clic o arrastra una imagen";
+  }
+  document.getElementById("itemModal").dataset.camp=item.camp;
+  document.getElementById("itemModal").classList.add("open");
+}
+
+function closeItemModal(){
+  document.getElementById("itemModal").classList.remove("open");
+  editingItemId=null; pendingItemImg="";
+}
+
+function itemQtyAdj(delta){
+  const el=document.getElementById("if_qty");
+  const val=Math.max(0,(parseInt(el.value)||0)+delta);
+  el.value=val;
+}
+
+function onItemImgUpload(input){
+  const file=input.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    pendingItemImg=e.target.result;
+    const prev=document.getElementById("item-img-prev");
+    prev.innerHTML=`<img class="img-prev" src="${pendingItemImg}">`;
+    document.getElementById("item-img-txt").textContent="Clic para cambiar";
+  };
+  reader.readAsDataURL(file);
+}
+
+async function saveItem(){
+  const name=document.getElementById("if_name").value.trim();
+  if(!name){alert("El nombre es obligatorio.");return;}
+  const desc=document.getElementById("if_desc").value.trim();
+  const qty=parseInt(document.getElementById("if_qty").value)||0;
+  const campId=parseInt(document.getElementById("itemModal").dataset.camp);
+  const imgData=pendingItemImg||(editingItemId?ITEMS.find(i=>i.id===editingItemId)?.img:"");
+
+  showToast("Guardando…",false);
+
+  if(editingItemId){
+    const row={name,description:desc,qty,img:imgData||""};
+    await sbFetch("items?id=eq."+editingItemId,{method:"PATCH",body:JSON.stringify(row)});
+    const idx=ITEMS.findIndex(i=>i.id===editingItemId);
+    if(idx>=0) ITEMS[idx]={...ITEMS[idx],name,desc,qty,img:imgData||""};
+  } else {
+    const newId="item_"+Date.now();
+    const row={id:newId,camp:campId,name,description:desc,qty,img:imgData||""};
+    await sbFetch("items",{method:"POST",body:JSON.stringify(row)});
+    ITEMS.push({id:newId,camp:campId,name,desc,qty,img:imgData||""});
+  }
+  showToast("✓ Guardado");
+  pendingItemImg=""; closeItemModal();
+  renderInvGrid(campId);
+}
+
+async function deleteItem(){
+  if(!editingItemId) return;
+  const item=ITEMS.find(i=>i.id===editingItemId);
+  if(!confirm(`¿Eliminar "${item?.name}"? No se puede deshacer.`)) return;
+  await sbFetch("items?id=eq."+editingItemId,{method:"DELETE"});
+  const campId=item.camp;
+  ITEMS=ITEMS.filter(i=>i.id!==editingItemId);
+  showToast("✓ Eliminado");
+  closeItemModal();
+  renderInvGrid(campId);
+}
+
 // ─── INIT ───
 async function init(){
   showToast("Cargando datos…", false);
@@ -1276,10 +1495,18 @@ async function init(){
     showToast("✓ Datos iniciales guardados");
   }
 
+  // load items from Supabase
+  const itemRows = await sbFetch("items?select=*&order=camp,name");
+  if(itemRows && itemRows.length){
+    ITEMS = itemRows.map(r=>({id:r.id,camp:r.camp,name:r.name,desc:r.description||"",qty:r.qty||0,img:r.img||""}));
+  }
+
   campaigns.forEach(c=>activeFaction[c.id]=null);
   fullRender();
   document.querySelectorAll(".cedit").forEach(b=>b.style.display="none");
   document.querySelectorAll(".edit-cn-btn").forEach(b=>b.style.display="none");
+  document.querySelectorAll(".icard-edit").forEach(b=>b.style.display="none");
+  document.querySelectorAll(".btn-new-item").forEach(b=>b.style.display="none");
   showToast("✓ Listo");
 }
 
