@@ -199,26 +199,34 @@ header{position:relative;z-index:10;border-bottom:1px solid var(--border);backgr
 @media(max-width:768px){.hdr,.tabs-wrap,.main{padding-left:16px;padding-right:16px}.sel-panel{padding:12px 16px 16px}.grid{grid-template-columns:1fr}.search{width:100%;margin-left:0}.frow{grid-template-columns:1fr}.mbody,.modal-hdr,.modal-ftr{padding-left:16px;padding-right:16px}}
 
 /* ─── INVENTORY ─── */
-.inv-section{margin-bottom:28px}
-.inv-header{display:flex;align-items:center;gap:10px;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border)}
-.inv-title{font-family:'Cinzel',serif;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);display:flex;align-items:center;gap:7px}
+.inv-section{margin-top:32px;border:1px solid var(--border);border-radius:13px;overflow:hidden;background:var(--bg2)}
+.inv-toggle{width:100%;background:transparent;border:none;padding:14px 18px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:background .2s}
+.inv-toggle:hover{background:rgba(201,168,76,.04)}
+.inv-toggle-title{font-family:'Cinzel',serif;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);flex:1;text-align:left}
 .inv-count{font-family:'Cinzel',serif;font-size:9px;color:var(--text3);background:var(--bg4);border:1px solid var(--border);border-radius:9px;padding:1px 6px}
-.btn-new-item{margin-left:auto;background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.4);color:var(--gold2);font-family:'Cinzel',serif;font-size:9px;letter-spacing:.1em;text-transform:uppercase;padding:6px 13px;border-radius:7px;cursor:pointer;transition:all .2s}
-.btn-new-item:hover{background:rgba(201,168,76,.22)}
-.inv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
-.inv-empty{grid-column:1/-1;text-align:center;padding:28px;color:var(--text3);font-style:italic;font-size:13px;border:1px dashed var(--border);border-radius:10px}
-.icard{background:var(--bg2);border:1px solid var(--border);border-radius:11px;overflow:hidden;transition:border-color .2s,transform .2s;position:relative}
-.icard:hover{border-color:var(--border2);transform:translateY(-1px)}
-.icard-edit{position:absolute;top:7px;right:7px;background:rgba(8,11,15,.7);border:none;color:var(--text3);cursor:pointer;font-size:11px;z-index:5;padding:2px 5px;border-radius:5px;transition:color .2s;display:none}
-.icard-edit:hover{color:var(--gold)}
-.icard-img{width:100%;height:110px;object-fit:cover;display:block;background:var(--bg4)}
-.icard-img-placeholder{width:100%;height:110px;background:var(--bg4);display:flex;align-items:center;justify-content:center;font-size:32px;color:var(--border2)}
-.icard-body{padding:10px 12px 12px}
-.icard-name{font-family:'Cinzel',serif;font-size:11px;font-weight:700;color:var(--gold3);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.icard-desc{font-size:12px;color:var(--text2);font-style:italic;line-height:1.4;margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.icard-qty{display:inline-flex;align-items:center;gap:5px;background:var(--bg4);border:1px solid var(--border2);border-radius:7px;padding:3px 9px}
-.icard-qty .ql{font-family:'Cinzel',serif;font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:var(--text3)}
-.icard-qty .qn{font-family:'Cinzel Decorative',serif;font-size:13px;font-weight:900;color:var(--gold2);line-height:1}
+.inv-arr{color:var(--text3);font-size:12px;transition:transform .3s;display:inline-block}
+.inv-toggle.open .inv-arr{transform:rotate(180deg)}
+.inv-body{display:none;border-top:1px solid var(--border)}
+.inv-body.open{display:block}
+.inv-table-wrap{overflow-x:auto}
+.inv-table{width:100%;border-collapse:collapse;font-size:13px}
+.inv-table th{font-family:'Cinzel',serif;font-size:8px;letter-spacing:.15em;text-transform:uppercase;color:var(--text3);padding:10px 14px;border-bottom:1px solid var(--border);text-align:left;background:var(--bg3);white-space:nowrap}
+.inv-table th.th-qty{text-align:center;width:90px}
+.inv-table th.th-act{width:60px}
+.inv-table td{padding:9px 14px;border-bottom:1px solid rgba(35,47,64,.5);vertical-align:middle;color:var(--text2)}
+.inv-table tr:last-child td{border-bottom:none}
+.inv-table tr:hover td{background:rgba(201,168,76,.03)}
+.itd-name{font-family:'Cinzel',serif;font-size:11px;color:var(--gold3);font-weight:600}
+.itd-desc{font-size:12px;color:var(--text3);font-style:italic}
+.itd-qty{text-align:center;font-family:'Cinzel Decorative',serif;font-size:14px;font-weight:900;color:var(--gold2)}
+.itd-img{width:32px;height:32px;border-radius:6px;object-fit:cover;vertical-align:middle}
+.itd-img-ph{width:32px;height:32px;border-radius:6px;background:var(--bg4);border:1px solid var(--border);display:inline-flex;align-items:center;justify-content:center;font-size:14px;vertical-align:middle}
+.inv-edit-btn{background:none;border:none;color:var(--text3);cursor:pointer;font-size:13px;padding:3px 6px;border-radius:5px;transition:color .2s;display:none}
+.inv-edit-btn:hover{color:var(--gold)}
+.inv-add-row{padding:10px 14px;border-top:1px solid var(--border);background:var(--bg3)}
+.btn-add-item{background:transparent;border:1px dashed var(--border2);color:var(--text3);font-family:'Cinzel',serif;font-size:9px;letter-spacing:.1em;text-transform:uppercase;padding:8px 16px;border-radius:7px;cursor:pointer;transition:all .2s;width:100%}
+.btn-add-item:hover{border-color:var(--gold);color:var(--gold)}
+/* modal qty ctrl */
 .qty-ctrl{display:flex;align-items:center;gap:0}
 .qty-ctrl button{width:32px;height:32px;background:var(--bg4);border:1px solid var(--border);color:var(--text2);font-size:16px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .qty-ctrl button:first-child{border-radius:7px 0 0 7px}
@@ -570,6 +578,72 @@ let ITEMS = [];
 let editingItemId = null;
 let pendingItemImg = "";
 
+// Stultifera Navis items seed (camp:0)
+const ITEMS_SEED = [
+  {id:"sn_cp",         camp:0, name:"Créditos (CP)",              desc:"Moneda estándar de la campaña.",           qty:53488417, img:""},
+  {id:"sn_gemas",      camp:0, name:"Gemas (2500 CO/u)",           desc:"",                                         qty:8,        img:""},
+  {id:"sn_carbon",     camp:0, name:"Carbón",                      desc:"Mineral combustible. En kg.",              qty:730,      img:""},
+  {id:"sn_niquel",     camp:0, name:"Níquel",                      desc:"Metal industrial. En kg.",                 qty:210,      img:""},
+  {id:"sn_platino",    camp:0, name:"Platino",                     desc:"Metal precioso. En kg.",                   qty:490,      img:""},
+  {id:"sn_electrum",   camp:0, name:"Electrum",                    desc:"Aleación mágica. En kg.",                  qty:3209,     img:""},
+  {id:"sn_hierro",     camp:0, name:"Hierro",                      desc:"Metal básico. En kg.",                     qty:1413,     img:""},
+  {id:"sn_cobre",      camp:0, name:"Cobre",                       desc:"Metal conductor. En kg.",                  qty:852,      img:""},
+  {id:"sn_adamantina", camp:0, name:"Adamantina",                  desc:"Metal durísimo. En kg.",                   qty:350,      img:""},
+  {id:"sn_oro",        camp:0, name:"Oro",                         desc:"Metal precioso. En kg.",                   qty:2730,     img:""},
+  {id:"sn_litio",      camp:0, name:"Litio",                       desc:"Metal ligero reactivo. En kg.",            qty:580,      img:""},
+  {id:"sn_sodio",      camp:0, name:"Sodio",                       desc:"Metal alcalino. En kg.",                   qty:4,        img:""},
+  {id:"sn_paladio",    camp:0, name:"Paladio",                     desc:"Metal raro catalítico. En kg.",            qty:272,      img:""},
+  {id:"sn_titanio",    camp:0, name:"Titanio",                     desc:"Metal ligero y resistente. En kg.",        qty:0,        img:""},
+  {id:"sn_piedras",    camp:0, name:"Piedras Preciosas",           desc:"Gemas sin clasificar. En kg.",             qty:0,        img:""},
+  {id:"sn_diamantes",  camp:0, name:"Diamantes",                   desc:"En kg.",                                   qty:0,        img:""},
+  {id:"sn_uranio",     camp:0, name:"Uranio",                      desc:"Material radiactivo. En kg.",              qty:352,      img:""},
+  {id:"sn_duracero",   camp:0, name:"Duracero",                    desc:"Aleación ultraresistente. En kg.",         qty:5000,     img:""},
+  {id:"sn_iridio",     camp:0, name:"Iridio",                      desc:"Metal extremadamente duro. En kg.",        qty:500,      img:""},
+  {id:"sn_chatarra",   camp:0, name:"Chatarra",                    desc:"Material reciclable. En toneladas.",       qty:700,      img:""},
+  {id:"sn_elerio",     camp:0, name:"Lingotes de Elerio",          desc:"Material de armadura legendaria.",         qty:10,       img:""},
+  {id:"sn_acido",      camp:0, name:"Ácido",                       desc:"Adquirido por el grupo. En litros.",       qty:100,      img:""},
+  {id:"sn_superbomba", camp:0, name:"Súper Bomba Eldar",           desc:"Arma de Destrucción Masiva. Arcane Warhead (Darkmatter). https://5e.tools/items.html#arcane%20warhead_darkmatter", qty:1, img:""},
+  // ── Terror of Tecnovore (camp:1 — ajusta si el ID es diferente en tu DB) ──
+  {id:"tt_oro_party",   camp:1, name:"Oro Party (disponible)",          desc:"Disponible bajo supervisión de Breland. Fecha revisión: 13/07/2025.", qty:218097, img:""},
+  {id:"tt_oro_base",    camp:1, name:"Oro Base (apartado)",             desc:"Apartado. Fecha revisión: 13/07/2025.",    qty:10000,  img:""},
+  {id:"tt_lio_lingote", camp:1, name:"Lingotes de Lio",                 desc:"1000 CP cada uno.",                        qty:49,     img:""},
+  {id:"tt_panacea",     camp:1, name:"Panacea",                         desc:"",                                         qty:55,     img:""},
+  {id:"tt_nuka",        camp:1, name:"Nuka-Cola",                       desc:"",                                         qty:5,      img:""},
+  {id:"tt_tronco_med",  camp:1, name:"Troncos medianos Akasha",         desc:"",                                         qty:3,      img:""},
+  {id:"tt_tronco_goma", camp:1, name:"Tronco mediano de goma (Akasha)", desc:"",                                         qty:3,      img:""},
+  {id:"tt_piedra_med",  camp:1, name:"Piedras fondo marino medianas (Akasha)", desc:"",                                  qty:14,     img:""},
+  {id:"tt_piedra_peq",  camp:1, name:"Piedras fondo marino pequeñas (Akasha)", desc:"",                                  qty:7,      img:""},
+  {id:"tt_alga",        camp:1, name:"Alga cavernícola",                desc:"En kg.",                                   qty:11,     img:""},
+  {id:"tt_cajas_rad",   camp:1, name:"Cajas radiactivas (celdas de control)", desc:"",                                   qty:3,      img:""},
+  {id:"tt_semilla_ad",  camp:1, name:"Semilla adamantina (Akasha)",     desc:"",                                         qty:2,      img:""},
+  {id:"tt_guisante",    camp:1, name:"Guisante Popelle (Akasha)",       desc:"",                                         qty:4,      img:""},
+  {id:"tt_sem_guis",    camp:1, name:"Semilla guisante Popelle (Akasha)", desc:"",                                       qty:2,      img:""},
+  {id:"tt_curibaya",    camp:1, name:"Curibaya",                        desc:"",                                         qty:1,      img:""},
+  {id:"tt_esencia_aire",camp:1, name:"Esencia de aire",                 desc:"",                                         qty:2,      img:""},
+  {id:"tt_esencia_agua",camp:1, name:"Esencia de agua",                 desc:"",                                         qty:2,      img:""},
+  {id:"tt_luz_tor",     camp:1, name:"Luz Tormentosa (Flor Akasha)",    desc:"",                                         qty:11,     img:""},
+  {id:"tt_lirio",       camp:1, name:"Lirio Celeste (Flor Akasha)",     desc:"",                                         qty:22,     img:""},
+  {id:"tt_flor_eba",    camp:1, name:"Flor de Ébano (Flor Akasha)",     desc:"",                                         qty:4,      img:""},
+  {id:"tt_l_mithril",   camp:1, name:"Lingotes de Mitrilo",             desc:"",                                         qty:17,     img:""},
+  {id:"tt_l_eezo",      camp:1, name:"Lingotes de Eezo",                desc:"",                                         qty:10,     img:""},
+  {id:"tt_l_arcan",     camp:1, name:"Lingotes de Arcanita",            desc:"",                                         qty:10,     img:""},
+  {id:"tt_l_ceram",     camp:1, name:"Lingotes de Ceramita",            desc:"",                                         qty:11,     img:""},
+  {id:"tt_l_auramita",  camp:1, name:"Lingotes de Auramita",            desc:"",                                         qty:0,      img:""},
+  {id:"tt_l_oricalc",   camp:1, name:"Lingotes de Oricalconio",         desc:"",                                         qty:0,      img:""},
+  {id:"tt_lapis",       camp:1, name:"Lapis",                           desc:"",                                         qty:14,     img:""},
+  {id:"tt_khalari",     camp:1, name:"Cristales Khalari",               desc:"",                                         qty:13,     img:""},
+  {id:"tt_chatarra",    camp:1, name:"Chatarra",                        desc:"",                                         qty:9,      img:""},
+  {id:"tt_gemas",       camp:1, name:"Gemas (5000 CO/u)",               desc:"",                                         qty:9,      img:""},
+  {id:"tt_inj_adren",   camp:1, name:"Inyector adrenalina",             desc:"Consumible.",                              qty:40,     img:""},
+  {id:"tt_inj_rest",    camp:1, name:"Inyector restaurador",            desc:"Consumible.",                              qty:20,     img:""},
+  {id:"tt_medigel",     camp:1, name:"Medigel MK7",                     desc:"Consumible.",                              qty:30,     img:""},
+  {id:"tt_radx",        camp:1, name:"Rad-X",                           desc:"Consumible.",                              qty:80,     img:""},
+  {id:"tt_radaway",     camp:1, name:"Radaway",                         desc:"Consumible.",                              qty:2,      img:""},
+  {id:"tt_rest_av",     camp:1, name:"Restaurador avanzado",            desc:"Consumible.",                              qty:10,     img:""},
+  {id:"tt_extintor",    camp:1, name:"Extintor MK5",                    desc:"Consumible.",                              qty:25,     img:""},
+];
+
+
 // ─── TAGS ───
 const ROLES = ["Tanque","Coloso","Asesino","Luchador","Especialista","Artillero Mágico","Tirador","Soporte","Hacer café"];
 const ROL_EMOJI = {"Tanque":"🛡️","Coloso":"💪","Asesino":"🗡️","Luchador":"⚔️","Especialista":"🔧","Artillero Mágico":"🔮","Tirador":"🏹","Soporte":"💚","Hacer café":"☕"};
@@ -737,14 +811,31 @@ function renderPanels(){
         <div class="faction-btns" id="fb${c.id}"></div>
         <input type="text" class="search" placeholder="Buscar…" oninput="renderGrid(${c.id},activeFaction[${c.id}],this.value)">
       </div>
+      <div class="grid" id="grid${c.id}"></div>
       <div class="inv-section" id="inv-section${c.id}">
-        <div class="inv-header">
-          <span class="inv-title">📦 Inventario de Campaña <span class="inv-count" id="inv-count${c.id}">0</span></span>
-          <button class="btn-new-item" id="btn-new-item-${c.id}" onclick="openNewItem(${c.id})" style="display:none">+ Agregar Artículo</button>
+        <button class="inv-toggle" id="inv-toggle${c.id}" onclick="toggleInv(${c.id})">
+          <span class="inv-toggle-title">📦 Inventario de Campaña</span>
+          <span class="inv-count" id="inv-count${c.id}">0</span>
+          <span class="inv-arr">▾</span>
+        </button>
+        <div class="inv-body" id="inv-body${c.id}">
+          <div class="inv-table-wrap">
+            <table class="inv-table">
+              <thead><tr>
+                <th style="width:36px"></th>
+                <th>Artículo</th>
+                <th class="th-qty">Cantidad</th>
+                <th class="th-act"></th>
+              </tr></thead>
+              <tbody id="inv-tbody${c.id}"></tbody>
+            </table>
+          </div>
+          <div class="inv-add-row">
+            <button class="btn-add-item" id="btn-add-item-${c.id}" onclick="openNewItem(${c.id})" style="display:none">＋ Agregar artículo</button>
+            <div id="inv-empty-msg${c.id}" style="display:none;text-align:center;padding:8px;color:var(--text3);font-style:italic;font-size:13px">Sin artículos en el inventario.</div>
+          </div>
         </div>
-        <div class="inv-grid" id="inv-grid${c.id}"></div>
-      </div>
-      <div class="grid" id="grid${c.id}"></div>`;
+      </div>`;
     main.appendChild(panel);
   });
 }
@@ -757,8 +848,8 @@ function fullRender(){
   if(!isLoggedIn){
     document.querySelectorAll(".cedit").forEach(b=>b.style.display="none");
     document.querySelectorAll(".edit-cn-btn").forEach(b=>b.style.display="none");
-    document.querySelectorAll(".icard-edit").forEach(b=>b.style.display="none");
-    document.querySelectorAll(".btn-new-item").forEach(b=>b.style.display="none");
+    document.querySelectorAll(".inv-edit-btn").forEach(b=>b.style.display="none");
+    campaigns.forEach(c=>{const b=document.getElementById(`btn-add-item-${c.id}`);if(b)b.style.display="none";});
   }
 }
 
@@ -1279,6 +1370,9 @@ function doLogin(){
     document.querySelectorAll(".edit-cn-btn").forEach(b=>b.style.display="");
     document.querySelectorAll(".icard-edit").forEach(b=>b.style.display="");
     document.querySelectorAll(".btn-new-item").forEach(b=>b.style.display="");
+    // show inv edit/add buttons
+    document.querySelectorAll(".inv-edit-btn").forEach(b=>b.style.display="inline-block");
+    campaigns.forEach(c=>{const b=document.getElementById(`btn-add-item-${c.id}`);if(b)b.style.display="block";});
   } else {
     document.getElementById("login-err").textContent="Usuario o contraseña incorrectos.";
     document.getElementById("login-pass").value="";
@@ -1297,9 +1391,9 @@ function logout(){
   document.querySelectorAll(".edit-cn-btn").forEach(b=>b.style.display="none");
   document.querySelectorAll(".icard-edit").forEach(b=>b.style.display="none");
   document.querySelectorAll(".btn-new-item").forEach(b=>b.style.display="none");
+  document.querySelectorAll(".inv-edit-btn").forEach(b=>b.style.display="none");
+  campaigns.forEach(c=>{const b=document.getElementById(`btn-add-item-${c.id}`);if(b)b.style.display="none";});
 }
-
-// ─── EXPORT ───
 function openExport(){
   const sel=document.getElementById("exp-camp");
   sel.innerHTML=`<option value="all">Todas las campañas</option>`
@@ -1367,36 +1461,49 @@ function showToast(msg, success=true){
 }
 
 // ─── INVENTORY RENDER ───
+const invOpen = {};
+
+function toggleInv(campId){
+  invOpen[campId]=!invOpen[campId];
+  const body=document.getElementById(`inv-body${campId}`);
+  const toggle=document.getElementById(`inv-toggle${campId}`);
+  body.classList.toggle("open", invOpen[campId]);
+  toggle.classList.toggle("open", invOpen[campId]);
+}
+
 function renderInvGrid(campId){
-  const grid=document.getElementById(`inv-grid${campId}`);
+  const tbody=document.getElementById(`inv-tbody${campId}`);
   const countEl=document.getElementById(`inv-count${campId}`);
-  if(!grid) return;
+  const emptyMsg=document.getElementById(`inv-empty-msg${campId}`);
+  const addBtn=document.getElementById(`btn-add-item-${campId}`);
+  if(!tbody) return;
   const items=ITEMS.filter(i=>i.camp===campId);
   if(countEl) countEl.textContent=items.length;
-  grid.innerHTML="";
+  tbody.innerHTML="";
+
   if(!items.length){
-    grid.innerHTML='<div class="inv-empty">Sin artículos en el inventario.</div>';
-    return;
+    if(emptyMsg) emptyMsg.style.display="block";
+  } else {
+    if(emptyMsg) emptyMsg.style.display="none";
+    items.forEach(item=>{
+      const tr=document.createElement("tr");
+      const imgHtml=item.img
+        ?`<img class="itd-img" src="${item.img}" alt="${item.name}">`
+        :`<div class="itd-img-ph">📦</div>`;
+      tr.innerHTML=`
+        <td>${imgHtml}</td>
+        <td>
+          <div class="itd-name">${item.name}</div>
+          ${item.desc?`<div class="itd-desc">${item.desc}</div>`:""}
+        </td>
+        <td class="itd-qty">${item.qty}</td>
+        <td style="text-align:center"><button class="inv-edit-btn" title="Editar">✏️</button></td>`;
+      tr.querySelector(".inv-edit-btn").addEventListener("click",()=>openEditItem(item.id));
+      if(isLoggedIn) tr.querySelector(".inv-edit-btn").style.display="inline-block";
+      tbody.appendChild(tr);
+    });
   }
-  items.forEach(item=>{
-    const div=document.createElement("div");
-    div.className="icard";
-    div.id=`icard-${item.id}`;
-    const imgHtml=item.img
-      ?`<img class="icard-img" src="${item.img}" alt="${item.name}">`
-      :`<div class="icard-img-placeholder">📦</div>`;
-    div.innerHTML=`
-      <button class="icard-edit" title="Editar artículo">✏️</button>
-      ${imgHtml}
-      <div class="icard-body">
-        <div class="icard-name">${item.name}</div>
-        <div class="icard-desc">${item.desc||'<span style="color:var(--text3)">Sin descripción.</span>'}</div>
-        <div class="icard-qty"><span class="ql">Cant.</span><span class="qn">${item.qty}</span></div>
-      </div>`;
-    div.querySelector(".icard-edit").addEventListener("click",e=>{e.stopPropagation();openEditItem(item.id);});
-    if(!isLoggedIn) div.querySelector(".icard-edit").style.display="none";
-    grid.appendChild(div);
-  });
+  if(addBtn) addBtn.style.display=isLoggedIn?"block":"none";
 }
 
 function openNewItem(campId){
@@ -1508,14 +1615,21 @@ async function init(){
   const itemRows = await sbFetch("items?select=*&order=camp,name");
   if(itemRows && itemRows.length){
     ITEMS = itemRows.map(r=>({id:r.id,camp:r.camp,name:r.name,desc:r.description||"",qty:r.qty||0,img:r.img||""}));
+  } else {
+    showToast("Subiendo inventario inicial…", false);
+    for(const item of ITEMS_SEED){
+      await sbFetch("items",{method:"POST",body:JSON.stringify({id:item.id,camp:item.camp,name:item.name,description:item.desc,qty:item.qty,img:item.img})});
+    }
+    ITEMS = [...ITEMS_SEED];
+    showToast("✓ Inventario inicial guardado");
   }
 
   campaigns.forEach(c=>activeFaction[c.id]=null);
   fullRender();
   document.querySelectorAll(".cedit").forEach(b=>b.style.display="none");
   document.querySelectorAll(".edit-cn-btn").forEach(b=>b.style.display="none");
-  document.querySelectorAll(".icard-edit").forEach(b=>b.style.display="none");
-  document.querySelectorAll(".btn-new-item").forEach(b=>b.style.display="none");
+  document.querySelectorAll(".inv-edit-btn").forEach(b=>b.style.display="none");
+  campaigns.forEach(c=>{const b=document.getElementById(`btn-add-item-${c.id}`);if(b)b.style.display="none";});
   showToast("✓ Listo");
 }
 
