@@ -219,7 +219,6 @@ header{position:relative;z-index:10;border-bottom:1px solid var(--border);backgr
 .icard-qty{display:inline-flex;align-items:center;gap:5px;background:var(--bg4);border:1px solid var(--border2);border-radius:7px;padding:3px 9px}
 .icard-qty .ql{font-family:'Cinzel',serif;font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:var(--text3)}
 .icard-qty .qn{font-family:'Cinzel Decorative',serif;font-size:13px;font-weight:900;color:var(--gold2);line-height:1}
-/* item modal quantity controls */
 .qty-ctrl{display:flex;align-items:center;gap:0}
 .qty-ctrl button{width:32px;height:32px;background:var(--bg4);border:1px solid var(--border);color:var(--text2);font-size:16px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .qty-ctrl button:first-child{border-radius:7px 0 0 7px}
@@ -301,22 +300,6 @@ header{position:relative;z-index:10;border-bottom:1px solid var(--border);backgr
   </div>
 </div>
 
-<!-- MODAL -->
-<div class="modal-ov" id="npcModal">
-  <div class="modal">
-    <div class="modal-hdr">
-      <h2 id="modal-title">Nuevo Personaje</h2>
-      <button class="mcl" onclick="closeModal()">×</button>
-    </div>
-    <div class="mbody" id="modal-body"></div>
-    <div class="modal-ftr">
-      <button class="btn-del" id="btn-del" onclick="deleteNPC()" style="display:none">🗑 Eliminar</button>
-      <button class="btn-can" onclick="closeModal()">Cancelar</button>
-      <button class="btn-sav" onclick="saveNPC()">Guardar</button>
-    </div>
-  </div>
-</div>
-
 <!-- ITEM MODAL -->
 <div class="modal-ov" id="itemModal">
   <div class="modal" style="max-width:500px">
@@ -328,7 +311,7 @@ header{position:relative;z-index:10;border-bottom:1px solid var(--border);backgr
       <div class="fsec">
         <div class="fsec-t">Información del Artículo</div>
         <div class="frow full"><div class="fg"><label>Nombre</label><input type="text" id="if_name" placeholder="Nombre del artículo"></div></div>
-        <div class="frow full"><div class="fg"><label>Descripción</label><textarea id="if_desc" rows="3" placeholder="Descripción del artículo…" style="resize:vertical"></textarea></div></div>
+        <div class="frow full"><div class="fg"><label>Descripción</label><textarea id="if_desc" rows="3" placeholder="Descripción…" style="resize:vertical"></textarea></div></div>
         <div class="frow"><div class="fg"><label>Cantidad</label>
           <div class="qty-ctrl">
             <button type="button" onclick="itemQtyAdj(-1)">−</button>
@@ -350,6 +333,22 @@ header{position:relative;z-index:10;border-bottom:1px solid var(--border);backgr
       <button class="btn-del" id="item-btn-del" onclick="deleteItem()" style="display:none">🗑 Eliminar</button>
       <button class="btn-can" onclick="closeItemModal()">Cancelar</button>
       <button class="btn-sav" onclick="saveItem()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-ov" id="npcModal">
+  <div class="modal">
+    <div class="modal-hdr">
+      <h2 id="modal-title">Nuevo Personaje</h2>
+      <button class="mcl" onclick="closeModal()">×</button>
+    </div>
+    <div class="mbody" id="modal-body"></div>
+    <div class="modal-ftr">
+      <button class="btn-del" id="btn-del" onclick="deleteNPC()" style="display:none">🗑 Eliminar</button>
+      <button class="btn-can" onclick="closeModal()">Cancelar</button>
+      <button class="btn-sav" onclick="saveNPC()">Guardar</button>
     </div>
   </div>
 </div>
@@ -465,6 +464,17 @@ function calcDP(n) {
   }
   // Carta La Lanza +3 + subcasilla honor y cordura +1
   if(n.cartaLanza){ add(3,"Carta: La Lanza"); if(n.cartaLanzaHonor) add(1,"La Lanza: Honor y Cordura"); }
+  // Subclase Adicional ×2 DP c/u (mín 1)
+  if(n.subclaseAdicional){
+    const sc = Math.max(1, parseInt(n.subclasesExtra)||1);
+    add(sc*2, `Subclase Adicional ×${sc} → +${sc*2} DP`);
+  }
+  // Naturaleza Legendaria +3 + dotes legendarios ×2
+  if(n.naturalezaLegendaria){
+    add(3,"Naturaleza Legendaria");
+    const dl = parseInt(n.dotesLegendarios)||0;
+    add(dl*2, `Dotes Legendarios ×${dl} → +${dl*2} DP`);
+  }
   return {dp, bd, pend:false};
 }
 function dpCls(dp){ if(dp==="?") return "dp-pend"; if(dp<=4) return "dp-lo"; if(dp<=8) return "dp-md"; return "dp-hi"; }
@@ -595,6 +605,8 @@ function buildTags(n){
   if(n.familiares) t.push({t:n.familiaresAltoPoder?"👾 Familiares Alto Poder":"👾 Familiares",c:n.familiaresAltoPoder?"wp":"ep"});
   if(n.claseAdicional) t.push({t:`Clase Adicional${(parseInt(n.clasesExtra)||0)>0?` ×${n.clasesExtra}`:""}`,c:"cg"});
   if(n.cartaLanza) t.push({t:n.cartaLanzaHonor?"🗡️ La Lanza (Honor)":"🗡️ La Lanza",c:"wp"});
+  if(n.subclaseAdicional) t.push({t:`Subclase Adicional ×${Math.max(1,parseInt(n.subclasesExtra)||1)}`,c:"cg"});
+  if(n.naturalezaLegendaria) t.push({t:`🌟 Nat. Legendaria${(parseInt(n.dotesLegendarios)||0)>0?` (+${n.dotesLegendarios} dotes)`:""}`,c:"my"});
   return t;
 }
 
@@ -971,6 +983,10 @@ function buildModalForm(n){
     ${sub("f_familiares",sr("f_familiaresAltoPoder","Familiares de Alto Poder","+4 DP"))}
     ${cr("f_claseAdicional","Clase Adicional","+3 DP")}
     ${sub("f_claseAdicional",`<div class="sr"><label style="flex:1">Clases Extra</label><span class="dph">×2 DP c/u</span><input type="number" id="f_clasesExtra" min="0" value="${n?.clasesExtra||0}" disabled style="width:52px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:4px 8px;color:var(--text);font-size:13px;outline:none"></div>`)}
+    ${cr("f_subclaseAdicional","Subclase Adicional","×2 DP c/u")}
+    ${sub("f_subclaseAdicional",`<div class="sr"><label style="flex:1">Subclases Extra</label><span class="dph">×2 DP c/u (mín 1)</span><input type="number" id="f_subclasesExtra" min="1" value="${Math.max(1,n?.subclasesExtra||1)}" disabled style="width:52px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:4px 8px;color:var(--text);font-size:13px;outline:none"></div>`)}
+    ${cr("f_naturalezaLegendaria","Naturaleza Legendaria","+3 DP")}
+    ${sub("f_naturalezaLegendaria",`<div class="sr"><label style="flex:1">Dotes Legendarios</label><span class="dph">×2 DP c/u</span><input type="number" id="f_dotesLegendarios" min="0" value="${n?.dotesLegendarios||0}" disabled style="width:52px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:4px 8px;color:var(--text);font-size:13px;outline:none"></div>`)}
     ${cr("f_objAtrib","Objetos/Modif. que suban Atributos","×1 DP c/u","f_objAtrib_n",n?.objAtrib)}
     ${cr("f_transformacion","Transformación Sobrenatural","×2 DP c/u","f_transformacion_n",n?.transformacion)}
     ${cr("f_avatar","Avatar de una Divinidad","+3 DP")}
@@ -1002,6 +1018,8 @@ function buildModalForm(n){
       f_setPrimordial:n.setPrimordial, f_objAtrib:(n.objAtrib||0)>0,
       f_familiares:(n.familiares||false), f_familiaresAltoPoder:(n.familiaresAltoPoder||false),
       f_claseAdicional:(n.claseAdicional||false),
+      f_subclaseAdicional:(n.subclaseAdicional||false),
+      f_naturalezaLegendaria:(n.naturalezaLegendaria||false),
       f_transformacion:(n.transformacion||0)>0, f_avatar:n.avatar,
     };
     Object.entries(checks).forEach(([id,val])=>{const el=document.getElementById(id);if(el)el.checked=!!val;});
@@ -1017,9 +1035,13 @@ function buildModalForm(n){
     if(av&&ru)ru.disabled=!av.checked;
     const clA=document.getElementById("f_claseAdicional");const ceEl=document.getElementById("f_clasesExtra");
     if(clA&&ceEl)ceEl.disabled=!clA.checked;
+    const scA=document.getElementById("f_subclaseAdicional");const scE=document.getElementById("f_subclasesExtra");
+    if(scA&&scE)scE.disabled=!scA.checked;
+    const nlA=document.getElementById("f_naturalezaLegendaria");const dlE=document.getElementById("f_dotesLegendarios");
+    if(nlA&&dlE)dlE.disabled=!nlA.checked;
 
     // show sub-lists
-    ["f_armMuyRara","f_armLegendaria","f_armtoMuyRaro","f_armtoLegendario","f_familiares","f_claseAdicional","f_cartaLanza","f_avatar","f_fichaNivel","f_fichaParty"].forEach(id=>{
+    ["f_armMuyRara","f_armLegendaria","f_armtoMuyRaro","f_armtoLegendario","f_familiares","f_claseAdicional","f_subclaseAdicional","f_naturalezaLegendaria","f_cartaLanza","f_avatar","f_fichaNivel","f_fichaParty"].forEach(id=>{
       const cb=document.getElementById(id);const sub=document.getElementById("sub_"+id);
       if(cb&&sub) sub.classList.toggle("show",cb.checked);
     });
@@ -1039,12 +1061,14 @@ function buildModalForm(n){
         if(numEl){numEl.disabled=!cb.checked;if(cb.checked)numEl.focus();}
       });
     });
-    ["f_armMuyRara","f_armLegendaria","f_armtoMuyRaro","f_armtoLegendario","f_familiares","f_claseAdicional","f_cartaLanza","f_avatar","f_fichaNivel","f_fichaParty"].forEach(id=>{
+    ["f_armMuyRara","f_armLegendaria","f_armtoMuyRaro","f_armtoLegendario","f_familiares","f_claseAdicional","f_subclaseAdicional","f_naturalezaLegendaria","f_cartaLanza","f_avatar","f_fichaNivel","f_fichaParty"].forEach(id=>{
       const cb=document.getElementById(id);if(!cb)return;
       cb.addEventListener("change",()=>{
         const sub=document.getElementById("sub_"+id);if(sub)sub.classList.toggle("show",cb.checked);
         if(id==="f_avatar"){const ru=document.getElementById("f_rupturas");if(ru)ru.disabled=!cb.checked;}
         if(id==="f_claseAdicional"){const ce=document.getElementById("f_clasesExtra");if(ce)ce.disabled=!cb.checked;}
+        if(id==="f_subclaseAdicional"){const se=document.getElementById("f_subclasesExtra");if(se){se.disabled=!cb.checked;if(cb.checked)se.focus();}}
+        if(id==="f_naturalezaLegendaria"){const de=document.getElementById("f_dotesLegendarios");if(de){de.disabled=!cb.checked;if(cb.checked)de.focus();}}
         if(id==="f_fichaParty"){const fs=document.getElementById("f_fichaSuperior");if(fs){fs.disabled=!cb.checked;if(cb.checked)fs.focus();}}
       });
     });
@@ -1112,6 +1136,8 @@ async function saveNPC(){
     objAtrib:gn("f_objAtrib_n"),transformacion:gn("f_transformacion_n"),
     familiares:gc("f_familiares"),familiaresAltoPoder:gc("f_familiaresAltoPoder"),
     claseAdicional:gc("f_claseAdicional"),clasesExtra:gc("f_claseAdicional")?parseInt(document.getElementById("f_clasesExtra")?.value)||0:0,
+    subclaseAdicional:gc("f_subclaseAdicional"),subclasesExtra:gc("f_subclaseAdicional")?Math.max(1,parseInt(document.getElementById("f_subclasesExtra")?.value)||1):0,
+    naturalezaLegendaria:gc("f_naturalezaLegendaria"),dotesLegendarios:gc("f_naturalezaLegendaria")?parseInt(document.getElementById("f_dotesLegendarios")?.value)||0:0,
     avatar:gc("f_avatar"),rupturas:gn("f_rupturas"),
   };
 
@@ -1182,6 +1208,8 @@ function rowToNPC(r){
     objAtrib:r.obj_atrib||0, transformacion:r.transformacion||0,
     familiares:r.familiares||false, familiaresAltoPoder:r.familiares_alto_poder||false,
     claseAdicional:r.clase_adicional||false, clasesExtra:r.clases_extra||0,
+    subclaseAdicional:r.subclase_adicional||false, subclasesExtra:r.subclases_extra||1,
+    naturalezaLegendaria:r.naturaleza_legendaria||false, dotesLegendarios:r.dotes_legendarios||0,
     avatar:r.avatar, rupturas:r.rupturas||0, setPrimordial:r.set_primordial,
   };
 }
@@ -1210,6 +1238,8 @@ function npcToRow(n){
     obj_atrib:n.objAtrib||0, transformacion:n.transformacion||0,
     familiares:!!n.familiares, familiares_alto_poder:!!n.familiaresAltoPoder,
     clase_adicional:!!n.claseAdicional, clases_extra:n.clasesExtra||0,
+    subclase_adicional:!!n.subclaseAdicional, subclases_extra:n.subclasesExtra||1,
+    naturaleza_legendaria:!!n.naturalezaLegendaria, dotes_legendarios:n.dotesLegendarios||0,
     avatar:!!n.avatar, rupturas:n.rupturas||0, set_primordial:!!n.setPrimordial,
   };
 }
@@ -1247,7 +1277,6 @@ function doLogin(){
     document.querySelectorAll(".cedit").forEach(b=>b.style.display="");
     // show campaign rename buttons
     document.querySelectorAll(".edit-cn-btn").forEach(b=>b.style.display="");
-    // show inventory edit/add buttons
     document.querySelectorAll(".icard-edit").forEach(b=>b.style.display="");
     document.querySelectorAll(".btn-new-item").forEach(b=>b.style.display="");
   } else {
@@ -1370,7 +1399,6 @@ function renderInvGrid(campId){
   });
 }
 
-// ─── ITEM MODAL ───
 function openNewItem(campId){
   editingItemId=null; pendingItemImg="";
   document.getElementById("item-modal-title").textContent="Nuevo Artículo";
@@ -1378,34 +1406,24 @@ function openNewItem(campId){
   document.getElementById("if_name").value="";
   document.getElementById("if_desc").value="";
   document.getElementById("if_qty").value="1";
-  // reset image
   const prev=document.getElementById("item-img-prev");
-  prev.innerHTML=""; prev.className="";
-  document.getElementById("item-img-txt").textContent="Clic o arrastra una imagen";
-  // store which campaign
+  prev.innerHTML=""; document.getElementById("item-img-txt").textContent="Clic o arrastra una imagen";
   document.getElementById("itemModal").dataset.camp=campId;
   document.getElementById("itemModal").classList.add("open");
   setTimeout(()=>document.getElementById("if_name").focus(),50);
 }
 
 function openEditItem(id){
-  const item=ITEMS.find(i=>i.id===id);
-  if(!item) return;
+  const item=ITEMS.find(i=>i.id===id); if(!item) return;
   editingItemId=id; pendingItemImg="";
   document.getElementById("item-modal-title").textContent=`Editar: ${item.name}`;
   document.getElementById("item-btn-del").style.display="block";
   document.getElementById("if_name").value=item.name;
   document.getElementById("if_desc").value=item.desc||"";
   document.getElementById("if_qty").value=item.qty;
-  // image
   const prev=document.getElementById("item-img-prev");
-  if(item.img){
-    prev.innerHTML=`<img class="img-prev" src="${item.img}">`;
-    document.getElementById("item-img-txt").textContent="Clic para cambiar";
-  } else {
-    prev.innerHTML="";
-    document.getElementById("item-img-txt").textContent="Clic o arrastra una imagen";
-  }
+  if(item.img){prev.innerHTML=`<img class="img-prev" src="${item.img}">`;document.getElementById("item-img-txt").textContent="Clic para cambiar";}
+  else{prev.innerHTML="";document.getElementById("item-img-txt").textContent="Clic o arrastra una imagen";}
   document.getElementById("itemModal").dataset.camp=item.camp;
   document.getElementById("itemModal").classList.add("open");
 }
@@ -1417,8 +1435,7 @@ function closeItemModal(){
 
 function itemQtyAdj(delta){
   const el=document.getElementById("if_qty");
-  const val=Math.max(0,(parseInt(el.value)||0)+delta);
-  el.value=val;
+  el.value=Math.max(0,(parseInt(el.value)||0)+delta);
 }
 
 function onItemImgUpload(input){
@@ -1426,8 +1443,7 @@ function onItemImgUpload(input){
   const reader=new FileReader();
   reader.onload=e=>{
     pendingItemImg=e.target.result;
-    const prev=document.getElementById("item-img-prev");
-    prev.innerHTML=`<img class="img-prev" src="${pendingItemImg}">`;
+    document.getElementById("item-img-prev").innerHTML=`<img class="img-prev" src="${pendingItemImg}">`;
     document.getElementById("item-img-txt").textContent="Clic para cambiar";
   };
   reader.readAsDataURL(file);
@@ -1440,23 +1456,18 @@ async function saveItem(){
   const qty=parseInt(document.getElementById("if_qty").value)||0;
   const campId=parseInt(document.getElementById("itemModal").dataset.camp);
   const imgData=pendingItemImg||(editingItemId?ITEMS.find(i=>i.id===editingItemId)?.img:"");
-
   showToast("Guardando…",false);
-
   if(editingItemId){
-    const row={name,description:desc,qty,img:imgData||""};
-    await sbFetch("items?id=eq."+editingItemId,{method:"PATCH",body:JSON.stringify(row)});
+    await sbFetch("items?id=eq."+editingItemId,{method:"PATCH",body:JSON.stringify({name,description:desc,qty,img:imgData||""})});
     const idx=ITEMS.findIndex(i=>i.id===editingItemId);
     if(idx>=0) ITEMS[idx]={...ITEMS[idx],name,desc,qty,img:imgData||""};
   } else {
     const newId="item_"+Date.now();
-    const row={id:newId,camp:campId,name,description:desc,qty,img:imgData||""};
-    await sbFetch("items",{method:"POST",body:JSON.stringify(row)});
+    await sbFetch("items",{method:"POST",body:JSON.stringify({id:newId,camp:campId,name,description:desc,qty,img:imgData||""})});
     ITEMS.push({id:newId,camp:campId,name,desc,qty,img:imgData||""});
   }
   showToast("✓ Guardado");
-  pendingItemImg=""; closeItemModal();
-  renderInvGrid(campId);
+  pendingItemImg=""; closeItemModal(); renderInvGrid(campId);
 }
 
 async function deleteItem(){
@@ -1466,9 +1477,7 @@ async function deleteItem(){
   await sbFetch("items?id=eq."+editingItemId,{method:"DELETE"});
   const campId=item.camp;
   ITEMS=ITEMS.filter(i=>i.id!==editingItemId);
-  showToast("✓ Eliminado");
-  closeItemModal();
-  renderInvGrid(campId);
+  showToast("✓ Eliminado"); closeItemModal(); renderInvGrid(campId);
 }
 
 // ─── INIT ───
