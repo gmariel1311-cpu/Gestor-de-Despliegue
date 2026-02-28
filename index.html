@@ -294,7 +294,7 @@ header{position:relative;z-index:10;border-bottom:1px solid var(--border);backgr
 .btn-add-room:hover{background:rgba(201,76,76,.08)}
 .btn-del-room{background:transparent;border:1px dashed var(--border2);color:var(--text3);font-family:'Cinzel',serif;font-size:8px;letter-spacing:.1em;text-transform:uppercase;padding:6px 12px;border-radius:6px;cursor:pointer;transition:all .2s;display:none}
 .btn-del-room:hover{border-color:var(--red);color:var(--red2)}
-.wr-room-dp-input{width:52px;height:28px;background:var(--bg4);border:1px solid var(--border2);border-radius:6px;color:var(--green2);font-family:'Cinzel Decorative',serif;font-size:13px;font-weight:900;text-align:center;outline:none;display:none}
+.wr-room-dp-input{width:52px;height:28px;background:var(--bg4);border:1px solid var(--border2);border-radius:6px;color:var(--green2);font-family:'Cinzel Decorative',serif;font-size:13px;font-weight:900;text-align:center;outline:none}
 .wr-room-dp-input:focus{border-color:var(--green2)}
 .wr-room-dp-view{font-family:'Cinzel Decorative',serif;font-size:13px;font-weight:900;color:var(--green2);min-width:32px;text-align:center}
 </style>
@@ -1682,17 +1682,23 @@ function renderWRPanel(campId){
         <div class="wr-room-name${npc?"":" empty"}">${npc?npc.name:"Sin asignar"}</div>
       </div>
       ${npc?`<span class="wr-room-bc">BC ${npc.bc||0}</span>`:""}
-      <span class="wr-room-dp-view" style="display:${isLoggedIn?"none":""}">+${room.dp||0}</span>
-      <input type="number" class="wr-room-dp-input" value="${room.dp||0}" min="0" style="display:${isLoggedIn?"":"none"}">
-      <select class="wr-room-sel" style="display:${isLoggedIn?"":"none"}">
+      <span class="wr-room-dp-view">+${room.dp||0}</span>
+      <input type="number" class="wr-room-dp-input" value="${room.dp||0}" min="0">
+      <select class="wr-room-sel">
         <option value="">— Sin asignar —</option>
         ${opts}
       </select>`;
     const sel=div.querySelector(".wr-room-sel");
     const dpInput=div.querySelector(".wr-room-dp-input");
+    const dpView=div.querySelector(".wr-room-dp-view");
+    // visibility based on login state
+    sel.style.display=isLoggedIn?"":"none";
+    dpInput.style.display=isLoggedIn?"":"none";
+    dpView.style.display=isLoggedIn?"none":"";
     dpInput.addEventListener("change",async()=>{
       const dp=parseInt(dpInput.value)||0;
       room.dp=dp;
+      dpView.textContent="+"+dp;
       await sbFetch(`war_rooms?id=eq.${room.id}`,{method:"PATCH",body:JSON.stringify({dp})});
       renderGenDP(campId);
       updatePanel();
@@ -1714,7 +1720,6 @@ function renderWRPanel(campId){
 async function addWRRoom(campId){
   const newRoom={camp:campId,npc_id:null,dp:0};
   const res=await sbFetch("war_rooms",{method:"POST",body:JSON.stringify(newRoom)});
-  // reload from DB to get the id
   const rows=await sbFetch(`war_rooms?camp=eq.${campId}&order=id`);
   if(rows) WAR_ROOMS=WAR_ROOMS.filter(r=>r.camp!==campId).concat(rows.map(r=>({id:r.id,camp:r.camp,npc_id:r.npc_id||null,dp:r.dp||0})));
   renderWRPanel(campId);
@@ -1953,7 +1958,6 @@ async function init(){
   document.querySelectorAll(".edit-cn-btn").forEach(b=>b.style.display="none");
   document.querySelectorAll(".inv-edit-btn").forEach(b=>b.style.display="none");
   document.querySelectorAll(".wr-room-sel").forEach(b=>b.style.display="none");
-  document.querySelectorAll(".wr-room-dp-input").forEach(b=>b.style.display="none");
   document.querySelectorAll(".btn-add-room,.btn-del-room").forEach(b=>b.style.display="none");
   campaigns.forEach(c=>{const b=document.getElementById(`btn-add-item-${c.id}`);if(b)b.style.display="none";});
   showToast("✓ Listo");
