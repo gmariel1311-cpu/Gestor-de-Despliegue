@@ -244,6 +244,49 @@ header{position:relative;z-index:10;border-bottom:1px solid var(--border);backgr
 .qty-ctrl button:last-child{border-radius:0 7px 7px 0}
 .qty-ctrl button:hover{background:rgba(201,168,76,.15);border-color:var(--gold);color:var(--gold2)}
 .qty-ctrl input{width:60px;height:32px;background:var(--bg3);border:1px solid var(--border);border-left:none;border-right:none;color:var(--text);font-family:'Cinzel Decorative',serif;font-size:15px;font-weight:900;text-align:center;outline:none}
+/* ─── BOTTOM PANELS LAYOUT ─── */
+.bottom-panels{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:32px;align-items:start}
+@media(max-width:900px){.bottom-panels{grid-template-columns:1fr}}
+.inv-section{border:1px solid var(--border);border-radius:13px;overflow:hidden;background:var(--bg2)}
+/* ─── ASSIGNMENTS ─── */
+.asgn-section{border:1px solid rgba(138,76,201,.3);border-radius:13px;overflow:hidden;background:var(--bg2)}
+.asgn-toggle{width:100%;background:transparent;border:none;padding:14px 18px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:background .2s}
+.asgn-toggle:hover{background:rgba(138,76,201,.05)}
+.asgn-toggle.open .inv-arr{transform:rotate(180deg)}
+.asgn-toggle-title{font-family:'Cinzel',serif;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--purple2);flex:1;text-align:left}
+.asgn-body{display:none;border-top:1px solid rgba(138,76,201,.2)}
+.asgn-body.open{display:block}
+/* ─── WAR ROOMS ─── */
+.wr-inner-section{}
+.wr-inner-toggle{width:100%;background:var(--bg3);border:none;padding:11px 16px;display:flex;align-items:center;gap:8px;cursor:pointer;transition:background .15s}
+.wr-inner-toggle:hover{background:rgba(201,76,76,.05)}
+.wr-inner-toggle.open .inv-arr{transform:rotate(180deg)}
+.wr-toggle-title{font-family:'Cinzel',serif;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--red2);flex:1;text-align:left}
+.wr-count{font-family:'Cinzel',serif;font-size:9px;color:var(--text3);background:var(--bg4);border:1px solid var(--border);border-radius:9px;padding:1px 6px}
+.wr-body{display:none;border-top:1px solid rgba(201,76,76,.15)}
+.wr-body.open{display:block}
+.wr-summary{display:flex;border-bottom:1px solid rgba(35,47,64,.5)}
+.wr-stat{flex:1;padding:12px 8px;text-align:center;border-right:1px solid rgba(35,47,64,.5)}
+.wr-stat:last-child{border-right:none}
+.wr-stat-n{font-family:'Cinzel Decorative',serif;font-size:18px;font-weight:900;line-height:1}
+.wr-stat-n.pos{color:var(--green2)}
+.wr-stat-n.neg{color:var(--red2)}
+.wr-stat-n.net{color:var(--gold2)}
+.wr-stat-l{font-family:'Cinzel',serif;font-size:7px;letter-spacing:.12em;text-transform:uppercase;color:var(--text3);margin-top:4px}
+.wr-rooms{padding:10px 14px;display:flex;flex-direction:column;gap:6px}
+.wr-room{display:flex;align-items:center;gap:8px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:7px 10px}
+.wr-room-num{font-family:'Cinzel',serif;font-size:9px;color:var(--text3);width:18px;flex-shrink:0;text-align:center}
+.wr-room-info{flex:1;min-width:0}
+.wr-room-name{font-size:12px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wr-room-name.empty{color:var(--text3);font-style:italic}
+.wr-room-bc{font-family:'Cinzel',serif;font-size:8px;color:var(--teal2);background:rgba(76,168,160,.08);border:1px solid rgba(76,168,160,.3);border-radius:5px;padding:1px 6px;flex-shrink:0}
+.wr-room-sel{background:var(--bg4);border:1px solid var(--border);border-radius:6px;color:var(--text2);font-family:'Crimson Pro',serif;font-size:12px;padding:3px 7px;outline:none;cursor:pointer;display:none;min-width:120px}
+.wr-room-sel:focus{border-color:var(--gold)}
+.wr-add-row{padding:8px 14px;border-top:1px solid rgba(35,47,64,.4);display:flex;gap:6px}
+.btn-add-room{background:transparent;border:1px dashed rgba(201,76,76,.4);color:var(--red2);font-family:'Cinzel',serif;font-size:8px;letter-spacing:.1em;text-transform:uppercase;padding:6px 12px;border-radius:6px;cursor:pointer;transition:all .2s;flex:1;display:none}
+.btn-add-room:hover{background:rgba(201,76,76,.08)}
+.btn-del-room{background:transparent;border:1px dashed var(--border2);color:var(--text3);font-family:'Cinzel',serif;font-size:8px;letter-spacing:.1em;text-transform:uppercase;padding:6px 12px;border-radius:6px;cursor:pointer;transition:all .2s;display:none}
+.btn-del-room:hover{border-color:var(--red);color:var(--red2)}
 </style>
 </head>
 <body>
@@ -849,16 +892,45 @@ function renderPanels(){
         <input type="text" class="search" placeholder="Buscar…" oninput="renderGrid(${c.id},activeFaction[${c.id}],this.value)">
       </div>
       <div class="grid" id="grid${c.id}"></div>
-      <div class="inv-section" id="inv-section${c.id}">
-        <button class="inv-toggle" id="inv-toggle${c.id}" onclick="toggleInv(${c.id})">
-          <span class="inv-toggle-title">📦 Inventario de Campaña</span>
-          <span class="inv-count" id="inv-count${c.id}">0</span>
-          <span class="inv-arr">▾</span>
-        </button>
-        <div class="inv-body" id="inv-body${c.id}">
-          <div class="inv-content"></div>
-          <div class="inv-add-row">
-            <button class="btn-add-item" id="btn-add-item-${c.id}" onclick="openNewItem(${c.id})" style="display:none">＋ Agregar artículo</button>
+      <div class="bottom-panels">
+        <div class="inv-section" id="inv-section${c.id}">
+          <button class="inv-toggle" id="inv-toggle${c.id}" onclick="toggleInv(${c.id})">
+            <span class="inv-toggle-title">📦 Inventario de Campaña</span>
+            <span class="inv-count" id="inv-count${c.id}">0</span>
+            <span class="inv-arr">▾</span>
+          </button>
+          <div class="inv-body" id="inv-body${c.id}">
+            <div class="inv-content"></div>
+            <div class="inv-add-row">
+              <button class="btn-add-item" id="btn-add-item-${c.id}" onclick="openNewItem(${c.id})" style="display:none">＋ Agregar artículo</button>
+            </div>
+          </div>
+        </div>
+        <div class="asgn-section" id="asgn-section${c.id}">
+          <button class="asgn-toggle" id="asgn-toggle${c.id}" onclick="toggleAsgn(${c.id})">
+            <span class="asgn-toggle-title">🎯 Asignaciones</span>
+            <span class="inv-arr">▾</span>
+          </button>
+          <div class="asgn-body" id="asgn-body${c.id}">
+            <div class="wr-inner-section">
+              <button class="wr-inner-toggle" id="wr-toggle${c.id}" onclick="toggleWR(${c.id})">
+                <span class="wr-toggle-title">⚔️ Salas de Guerra</span>
+                <span class="wr-count" id="wr-count${c.id}">0 salas</span>
+                <span class="inv-arr">▾</span>
+              </button>
+              <div class="wr-body" id="wr-body${c.id}">
+                <div class="wr-summary">
+                  <div class="wr-stat"><div class="wr-stat-n pos" id="wr-pos${c.id}">0</div><div class="wr-stat-l">DP Producidos</div></div>
+                  <div class="wr-stat"><div class="wr-stat-n neg" id="wr-neg${c.id}">0</div><div class="wr-stat-l">DP Consumidos</div></div>
+                  <div class="wr-stat"><div class="wr-stat-n net" id="wr-net${c.id}">0</div><div class="wr-stat-l">Balance Neto</div></div>
+                </div>
+                <div class="wr-rooms" id="wr-rooms${c.id}"></div>
+                <div class="wr-add-row">
+                  <button class="btn-add-room" id="btn-add-room-${c.id}" onclick="addWRRoom(${c.id})">＋ Agregar sala</button>
+                  <button class="btn-del-room" id="btn-del-room-${c.id}" onclick="removeWRRoom(${c.id})">− Quitar sala</button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>`;
@@ -869,12 +941,13 @@ function renderPanels(){
 function fullRender(){
   renderTabs();
   renderPanels();
-  campaigns.forEach(c=>{renderFactionBtns(c.id);renderGrid(c.id,activeFaction[c.id],null);renderInvGrid(c.id);});
-  // respect auth state
+  campaigns.forEach(c=>{renderFactionBtns(c.id);renderGrid(c.id,activeFaction[c.id],null);renderInvGrid(c.id);renderWRPanel(c.id);});
   if(!isLoggedIn){
     document.querySelectorAll(".cedit").forEach(b=>b.style.display="none");
     document.querySelectorAll(".edit-cn-btn").forEach(b=>b.style.display="none");
     document.querySelectorAll(".inv-edit-btn").forEach(b=>b.style.display="none");
+    document.querySelectorAll(".wr-room-sel").forEach(b=>b.style.display="none");
+    document.querySelectorAll(".btn-add-room,.btn-del-room").forEach(b=>b.style.display="none");
     campaigns.forEach(c=>{const b=document.getElementById(`btn-add-item-${c.id}`);if(b)b.style.display="none";});
   }
 }
@@ -1405,6 +1478,9 @@ function doLogin(){
     // show inv edit/add buttons
     document.querySelectorAll(".inv-edit-btn").forEach(b=>b.style.display="inline-block");
     campaigns.forEach(c=>{const b=document.getElementById(`btn-add-item-${c.id}`);if(b)b.style.display="block";});
+    // show war room controls
+    document.querySelectorAll(".wr-room-sel").forEach(b=>b.style.display="");
+    document.querySelectorAll(".btn-add-room,.btn-del-room").forEach(b=>b.style.display="block");
   } else {
     document.getElementById("login-err").textContent="Usuario o contraseña incorrectos.";
     document.getElementById("login-pass").value="";
@@ -1425,6 +1501,8 @@ function logout(){
   document.querySelectorAll(".btn-new-item").forEach(b=>b.style.display="none");
   document.querySelectorAll(".inv-edit-btn").forEach(b=>b.style.display="none");
   campaigns.forEach(c=>{const b=document.getElementById(`btn-add-item-${c.id}`);if(b)b.style.display="none";});
+  document.querySelectorAll(".wr-room-sel").forEach(b=>b.style.display="none");
+  document.querySelectorAll(".btn-add-room,.btn-del-room").forEach(b=>b.style.display="none");
 }
 function openExport(){
   const sel=document.getElementById("exp-camp");
@@ -1507,10 +1585,114 @@ const CAT_CONFIG = {
 
 function toggleInv(campId){
   invOpen[campId]=!invOpen[campId];
-  const body=document.getElementById(`inv-body${campId}`);
-  const toggle=document.getElementById(`inv-toggle${campId}`);
-  body.classList.toggle("open", invOpen[campId]);
-  toggle.classList.toggle("open", invOpen[campId]);
+  document.getElementById(`inv-body${campId}`).classList.toggle("open",invOpen[campId]);
+  document.getElementById(`inv-toggle${campId}`).classList.toggle("open",invOpen[campId]);
+}
+
+// ─── ASSIGNMENTS ───
+const asgnOpen={};
+function toggleAsgn(campId){
+  asgnOpen[campId]=!asgnOpen[campId];
+  document.getElementById(`asgn-body${campId}`).classList.toggle("open",asgnOpen[campId]);
+  document.getElementById(`asgn-toggle${campId}`).classList.toggle("open",asgnOpen[campId]);
+}
+
+// ─── WAR ROOMS ───
+let WAR_ROOMS=[]; // [{id, camp, npc_id}]
+const wrOpen={};
+
+function toggleWR(campId){
+  wrOpen[campId]=!wrOpen[campId];
+  document.getElementById(`wr-body${campId}`).classList.toggle("open",wrOpen[campId]);
+  document.getElementById(`wr-toggle${campId}`).classList.toggle("open",wrOpen[campId]);
+}
+
+function calcWR(campId){
+  const rooms=WAR_ROOMS.filter(r=>r.camp===campId);
+  const totalNpcs=NPCS.filter(n=>n.camp===campId).length;
+  const bonus=Math.floor(totalNpcs/4);
+  let bcSum=0, dpSum=0;
+  rooms.forEach(r=>{
+    const npc=NPCS.find(n=>n.id===r.npc_id);
+    if(npc){bcSum+=(npc.bc||0); dpSum+=(calcDP(npc).dp==="?"?0:parseInt(calcDP(npc).dp)||0);}
+  });
+  const produced=bcSum+bonus;
+  const consumed=dpSum;
+  return {produced, consumed, net:produced-consumed, bonus, rooms:rooms.length};
+}
+
+function renderWRPanel(campId){
+  const container=document.getElementById(`wr-rooms${campId}`);
+  const countEl=document.getElementById(`wr-count${campId}`);
+  if(!container) return;
+  const rooms=WAR_ROOMS.filter(r=>r.camp===campId);
+  const calc=calcWR(campId);
+  // update count
+  if(countEl) countEl.textContent=`${rooms.length} sala${rooms.length!==1?"s":""}`;
+  // update summary
+  const posEl=document.getElementById(`wr-pos${campId}`);
+  const negEl=document.getElementById(`wr-neg${campId}`);
+  const netEl=document.getElementById(`wr-net${campId}`);
+  if(posEl) posEl.textContent="+"+calc.produced;
+  if(negEl) negEl.textContent="-"+calc.consumed;
+  if(netEl){
+    const net=calc.net;
+    netEl.textContent=(net>=0?"+":"")+net;
+    netEl.className="wr-stat-n net"+(net>=0?" pos":" neg");
+  }
+  // render room rows
+  container.innerHTML="";
+  const assignedIds=new Set(rooms.filter(r=>r.npc_id).map(r=>r.npc_id));
+  const campNpcs=NPCS.filter(n=>n.camp===campId);
+  rooms.forEach((room,i)=>{
+    const npc=NPCS.find(n=>n.id===room.npc_id);
+    const div=document.createElement("div");
+    div.className="wr-room";
+    // build select options: unassigned + current
+    const opts=campNpcs
+      .filter(n=>!assignedIds.has(n.id)||n.id===room.npc_id)
+      .map(n=>`<option value="${n.id}"${n.id===room.npc_id?" selected":""}>${n.name} (BC ${n.bc||0})</option>`)
+      .join("");
+    div.innerHTML=`
+      <span class="wr-room-num">${i+1}</span>
+      <div class="wr-room-info">
+        <div class="wr-room-name${npc?"":" empty"}">${npc?npc.name:"Sin asignar"}</div>
+      </div>
+      ${npc?`<span class="wr-room-bc">BC ${npc.bc||0}</span>`:""}
+      <select class="wr-room-sel" style="display:${isLoggedIn?"":"none"}">
+        <option value="">— Sin asignar —</option>
+        ${opts}
+      </select>`;
+    const sel=div.querySelector(".wr-room-sel");
+    sel.addEventListener("change",async()=>{
+      const npcId=sel.value||null;
+      room.npc_id=npcId;
+      await sbFetch(`war_rooms?id=eq.${room.id}`,{method:"PATCH",body:JSON.stringify({npc_id:npcId})});
+      renderWRPanel(campId);
+    });
+    container.appendChild(div);
+  });
+  if(!rooms.length){
+    container.innerHTML=`<div style="padding:12px;text-align:center;color:var(--text3);font-style:italic;font-size:13px">Sin salas configuradas.</div>`;
+  }
+}
+
+async function addWRRoom(campId){
+  const newRoom={camp:campId,npc_id:null};
+  const res=await sbFetch("war_rooms",{method:"POST",body:JSON.stringify(newRoom)});
+  // reload from DB to get the id
+  const rows=await sbFetch(`war_rooms?camp=eq.${campId}&order=id`);
+  if(rows) WAR_ROOMS=WAR_ROOMS.filter(r=>r.camp!==campId).concat(rows.map(r=>({id:r.id,camp:r.camp,npc_id:r.npc_id})));
+  renderWRPanel(campId);
+}
+
+async function removeWRRoom(campId){
+  const rooms=WAR_ROOMS.filter(r=>r.camp===campId);
+  if(!rooms.length) return;
+  const last=rooms[rooms.length-1];
+  await sbFetch(`war_rooms?id=eq.${last.id}`,{method:"DELETE"});
+  WAR_ROOMS=WAR_ROOMS.filter(r=>r.id!==last.id);
+  renderWRPanel(campId);
 }
 
 function toggleInvCat(campId, cat){
@@ -1726,11 +1908,17 @@ async function init(){
     showToast("✓ Inventario inicial guardado");
   }
 
+  // load war rooms from Supabase
+  const wrRows = await sbFetch("war_rooms?select=*&order=id");
+  if(wrRows) WAR_ROOMS = wrRows.map(r=>({id:r.id,camp:r.camp,npc_id:r.npc_id||null}));
+
   campaigns.forEach(c=>activeFaction[c.id]=null);
   fullRender();
   document.querySelectorAll(".cedit").forEach(b=>b.style.display="none");
   document.querySelectorAll(".edit-cn-btn").forEach(b=>b.style.display="none");
   document.querySelectorAll(".inv-edit-btn").forEach(b=>b.style.display="none");
+  document.querySelectorAll(".wr-room-sel").forEach(b=>b.style.display="none");
+  document.querySelectorAll(".btn-add-room,.btn-del-room").forEach(b=>b.style.display="none");
   campaigns.forEach(c=>{const b=document.getElementById(`btn-add-item-${c.id}`);if(b)b.style.display="none";});
   showToast("✓ Listo");
 }
