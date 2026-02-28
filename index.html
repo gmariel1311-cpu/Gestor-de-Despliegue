@@ -477,8 +477,8 @@ let campaigns = [
 // ─── DP CALC ───
 function calcDP(n) {
   if (n.dpPendiente) return {dp:"?", bd:[], pend:true};
-  let dp = 2;
-  const bd = [{l:"Base (ficha de personaje)", v:2}];
+  let dp = 0;
+  const bd = [];
   const add = (v,l) => { if(v>0){dp+=v;bd.push({l,v});} };
 
   // Tipo de ficha
