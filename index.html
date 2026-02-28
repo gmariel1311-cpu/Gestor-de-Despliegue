@@ -249,13 +249,20 @@ header{position:relative;z-index:10;border-bottom:1px solid var(--border);backgr
 @media(max-width:900px){.bottom-panels{grid-template-columns:1fr}}
 .inv-section{border:1px solid var(--border);border-radius:13px;overflow:hidden;background:var(--bg2)}
 /* ─── ASSIGNMENTS ─── */
-.asgn-section{border:1px solid rgba(138,76,201,.3);border-radius:13px;overflow:hidden;background:var(--bg2)}
+.asgn-section{border:1px solid rgba(76,168,76,.25);border-radius:13px;overflow:hidden;background:var(--bg2)}
 .asgn-toggle{width:100%;background:transparent;border:none;padding:14px 18px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:background .2s}
-.asgn-toggle:hover{background:rgba(138,76,201,.05)}
+.asgn-toggle:hover{background:rgba(76,168,76,.04)}
 .asgn-toggle.open .inv-arr{transform:rotate(180deg)}
-.asgn-toggle-title{font-family:'Cinzel',serif;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--purple2);flex:1;text-align:left}
-.asgn-body{display:none;border-top:1px solid rgba(138,76,201,.2)}
+.asgn-toggle-title{font-family:'Cinzel',serif;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--green2);flex:1;text-align:left}
+.asgn-body{display:none;border-top:1px solid rgba(76,168,76,.2)}
 .asgn-body.open{display:block}
+.asgn-auto-box{display:flex;align-items:center;gap:14px;padding:12px 18px;background:var(--bg3);border-bottom:1px solid rgba(35,47,64,.5)}
+.asgn-auto-n{font-family:'Cinzel Decorative',serif;font-size:22px;font-weight:900;color:var(--green2);text-shadow:0 0 16px rgba(76,168,76,.3);line-height:1}
+.asgn-auto-info{flex:1}
+.asgn-auto-label{font-family:'Cinzel',serif;font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--text3)}
+.asgn-auto-sub{font-size:12px;color:var(--text3);font-style:italic;margin-top:2px}
+.gen-dp-line{display:flex;align-items:center;gap:8px;padding:5px 14px;background:rgba(76,168,76,.06);border-top:1px solid rgba(76,168,76,.15);font-family:'Cinzel',serif;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--green2)}
+.gen-dp-line span{font-family:'Cinzel Decorative',serif;font-size:14px;font-weight:900}
 /* ─── WAR ROOMS ─── */
 .wr-inner-section{}
 .wr-inner-toggle{width:100%;background:var(--bg3);border:none;padding:11px 16px;display:flex;align-items:center;gap:8px;cursor:pointer;transition:background .15s}
@@ -358,6 +365,7 @@ header{position:relative;z-index:10;border-bottom:1px solid var(--border);backgr
   <div class="sel-inner">
     <span class="sel-lbl">En misión:</span>
     <div class="sel-chips" id="selChips"></div>
+    <div class="gen-dp-line" id="genDpLine" style="display:none">⚡ Generados: <span id="genDpVal">0</span> DP</div>
     <div class="total-dp"><span class="n" id="totalDP">0</span><span class="u">DP</span></div>
   </div>
 </div>
@@ -908,10 +916,18 @@ function renderPanels(){
         </div>
         <div class="asgn-section" id="asgn-section${c.id}">
           <button class="asgn-toggle" id="asgn-toggle${c.id}" onclick="toggleAsgn(${c.id})">
-            <span class="asgn-toggle-title">🎯 Asignaciones</span>
+            <span class="asgn-toggle-title">⚡ Generación de DP</span>
+            <span class="wr-count" id="asgn-total${c.id}">0 DP</span>
             <span class="inv-arr">▾</span>
           </button>
           <div class="asgn-body" id="asgn-body${c.id}">
+            <div class="asgn-auto-box">
+              <div class="asgn-auto-n" id="asgn-auto-n${c.id}">0</div>
+              <div class="asgn-auto-info">
+                <div class="asgn-auto-label">DP por Roster</div>
+                <div class="asgn-auto-sub" id="asgn-auto-sub${c.id}">Total NPCs ÷ 4 (redondeado arriba)</div>
+              </div>
+            </div>
             <div class="wr-inner-section">
               <button class="wr-inner-toggle" id="wr-toggle${c.id}" onclick="toggleWR(${c.id})">
                 <span class="wr-toggle-title">⚔️ Salas de Guerra</span>
@@ -919,11 +935,6 @@ function renderPanels(){
                 <span class="inv-arr">▾</span>
               </button>
               <div class="wr-body" id="wr-body${c.id}">
-                <div class="wr-summary">
-                  <div class="wr-stat"><div class="wr-stat-n pos" id="wr-pos${c.id}">0</div><div class="wr-stat-l">DP Producidos</div></div>
-                  <div class="wr-stat"><div class="wr-stat-n neg" id="wr-neg${c.id}">0</div><div class="wr-stat-l">DP Consumidos</div></div>
-                  <div class="wr-stat"><div class="wr-stat-n net" id="wr-net${c.id}">0</div><div class="wr-stat-l">Balance Neto</div></div>
-                </div>
                 <div class="wr-rooms" id="wr-rooms${c.id}"></div>
                 <div class="wr-add-row">
                   <button class="btn-add-room" id="btn-add-room-${c.id}" onclick="addWRRoom(${c.id})">＋ Agregar sala</button>
@@ -941,7 +952,7 @@ function renderPanels(){
 function fullRender(){
   renderTabs();
   renderPanels();
-  campaigns.forEach(c=>{renderFactionBtns(c.id);renderGrid(c.id,activeFaction[c.id],null);renderInvGrid(c.id);renderWRPanel(c.id);});
+  campaigns.forEach(c=>{renderFactionBtns(c.id);renderGrid(c.id,activeFaction[c.id],null);renderInvGrid(c.id);renderWRPanel(c.id);renderGenDP(c.id);});
   if(!isLoggedIn){
     document.querySelectorAll(".cedit").forEach(b=>b.style.display="none");
     document.querySelectorAll(".edit-cn-btn").forEach(b=>b.style.display="none");
@@ -977,22 +988,35 @@ function updatePanel(){
   const totalEl=document.getElementById("totalDP");
   const hdrDp=document.getElementById("hdr-dp");
   const hdrCnt=document.getElementById("hdr-cnt");
+  const genLine=document.getElementById("genDpLine");
+  const genVal=document.getElementById("genDpVal");
+  // compute generated DP from active campaign
+  const gen=getGeneratedDP(activeTab);
+  const genTotal=gen.total;
   if(!selected.size){
-    panel.classList.remove("vis");totalEl.textContent="0";hdrDp.textContent="0";hdrCnt.textContent="Ninguno";return;
+    panel.classList.remove("vis");
+    totalEl.textContent="+"+genTotal;
+    hdrDp.textContent="+"+genTotal;
+    hdrCnt.textContent="Ninguno";
+    if(genLine) genLine.style.display="none";
+    return;
   }
   panel.classList.add("vis");
-  let total=0,hasPend=false,html="";
+  let consumed=0,hasPend=false,html="";
   selected.forEach(id=>{
     const npc=NPCS.find(n=>n.id===id);if(!npc)return;
     const {dp,pend}=calcDP(npc);
-    if(pend)hasPend=true;else total+=dp;
+    if(pend)hasPend=true;else consumed+=dp;
     const avaHtml=npc.img?`<img src="${npc.img}" style="width:18px;height:18px;border-radius:50%;object-fit:cover">`:npc.emoji;
     html+=`<div class="chip">${avaHtml} ${npc.name}<span class="chip-dp">${pend?"?":dp} DP</span><button class="chip-x" onclick="event.stopPropagation();toggleNPC('${id}')">×</button></div>`;
   });
   chips.innerHTML=html;
-  const disp=hasPend?`${total}+`:String(total);
-  totalEl.textContent=disp;hdrDp.textContent=disp;
+  const net=genTotal-consumed;
+  const disp=(net>=0?"+":"")+net+(hasPend?"+":"");
+  totalEl.textContent=disp;
+  hdrDp.textContent=disp;
   hdrCnt.textContent=`${selected.size} NPC${selected.size>1?"s":""}`;
+  if(genLine){ genLine.style.display="flex"; genVal.textContent="+"+genTotal; }
 }
 
 function clearAll(){
@@ -1607,18 +1631,26 @@ function toggleWR(campId){
   document.getElementById(`wr-toggle${campId}`).classList.toggle("open",wrOpen[campId]);
 }
 
-function calcWR(campId){
-  const rooms=WAR_ROOMS.filter(r=>r.camp===campId);
+function getGeneratedDP(campId){
   const totalNpcs=NPCS.filter(n=>n.camp===campId).length;
-  const bonus=Math.floor(totalNpcs/4);
-  let bcSum=0, dpSum=0;
+  const rosterDp=Math.ceil(totalNpcs/4);
+  const rooms=WAR_ROOMS.filter(r=>r.camp===campId);
+  let roomsDp=0;
   rooms.forEach(r=>{
     const npc=NPCS.find(n=>n.id===r.npc_id);
-    if(npc){bcSum+=(npc.bc||0); dpSum+=(calcDP(npc).dp==="?"?0:parseInt(calcDP(npc).dp)||0);}
+    if(npc) roomsDp+=(npc.bc||0);
   });
-  const produced=bcSum+bonus;
-  const consumed=dpSum;
-  return {produced, consumed, net:produced-consumed, bonus, rooms:rooms.length};
+  return {rosterDp, roomsDp, total:rosterDp+roomsDp, totalNpcs, rooms:rooms.length};
+}
+
+function renderGenDP(campId){
+  const {rosterDp,roomsDp,total,totalNpcs}=getGeneratedDP(campId);
+  const autoN=document.getElementById(`asgn-auto-n${campId}`);
+  const autoSub=document.getElementById(`asgn-auto-sub${campId}`);
+  const totalBadge=document.getElementById(`asgn-total${campId}`);
+  if(autoN) autoN.textContent="+"+rosterDp;
+  if(autoSub) autoSub.textContent=`${totalNpcs} NPCs ÷ 4 = ${rosterDp} DP`;
+  if(totalBadge) totalBadge.textContent=`+${total} DP generados`;
 }
 
 function renderWRPanel(campId){
@@ -1626,20 +1658,8 @@ function renderWRPanel(campId){
   const countEl=document.getElementById(`wr-count${campId}`);
   if(!container) return;
   const rooms=WAR_ROOMS.filter(r=>r.camp===campId);
-  const calc=calcWR(campId);
-  // update count
   if(countEl) countEl.textContent=`${rooms.length} sala${rooms.length!==1?"s":""}`;
-  // update summary
-  const posEl=document.getElementById(`wr-pos${campId}`);
-  const negEl=document.getElementById(`wr-neg${campId}`);
-  const netEl=document.getElementById(`wr-net${campId}`);
-  if(posEl) posEl.textContent="+"+calc.produced;
-  if(negEl) negEl.textContent="-"+calc.consumed;
-  if(netEl){
-    const net=calc.net;
-    netEl.textContent=(net>=0?"+":"")+net;
-    netEl.className="wr-stat-n net"+(net>=0?" pos":" neg");
-  }
+  renderGenDP(campId);
   // render room rows
   container.innerHTML="";
   const assignedIds=new Set(rooms.filter(r=>r.npc_id).map(r=>r.npc_id));
@@ -1648,7 +1668,6 @@ function renderWRPanel(campId){
     const npc=NPCS.find(n=>n.id===room.npc_id);
     const div=document.createElement("div");
     div.className="wr-room";
-    // build select options: unassigned + current
     const opts=campNpcs
       .filter(n=>!assignedIds.has(n.id)||n.id===room.npc_id)
       .map(n=>`<option value="${n.id}"${n.id===room.npc_id?" selected":""}>${n.name} (BC ${n.bc||0})</option>`)
@@ -1669,6 +1688,7 @@ function renderWRPanel(campId){
       room.npc_id=npcId;
       await sbFetch(`war_rooms?id=eq.${room.id}`,{method:"PATCH",body:JSON.stringify({npc_id:npcId})});
       renderWRPanel(campId);
+      updatePanel();
     });
     container.appendChild(div);
   });
