@@ -59,6 +59,10 @@ header{position:relative;z-index:10;border-bottom:1px solid var(--border);backgr
 .edit-cn-btn:hover{color:var(--gold)}
 .camp-name-input{font-family:'Cinzel',serif;font-size:16px;font-weight:700;color:var(--gold3);background:transparent;border:none;border-bottom:2px solid var(--gold);outline:none;letter-spacing:.06em;width:320px}
 .filters{display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+.search-wrap{display:flex;align-items:center;gap:4px;margin-left:auto}
+.sort-btn{font-family:'Cinzel',serif;font-size:8px;letter-spacing:.1em;text-transform:uppercase;padding:6px 10px;border-radius:7px;cursor:pointer;transition:all .2s;background:transparent;border:1px solid var(--border2);color:var(--text3);white-space:nowrap}
+.sort-btn:hover{border-color:var(--gold);color:var(--gold)}
+.sort-btn.active{border-color:var(--gold);color:var(--gold2);background:rgba(201,168,76,.08)}
 .filter-lbl{font-family:'Cinzel',serif;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--text3);white-space:nowrap}
 .faction-btns{display:flex;gap:5px;flex-wrap:wrap}
 .fbtn{font-family:'Crimson Pro',serif;font-size:13px;font-weight:600;padding:4px 12px;border-radius:18px;border:1px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;transition:all .2s;white-space:nowrap}
@@ -647,6 +651,7 @@ let NPCS = [
 let selected = new Set();
 let activeTab = 0;
 let activeFaction = {};
+let activeSort = {}; // per campaign: "name" | "dp" | null
 let editingId = null;
 let pendingImg = "";
 
@@ -829,6 +834,14 @@ function renderGrid(campId,faction,search){
   let list=NPCS.filter(n=>n.camp===campId);
   if(faction) list=list.filter(n=>n.faction===faction);
   if(search) list=list.filter(n=>n.name.toLowerCase().includes(search.toLowerCase()));
+  const sort=activeSort[campId];
+  if(sort==="name") list.sort((a,b)=>a.name.localeCompare(b.name,"es"));
+  else if(sort==="dp") list.sort((a,b)=>{
+    const da=calcDP(a); const db=calcDP(b);
+    if(da.pend&&db.pend) return 0;
+    if(da.pend) return 1; if(db.pend) return -1;
+    return db.dp-da.dp;
+  });
   grid.innerHTML="";
   if(!list.length){grid.innerHTML='<div class="empty-grid">No se encontraron personajes.</div>';return;}
   list.forEach(n=>grid.appendChild(renderCard(n)));
@@ -869,6 +882,15 @@ function getSearch(campId){
   return document.querySelector(`#panel${campId} .search`)?.value||"";
 }
 
+function setSort(campId, type){
+  // toggle off if already active
+  activeSort[campId]=activeSort[campId]===type?null:type;
+  // update button styles
+  document.getElementById(`sort-name-${campId}`)?.classList.toggle("active", activeSort[campId]==="name");
+  document.getElementById(`sort-dp-${campId}`)?.classList.toggle("active", activeSort[campId]==="dp");
+  renderGrid(campId, activeFaction[campId], getSearch(campId));
+}
+
 // ─── RENDER TABS & PANELS ───
 function renderTabs(){
   const container=document.getElementById("tabs-container");
@@ -900,7 +922,11 @@ function renderPanels(){
       <div class="filters">
         <span class="filter-lbl">Facción:</span>
         <div class="faction-btns" id="fb${c.id}"></div>
-        <input type="text" class="search" placeholder="Buscar…" oninput="renderGrid(${c.id},activeFaction[${c.id}],this.value)">
+        <div class="search-wrap">
+          <button class="sort-btn" id="sort-name-${c.id}" onclick="setSort(${c.id},'name')">A–Z</button>
+          <button class="sort-btn" id="sort-dp-${c.id}" onclick="setSort(${c.id},'dp')">DP ↓</button>
+          <input type="text" class="search" placeholder="Buscar…" oninput="renderGrid(${c.id},activeFaction[${c.id}],this.value)">
+        </div>
       </div>
       <div class="grid" id="grid${c.id}"></div>
       <div class="bottom-panels">
@@ -1954,7 +1980,7 @@ async function init(){
   const wrRows = await sbFetch("war_rooms?select=*&order=id");
   if(wrRows) WAR_ROOMS = wrRows.map(r=>({id:r.id,camp:r.camp,npc_id:r.npc_id||null,dp:r.dp||0}));
 
-  campaigns.forEach(c=>activeFaction[c.id]=null);
+  campaigns.forEach(c=>{activeFaction[c.id]=null; activeSort[c.id]=null;});
   fullRender();
   document.querySelectorAll(".cedit").forEach(b=>b.style.display="none");
   document.querySelectorAll(".edit-cn-btn").forEach(b=>b.style.display="none");
