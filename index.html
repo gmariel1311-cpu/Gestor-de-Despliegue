@@ -226,7 +226,17 @@ header{position:relative;z-index:10;border-bottom:1px solid var(--border);backgr
 .inv-add-row{padding:10px 14px;border-top:1px solid var(--border);background:var(--bg3)}
 .btn-add-item{background:transparent;border:1px dashed var(--border2);color:var(--text3);font-family:'Cinzel',serif;font-size:9px;letter-spacing:.1em;text-transform:uppercase;padding:8px 16px;border-radius:7px;cursor:pointer;transition:all .2s;width:100%}
 .btn-add-item:hover{border-color:var(--gold);color:var(--gold)}
-/* modal qty ctrl */
+.inv-dinero-section{border-bottom:1px solid var(--border)}
+.inv-cat-section{border-bottom:1px solid rgba(35,47,64,.4)}
+.inv-cat-section:last-child{border-bottom:none}
+.inv-cat-toggle{width:100%;background:var(--bg3);border:none;padding:10px 16px;display:flex;align-items:center;gap:8px;cursor:pointer;transition:background .15s}
+.inv-cat-toggle:hover{background:rgba(201,168,76,.06)}
+.inv-cat-toggle.open{background:rgba(201,168,76,.04)}
+.inv-cat-label{font-family:'Cinzel',serif;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text2);flex:1;text-align:left}
+.inv-cat-count{font-family:'Cinzel',serif;font-size:8px;color:var(--text3);background:var(--bg4);border:1px solid var(--border);border-radius:8px;padding:1px 5px}
+.inv-cat-body{display:none}
+.inv-cat-body.open{display:block}
+/* qty ctrl in modal */
 .qty-ctrl{display:flex;align-items:center;gap:0}
 .qty-ctrl button{width:32px;height:32px;background:var(--bg4);border:1px solid var(--border);color:var(--text2);font-size:16px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .qty-ctrl button:first-child{border-radius:7px 0 0 7px}
@@ -320,13 +330,25 @@ header{position:relative;z-index:10;border-bottom:1px solid var(--border);backgr
         <div class="fsec-t">Información del Artículo</div>
         <div class="frow full"><div class="fg"><label>Nombre</label><input type="text" id="if_name" placeholder="Nombre del artículo"></div></div>
         <div class="frow full"><div class="fg"><label>Descripción</label><textarea id="if_desc" rows="3" placeholder="Descripción…" style="resize:vertical"></textarea></div></div>
-        <div class="frow"><div class="fg"><label>Cantidad</label>
-          <div class="qty-ctrl">
-            <button type="button" onclick="itemQtyAdj(-1)">−</button>
-            <input type="number" id="if_qty" value="1" min="0">
-            <button type="button" onclick="itemQtyAdj(1)">+</button>
+        <div class="frow">
+          <div class="fg"><label>Cantidad</label>
+            <div class="qty-ctrl">
+              <button type="button" onclick="itemQtyAdj(-1)">−</button>
+              <input type="number" id="if_qty" value="1" min="0">
+              <button type="button" onclick="itemQtyAdj(1)">+</button>
+            </div>
           </div>
-        </div></div>
+          <div class="fg"><label>Categoría</label>
+            <select id="if_cat">
+              <option value="">— Sin categoría —</option>
+              <option value="dinero">💰 Dinero</option>
+              <option value="materiales">⚙️ Materiales</option>
+              <option value="adquirido">🎒 Adquirido por el grupo</option>
+              <option value="adm">💣 Armas de Destrucción Masiva</option>
+              <option value="consumibles">🧪 Consumibles</option>
+            </select>
+          </div>
+        </div>
         <div class="frow full"><div class="fg">
           <label>Imagen <span style="color:var(--text3);font-style:italic">(opcional)</span></label>
           <div class="img-area" id="item-img-area">
@@ -580,69 +602,82 @@ let pendingItemImg = "";
 
 // Stultifera Navis items seed (camp:0)
 const ITEMS_SEED = [
-  {id:"sn_cp",         camp:0, name:"Créditos (CP)",              desc:"Moneda estándar de la campaña.",           qty:53488417, img:""},
-  {id:"sn_gemas",      camp:0, name:"Gemas (2500 CO/u)",           desc:"",                                         qty:8,        img:""},
-  {id:"sn_carbon",     camp:0, name:"Carbón",                      desc:"Mineral combustible. En kg.",              qty:730,      img:""},
-  {id:"sn_niquel",     camp:0, name:"Níquel",                      desc:"Metal industrial. En kg.",                 qty:210,      img:""},
-  {id:"sn_platino",    camp:0, name:"Platino",                     desc:"Metal precioso. En kg.",                   qty:490,      img:""},
-  {id:"sn_electrum",   camp:0, name:"Electrum",                    desc:"Aleación mágica. En kg.",                  qty:3209,     img:""},
-  {id:"sn_hierro",     camp:0, name:"Hierro",                      desc:"Metal básico. En kg.",                     qty:1413,     img:""},
-  {id:"sn_cobre",      camp:0, name:"Cobre",                       desc:"Metal conductor. En kg.",                  qty:852,      img:""},
-  {id:"sn_adamantina", camp:0, name:"Adamantina",                  desc:"Metal durísimo. En kg.",                   qty:350,      img:""},
-  {id:"sn_oro",        camp:0, name:"Oro",                         desc:"Metal precioso. En kg.",                   qty:2730,     img:""},
-  {id:"sn_litio",      camp:0, name:"Litio",                       desc:"Metal ligero reactivo. En kg.",            qty:580,      img:""},
-  {id:"sn_sodio",      camp:0, name:"Sodio",                       desc:"Metal alcalino. En kg.",                   qty:4,        img:""},
-  {id:"sn_paladio",    camp:0, name:"Paladio",                     desc:"Metal raro catalítico. En kg.",            qty:272,      img:""},
-  {id:"sn_titanio",    camp:0, name:"Titanio",                     desc:"Metal ligero y resistente. En kg.",        qty:0,        img:""},
-  {id:"sn_piedras",    camp:0, name:"Piedras Preciosas",           desc:"Gemas sin clasificar. En kg.",             qty:0,        img:""},
-  {id:"sn_diamantes",  camp:0, name:"Diamantes",                   desc:"En kg.",                                   qty:0,        img:""},
-  {id:"sn_uranio",     camp:0, name:"Uranio",                      desc:"Material radiactivo. En kg.",              qty:352,      img:""},
-  {id:"sn_duracero",   camp:0, name:"Duracero",                    desc:"Aleación ultraresistente. En kg.",         qty:5000,     img:""},
-  {id:"sn_iridio",     camp:0, name:"Iridio",                      desc:"Metal extremadamente duro. En kg.",        qty:500,      img:""},
-  {id:"sn_chatarra",   camp:0, name:"Chatarra",                    desc:"Material reciclable. En toneladas.",       qty:700,      img:""},
-  {id:"sn_elerio",     camp:0, name:"Lingotes de Elerio",          desc:"Material de armadura legendaria.",         qty:10,       img:""},
-  {id:"sn_acido",      camp:0, name:"Ácido",                       desc:"Adquirido por el grupo. En litros.",       qty:100,      img:""},
-  {id:"sn_superbomba", camp:0, name:"Súper Bomba Eldar",           desc:"Arma de Destrucción Masiva. Arcane Warhead (Darkmatter). https://5e.tools/items.html#arcane%20warhead_darkmatter", qty:1, img:""},
-  // ── Terror of Tecnovore (camp:1 — ajusta si el ID es diferente en tu DB) ──
-  {id:"tt_oro_party",   camp:1, name:"Oro Party (disponible)",          desc:"Disponible bajo supervisión de Breland. Fecha revisión: 13/07/2025.", qty:218097, img:""},
-  {id:"tt_oro_base",    camp:1, name:"Oro Base (apartado)",             desc:"Apartado. Fecha revisión: 13/07/2025.",    qty:10000,  img:""},
-  {id:"tt_lio_lingote", camp:1, name:"Lingotes de Lio",                 desc:"1000 CP cada uno.",                        qty:49,     img:""},
-  {id:"tt_panacea",     camp:1, name:"Panacea",                         desc:"",                                         qty:55,     img:""},
-  {id:"tt_nuka",        camp:1, name:"Nuka-Cola",                       desc:"",                                         qty:5,      img:""},
-  {id:"tt_tronco_med",  camp:1, name:"Troncos medianos Akasha",         desc:"",                                         qty:3,      img:""},
-  {id:"tt_tronco_goma", camp:1, name:"Tronco mediano de goma (Akasha)", desc:"",                                         qty:3,      img:""},
-  {id:"tt_piedra_med",  camp:1, name:"Piedras fondo marino medianas (Akasha)", desc:"",                                  qty:14,     img:""},
-  {id:"tt_piedra_peq",  camp:1, name:"Piedras fondo marino pequeñas (Akasha)", desc:"",                                  qty:7,      img:""},
-  {id:"tt_alga",        camp:1, name:"Alga cavernícola",                desc:"En kg.",                                   qty:11,     img:""},
-  {id:"tt_cajas_rad",   camp:1, name:"Cajas radiactivas (celdas de control)", desc:"",                                   qty:3,      img:""},
-  {id:"tt_semilla_ad",  camp:1, name:"Semilla adamantina (Akasha)",     desc:"",                                         qty:2,      img:""},
-  {id:"tt_guisante",    camp:1, name:"Guisante Popelle (Akasha)",       desc:"",                                         qty:4,      img:""},
-  {id:"tt_sem_guis",    camp:1, name:"Semilla guisante Popelle (Akasha)", desc:"",                                       qty:2,      img:""},
-  {id:"tt_curibaya",    camp:1, name:"Curibaya",                        desc:"",                                         qty:1,      img:""},
-  {id:"tt_esencia_aire",camp:1, name:"Esencia de aire",                 desc:"",                                         qty:2,      img:""},
-  {id:"tt_esencia_agua",camp:1, name:"Esencia de agua",                 desc:"",                                         qty:2,      img:""},
-  {id:"tt_luz_tor",     camp:1, name:"Luz Tormentosa (Flor Akasha)",    desc:"",                                         qty:11,     img:""},
-  {id:"tt_lirio",       camp:1, name:"Lirio Celeste (Flor Akasha)",     desc:"",                                         qty:22,     img:""},
-  {id:"tt_flor_eba",    camp:1, name:"Flor de Ébano (Flor Akasha)",     desc:"",                                         qty:4,      img:""},
-  {id:"tt_l_mithril",   camp:1, name:"Lingotes de Mitrilo",             desc:"",                                         qty:17,     img:""},
-  {id:"tt_l_eezo",      camp:1, name:"Lingotes de Eezo",                desc:"",                                         qty:10,     img:""},
-  {id:"tt_l_arcan",     camp:1, name:"Lingotes de Arcanita",            desc:"",                                         qty:10,     img:""},
-  {id:"tt_l_ceram",     camp:1, name:"Lingotes de Ceramita",            desc:"",                                         qty:11,     img:""},
-  {id:"tt_l_auramita",  camp:1, name:"Lingotes de Auramita",            desc:"",                                         qty:0,      img:""},
-  {id:"tt_l_oricalc",   camp:1, name:"Lingotes de Oricalconio",         desc:"",                                         qty:0,      img:""},
-  {id:"tt_lapis",       camp:1, name:"Lapis",                           desc:"",                                         qty:14,     img:""},
-  {id:"tt_khalari",     camp:1, name:"Cristales Khalari",               desc:"",                                         qty:13,     img:""},
-  {id:"tt_chatarra",    camp:1, name:"Chatarra",                        desc:"",                                         qty:9,      img:""},
-  {id:"tt_gemas",       camp:1, name:"Gemas (5000 CO/u)",               desc:"",                                         qty:9,      img:""},
-  {id:"tt_inj_adren",   camp:1, name:"Inyector adrenalina",             desc:"Consumible.",                              qty:40,     img:""},
-  {id:"tt_inj_rest",    camp:1, name:"Inyector restaurador",            desc:"Consumible.",                              qty:20,     img:""},
-  {id:"tt_medigel",     camp:1, name:"Medigel MK7",                     desc:"Consumible.",                              qty:30,     img:""},
-  {id:"tt_radx",        camp:1, name:"Rad-X",                           desc:"Consumible.",                              qty:80,     img:""},
-  {id:"tt_radaway",     camp:1, name:"Radaway",                         desc:"Consumible.",                              qty:2,      img:""},
-  {id:"tt_rest_av",     camp:1, name:"Restaurador avanzado",            desc:"Consumible.",                              qty:10,     img:""},
-  {id:"tt_extintor",    camp:1, name:"Extintor MK5",                    desc:"Consumible.",                              qty:25,     img:""},
+  // ── Stultifera Navis (camp:0) ──
+  // Dinero
+  {id:"sn_cp",          camp:0, cat:"dinero",      name:"53.488.417 CP",                        desc:"",                                                                qty:53488417, img:""},
+  {id:"sn_gemas",       camp:0, cat:"dinero",      name:"Gemas (2500 CO/u)",                    desc:"",                                                                qty:8,        img:""},
+  // Materiales
+  {id:"sn_carbon",      camp:0, cat:"materiales",  name:"Carbón",                               desc:"En kg.",                                                          qty:730,      img:""},
+  {id:"sn_niquel",      camp:0, cat:"materiales",  name:"Níquel",                               desc:"En kg.",                                                          qty:210,      img:""},
+  {id:"sn_platino",     camp:0, cat:"materiales",  name:"Platino",                              desc:"En kg.",                                                          qty:490,      img:""},
+  {id:"sn_electrum",    camp:0, cat:"materiales",  name:"Electrum",                             desc:"En kg.",                                                          qty:3209,     img:""},
+  {id:"sn_hierro",      camp:0, cat:"materiales",  name:"Hierro",                               desc:"En kg.",                                                          qty:1413,     img:""},
+  {id:"sn_cobre",       camp:0, cat:"materiales",  name:"Cobre",                                desc:"En kg.",                                                          qty:852,      img:""},
+  {id:"sn_adamantina",  camp:0, cat:"materiales",  name:"Adamantina",                           desc:"En kg.",                                                          qty:350,      img:""},
+  {id:"sn_oro",         camp:0, cat:"materiales",  name:"Oro",                                  desc:"En kg.",                                                          qty:2730,     img:""},
+  {id:"sn_litio",       camp:0, cat:"materiales",  name:"Litio",                                desc:"En kg.",                                                          qty:580,      img:""},
+  {id:"sn_sodio",       camp:0, cat:"materiales",  name:"Sodio",                                desc:"En kg.",                                                          qty:4,        img:""},
+  {id:"sn_paladio",     camp:0, cat:"materiales",  name:"Paladio",                              desc:"En kg.",                                                          qty:272,      img:""},
+  {id:"sn_titanio",     camp:0, cat:"materiales",  name:"Titanio",                              desc:"En kg.",                                                          qty:0,        img:""},
+  {id:"sn_piedras",     camp:0, cat:"materiales",  name:"Piedras Preciosas",                    desc:"En kg.",                                                          qty:0,        img:""},
+  {id:"sn_diamantes",   camp:0, cat:"materiales",  name:"Diamantes",                            desc:"En kg.",                                                          qty:0,        img:""},
+  {id:"sn_uranio",      camp:0, cat:"materiales",  name:"Uranio",                               desc:"En kg.",                                                          qty:352,      img:""},
+  {id:"sn_duracero",    camp:0, cat:"materiales",  name:"Duracero",                             desc:"En kg.",                                                          qty:5000,     img:""},
+  {id:"sn_iridio",      camp:0, cat:"materiales",  name:"Iridio",                               desc:"En kg.",                                                          qty:500,      img:""},
+  {id:"sn_chatarra",    camp:0, cat:"materiales",  name:"Chatarra",                             desc:"En toneladas.",                                                   qty:700,      img:""},
+  {id:"sn_elerio",      camp:0, cat:"materiales",  name:"Lingotes de Elerio",                   desc:"",                                                                qty:10,       img:""},
+  // Adquirido por el grupo
+  {id:"sn_acido",       camp:0, cat:"adquirido",   name:"Ácido",                                desc:"En litros.",                                                      qty:100,      img:""},
+  // Armas de Destrucción Masiva
+  {id:"sn_superbomba",  camp:0, cat:"adm",         name:"Súper Bomba Eldar",                    desc:"https://5e.tools/items.html#arcane%20warhead_darkmatter",         qty:1,        img:""},
+  // ── Terror of Tecnovore (camp:1) ──
+  // Dinero
+  {id:"tt_oro_party",   camp:1, cat:"dinero",      name:"Oro Party (disponible)",               desc:"Disponible bajo supervisión de Breland. Fecha revisión: 13/07/2025.", qty:218097, img:""},
+  {id:"tt_oro_base",    camp:1, cat:"dinero",      name:"Oro Base (apartado)",                  desc:"Fecha revisión: 13/07/2025.",                                     qty:10000,    img:""},
+  // Materiales
+  {id:"tt_panacea",     camp:1, cat:"materiales",  name:"Panacea",                              desc:"",                                                                qty:55,       img:""},
+  {id:"tt_nuka",        camp:1, cat:"materiales",  name:"Nuka-Cola",                            desc:"",                                                                qty:5,        img:""},
+  {id:"tt_tronco_med",  camp:1, cat:"materiales",  name:"Troncos medianos Akasha",              desc:"",                                                                qty:3,        img:""},
+  {id:"tt_tronco_goma", camp:1, cat:"materiales",  name:"Tronco mediano de goma (Akasha)",      desc:"",                                                                qty:3,        img:""},
+  {id:"tt_piedra_med",  camp:1, cat:"materiales",  name:"Piedra de fondo marino medianas (Akasha)", desc:"",                                                           qty:14,       img:""},
+  {id:"tt_piedra_peq",  camp:1, cat:"materiales",  name:"Piedra de fondo marino pequeñas (Akasha)", desc:"",                                                           qty:7,        img:""},
+  {id:"tt_alga",        camp:1, cat:"materiales",  name:"Alga cavernícola",                     desc:"En kg.",                                                          qty:11,       img:""},
+  {id:"tt_cajas_rad",   camp:1, cat:"materiales",  name:"Cajas radiactivas (celdas de control)", desc:"",                                                              qty:3,        img:""},
+  {id:"tt_semilla_ad",  camp:1, cat:"materiales",  name:"Semilla adamantina (Akasha)",           desc:"",                                                               qty:2,        img:""},
+  {id:"tt_guisante",    camp:1, cat:"materiales",  name:"Guisante Popelle (Akasha)",             desc:"",                                                               qty:4,        img:""},
+  {id:"tt_sem_guis",    camp:1, cat:"materiales",  name:"Semilla guisante Popelle (Akasha)",     desc:"",                                                               qty:2,        img:""},
+  {id:"tt_curibaya",    camp:1, cat:"materiales",  name:"Curibaya",                              desc:"",                                                               qty:1,        img:""},
+  {id:"tt_esencia_aire",camp:1, cat:"materiales",  name:"Esencia de aire",                       desc:"",                                                               qty:2,        img:""},
+  {id:"tt_esencia_agua",camp:1, cat:"materiales",  name:"Esencia de agua",                       desc:"",                                                               qty:2,        img:""},
+  {id:"tt_luz_tor",     camp:1, cat:"materiales",  name:"Luz Tormentosa (Flor Akasha)",          desc:"",                                                               qty:11,       img:""},
+  {id:"tt_lirio",       camp:1, cat:"materiales",  name:"Lirio Celeste (Flor Akasha)",           desc:"",                                                               qty:22,       img:""},
+  {id:"tt_flor_eba",    camp:1, cat:"materiales",  name:"Flor de Ébano (Flor Akasha)",           desc:"",                                                               qty:4,        img:""},
+  {id:"tt_l_cobre",     camp:1, cat:"materiales",  name:"Lingotes de Cobre",                     desc:"",                                                               qty:0,        img:""},
+  {id:"tt_l_plata",     camp:1, cat:"materiales",  name:"Lingotes de Plata",                     desc:"",                                                               qty:0,        img:""},
+  {id:"tt_l_oro",       camp:1, cat:"materiales",  name:"Lingotes de Oro",                       desc:"",                                                               qty:0,        img:""},
+  {id:"tt_l_platino",   camp:1, cat:"materiales",  name:"Lingotes de Platino",                   desc:"",                                                               qty:0,        img:""},
+  {id:"tt_l_mithril",   camp:1, cat:"materiales",  name:"Lingotes de Mitrilo",                   desc:"",                                                               qty:17,       img:""},
+  {id:"tt_l_adamant",   camp:1, cat:"materiales",  name:"Lingotes de Adamantita",                desc:"",                                                               qty:0,        img:""},
+  {id:"tt_l_eezo",      camp:1, cat:"materiales",  name:"Lingotes de Eezo",                      desc:"",                                                               qty:10,       img:""},
+  {id:"tt_l_arcan",     camp:1, cat:"materiales",  name:"Lingotes de Arcanita",                  desc:"",                                                               qty:10,       img:""},
+  {id:"tt_l_noct",      camp:1, cat:"materiales",  name:"Lingotes de Noctilita",                 desc:"",                                                               qty:0,        img:""},
+  {id:"tt_l_ceram",     camp:1, cat:"materiales",  name:"Lingotes de Ceramita",                  desc:"",                                                               qty:11,       img:""},
+  {id:"tt_l_lio",       camp:1, cat:"materiales",  name:"Lingotes de Lio",                       desc:"1000 CP cada uno.",                                              qty:49,       img:""},
+  {id:"tt_l_auramita",  camp:1, cat:"materiales",  name:"Lingotes de Auramita",                  desc:"",                                                               qty:0,        img:""},
+  {id:"tt_l_oricalc",   camp:1, cat:"materiales",  name:"Lingotes de Oricalconio",               desc:"",                                                               qty:0,        img:""},
+  {id:"tt_lapis",       camp:1, cat:"materiales",  name:"Lapis",                                 desc:"",                                                               qty:14,       img:""},
+  {id:"tt_khalari",     camp:1, cat:"materiales",  name:"Cristales Khalari",                     desc:"",                                                               qty:13,       img:""},
+  {id:"tt_chatarra",    camp:1, cat:"materiales",  name:"Chatarra",                              desc:"",                                                               qty:9,        img:""},
+  {id:"tt_gemas",       camp:1, cat:"materiales",  name:"Gemas (5000 CO/u)",                     desc:"",                                                               qty:9,        img:""},
+  // Consumibles
+  {id:"tt_inj_adren",   camp:1, cat:"consumibles", name:"Inyector adrenalina",                   desc:"",                                                               qty:40,       img:""},
+  {id:"tt_inj_rest",    camp:1, cat:"consumibles", name:"Inyector restaurador",                  desc:"",                                                               qty:20,       img:""},
+  {id:"tt_medigel",     camp:1, cat:"consumibles", name:"Medigel MK7",                           desc:"",                                                               qty:30,       img:""},
+  {id:"tt_radx",        camp:1, cat:"consumibles", name:"Rad-X",                                 desc:"",                                                               qty:80,       img:""},
+  {id:"tt_radaway",     camp:1, cat:"consumibles", name:"Radaway",                               desc:"",                                                               qty:2,        img:""},
+  {id:"tt_rest_av",     camp:1, cat:"consumibles", name:"Restaurador avanzado",                  desc:"",                                                               qty:10,       img:""},
+  {id:"tt_extintor",    camp:1, cat:"consumibles", name:"Extintor MK5",                          desc:"",                                                               qty:25,       img:""},
 ];
-
 
 // ─── TAGS ───
 const ROLES = ["Tanque","Coloso","Asesino","Luchador","Especialista","Artillero Mágico","Tirador","Soporte","Hacer café"];
@@ -819,20 +854,9 @@ function renderPanels(){
           <span class="inv-arr">▾</span>
         </button>
         <div class="inv-body" id="inv-body${c.id}">
-          <div class="inv-table-wrap">
-            <table class="inv-table">
-              <thead><tr>
-                <th style="width:36px"></th>
-                <th>Artículo</th>
-                <th class="th-qty">Cantidad</th>
-                <th class="th-act"></th>
-              </tr></thead>
-              <tbody id="inv-tbody${c.id}"></tbody>
-            </table>
-          </div>
+          <div class="inv-content"></div>
           <div class="inv-add-row">
             <button class="btn-add-item" id="btn-add-item-${c.id}" onclick="openNewItem(${c.id})" style="display:none">＋ Agregar artículo</button>
-            <div id="inv-empty-msg${c.id}" style="display:none;text-align:center;padding:8px;color:var(--text3);font-style:italic;font-size:13px">Sin artículos en el inventario.</div>
           </div>
         </div>
       </div>`;
@@ -1462,6 +1486,16 @@ function showToast(msg, success=true){
 
 // ─── INVENTORY RENDER ───
 const invOpen = {};
+const invCatOpen = {};
+
+const CAT_CONFIG = {
+  dinero:      {label:"💰 Dinero",                    order:0},
+  materiales:  {label:"⚙️ Materiales",                order:1},
+  adquirido:   {label:"🎒 Adquirido por el grupo",    order:2},
+  adm:         {label:"💣 Armas de Destrucción Masiva", order:3},
+  consumibles: {label:"🧪 Consumibles",               order:4},
+  "":          {label:"📦 Sin categoría",             order:5},
+};
 
 function toggleInv(campId){
   invOpen[campId]=!invOpen[campId];
@@ -1471,38 +1505,95 @@ function toggleInv(campId){
   toggle.classList.toggle("open", invOpen[campId]);
 }
 
+function toggleInvCat(campId, cat){
+  const key=campId+"_"+cat;
+  invCatOpen[key]=!invCatOpen[key];
+  const body=document.getElementById(`inv-cat-body-${campId}-${cat}`);
+  const toggle=document.getElementById(`inv-cat-toggle-${campId}-${cat}`);
+  if(body) body.classList.toggle("open", invCatOpen[key]);
+  if(toggle) toggle.classList.toggle("open", invCatOpen[key]);
+}
+
+function makeItemTable(items, campId){
+  const tbody = items.map(item=>{
+    const imgHtml=item.img
+      ?`<img class="itd-img" src="${item.img}" alt="${item.name}">`
+      :`<div class="itd-img-ph">📦</div>`;
+    const editStyle=isLoggedIn?"display:inline-block":"display:none";
+    return `<tr id="irow-${item.id}">
+      <td>${imgHtml}</td>
+      <td>
+        <div class="itd-name">${item.name}</div>
+        ${item.desc?`<div class="itd-desc">${item.desc}</div>`:""}
+      </td>
+      <td class="itd-qty">${item.qty}</td>
+      <td style="text-align:center"><button class="inv-edit-btn" style="${editStyle}" onclick="openEditItem('${item.id}')">✏️</button></td>
+    </tr>`;
+  }).join("");
+  return `<table class="inv-table"><thead><tr>
+    <th style="width:36px"></th><th>Artículo</th>
+    <th class="th-qty">Cantidad</th><th class="th-act"></th>
+  </tr></thead><tbody>${tbody}</tbody></table>`;
+}
+
 function renderInvGrid(campId){
-  const tbody=document.getElementById(`inv-tbody${campId}`);
   const countEl=document.getElementById(`inv-count${campId}`);
-  const emptyMsg=document.getElementById(`inv-empty-msg${campId}`);
+  const bodyEl=document.getElementById(`inv-body${campId}`);
   const addBtn=document.getElementById(`btn-add-item-${campId}`);
-  if(!tbody) return;
+  if(!bodyEl) return;
+
   const items=ITEMS.filter(i=>i.camp===campId);
   if(countEl) countEl.textContent=items.length;
-  tbody.innerHTML="";
+
+  // Group by category
+  const cats={};
+  items.forEach(item=>{
+    const c=item.cat||"";
+    if(!cats[c]) cats[c]=[];
+    cats[c].push(item);
+  });
+
+  // Sort categories by order
+  const sortedCats=Object.keys(cats).sort((a,b)=>(CAT_CONFIG[a]?.order??99)-(CAT_CONFIG[b]?.order??99));
+
+  // Dinero items show inline (no sub-toggle), others in collapsible sub-sections
+  let html="";
+  const dineroItems=cats["dinero"]||[];
+  if(dineroItems.length){
+    html+=`<div class="inv-dinero-section">${makeItemTable(dineroItems,campId)}</div>`;
+  }
+
+  // Other categories as collapsible sub-sections
+  sortedCats.filter(c=>c!=="dinero").forEach(cat=>{
+    const catItems=cats[cat];
+    const cfg=CAT_CONFIG[cat]||{label:cat,order:99};
+    const key=campId+"_"+cat;
+    const isOpen=invCatOpen[key]||false;
+    html+=`
+    <div class="inv-cat-section">
+      <button class="inv-cat-toggle${isOpen?" open":""}" id="inv-cat-toggle-${campId}-${cat}" onclick="toggleInvCat(${campId},'${cat}')">
+        <span class="inv-cat-label">${cfg.label}</span>
+        <span class="inv-cat-count">${catItems.length}</span>
+        <span class="inv-arr">▾</span>
+      </button>
+      <div class="inv-cat-body${isOpen?" open":""}" id="inv-cat-body-${campId}-${cat}">
+        ${makeItemTable(catItems,campId)}
+      </div>
+    </div>`;
+  });
 
   if(!items.length){
-    if(emptyMsg) emptyMsg.style.display="block";
-  } else {
-    if(emptyMsg) emptyMsg.style.display="none";
-    items.forEach(item=>{
-      const tr=document.createElement("tr");
-      const imgHtml=item.img
-        ?`<img class="itd-img" src="${item.img}" alt="${item.name}">`
-        :`<div class="itd-img-ph">📦</div>`;
-      tr.innerHTML=`
-        <td>${imgHtml}</td>
-        <td>
-          <div class="itd-name">${item.name}</div>
-          ${item.desc?`<div class="itd-desc">${item.desc}</div>`:""}
-        </td>
-        <td class="itd-qty">${item.qty}</td>
-        <td style="text-align:center"><button class="inv-edit-btn" title="Editar">✏️</button></td>`;
-      tr.querySelector(".inv-edit-btn").addEventListener("click",()=>openEditItem(item.id));
-      if(isLoggedIn) tr.querySelector(".inv-edit-btn").style.display="inline-block";
-      tbody.appendChild(tr);
-    });
+    html=`<div style="text-align:center;padding:20px;color:var(--text3);font-style:italic;font-size:13px">Sin artículos en el inventario.</div>`;
   }
+
+  // Replace only the inner content, preserve add button
+  const existing=bodyEl.querySelector(".inv-content");
+  if(existing) existing.remove();
+  const div=document.createElement("div");
+  div.className="inv-content";
+  div.innerHTML=html;
+  bodyEl.insertBefore(div, bodyEl.querySelector(".inv-add-row"));
+
   if(addBtn) addBtn.style.display=isLoggedIn?"block":"none";
 }
 
@@ -1513,6 +1604,7 @@ function openNewItem(campId){
   document.getElementById("if_name").value="";
   document.getElementById("if_desc").value="";
   document.getElementById("if_qty").value="1";
+  const catEl=document.getElementById("if_cat"); if(catEl) catEl.value="";
   const prev=document.getElementById("item-img-prev");
   prev.innerHTML=""; document.getElementById("item-img-txt").textContent="Clic o arrastra una imagen";
   document.getElementById("itemModal").dataset.camp=campId;
@@ -1528,6 +1620,7 @@ function openEditItem(id){
   document.getElementById("if_name").value=item.name;
   document.getElementById("if_desc").value=item.desc||"";
   document.getElementById("if_qty").value=item.qty;
+  const catEl=document.getElementById("if_cat"); if(catEl) catEl.value=item.cat||"";
   const prev=document.getElementById("item-img-prev");
   if(item.img){prev.innerHTML=`<img class="img-prev" src="${item.img}">`;document.getElementById("item-img-txt").textContent="Clic para cambiar";}
   else{prev.innerHTML="";document.getElementById("item-img-txt").textContent="Clic o arrastra una imagen";}
@@ -1561,17 +1654,18 @@ async function saveItem(){
   if(!name){alert("El nombre es obligatorio.");return;}
   const desc=document.getElementById("if_desc").value.trim();
   const qty=parseInt(document.getElementById("if_qty").value)||0;
+  const cat=document.getElementById("if_cat")?.value||"";
   const campId=parseInt(document.getElementById("itemModal").dataset.camp);
   const imgData=pendingItemImg||(editingItemId?ITEMS.find(i=>i.id===editingItemId)?.img:"");
   showToast("Guardando…",false);
   if(editingItemId){
-    await sbFetch("items?id=eq."+editingItemId,{method:"PATCH",body:JSON.stringify({name,description:desc,qty,img:imgData||""})});
+    await sbFetch("items?id=eq."+editingItemId,{method:"PATCH",body:JSON.stringify({name,description:desc,qty,img:imgData||"",cat})});
     const idx=ITEMS.findIndex(i=>i.id===editingItemId);
-    if(idx>=0) ITEMS[idx]={...ITEMS[idx],name,desc,qty,img:imgData||""};
+    if(idx>=0) ITEMS[idx]={...ITEMS[idx],name,desc,qty,img:imgData||"",cat};
   } else {
     const newId="item_"+Date.now();
-    await sbFetch("items",{method:"POST",body:JSON.stringify({id:newId,camp:campId,name,description:desc,qty,img:imgData||""})});
-    ITEMS.push({id:newId,camp:campId,name,desc,qty,img:imgData||""});
+    await sbFetch("items",{method:"POST",body:JSON.stringify({id:newId,camp:campId,name,description:desc,qty,img:imgData||"",cat})});
+    ITEMS.push({id:newId,camp:campId,name,desc,qty,img:imgData||"",cat});
   }
   showToast("✓ Guardado");
   pendingItemImg=""; closeItemModal(); renderInvGrid(campId);
@@ -1614,11 +1708,11 @@ async function init(){
   // load items from Supabase
   const itemRows = await sbFetch("items?select=*&order=camp,name");
   if(itemRows && itemRows.length){
-    ITEMS = itemRows.map(r=>({id:r.id,camp:r.camp,name:r.name,desc:r.description||"",qty:r.qty||0,img:r.img||""}));
+    ITEMS = itemRows.map(r=>({id:r.id,camp:r.camp,name:r.name,desc:r.description||"",qty:r.qty||0,img:r.img||"",cat:r.cat||""}));
   } else {
     showToast("Subiendo inventario inicial…", false);
     for(const item of ITEMS_SEED){
-      await sbFetch("items",{method:"POST",body:JSON.stringify({id:item.id,camp:item.camp,name:item.name,description:item.desc,qty:item.qty,img:item.img})});
+      await sbFetch("items",{method:"POST",body:JSON.stringify({id:item.id,camp:item.camp,name:item.name,description:item.desc,qty:item.qty,img:item.img,cat:item.cat||""})});
     }
     ITEMS = [...ITEMS_SEED];
     showToast("✓ Inventario inicial guardado");
