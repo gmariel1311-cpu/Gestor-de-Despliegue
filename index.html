@@ -63,6 +63,12 @@ header{position:relative;z-index:10;border-bottom:1px solid var(--border);backgr
 .sort-btn{font-family:'Cinzel',serif;font-size:8px;letter-spacing:.1em;text-transform:uppercase;padding:6px 10px;border-radius:7px;cursor:pointer;transition:all .2s;background:transparent;border:1px solid var(--border2);color:var(--text3);white-space:nowrap}
 .sort-btn:hover{border-color:var(--gold);color:var(--gold)}
 .sort-btn.active{border-color:var(--gold);color:var(--gold2);background:rgba(201,168,76,.08)}
+.rol-wrap{position:relative}
+.rol-dropdown{position:absolute;top:calc(100% + 4px);right:0;background:var(--bg2);border:1px solid var(--border);border-radius:9px;padding:6px;display:none;flex-direction:column;gap:3px;z-index:100;min-width:150px;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+.rol-dropdown.open{display:flex}
+.rol-opt{font-family:'Cinzel',serif;font-size:8px;letter-spacing:.1em;text-transform:uppercase;padding:6px 10px;border-radius:6px;cursor:pointer;color:var(--text3);transition:all .15s;border:none;background:transparent;text-align:left;width:100%}
+.rol-opt:hover{background:rgba(201,168,76,.08);color:var(--gold)}
+.rol-opt.active{background:rgba(201,168,76,.1);color:var(--gold2)}
 .filter-lbl{font-family:'Cinzel',serif;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--text3);white-space:nowrap}
 .faction-btns{display:flex;gap:5px;flex-wrap:wrap}
 .fbtn{font-family:'Crimson Pro',serif;font-size:13px;font-weight:600;padding:4px 12px;border-radius:18px;border:1px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;transition:all .2s;white-space:nowrap}
@@ -891,24 +897,37 @@ function setSort(campId, type){
   renderGrid(campId, activeFaction[campId], getSearch(campId));
 }
 
+function toggleRolDropdown(campId){
+  const dd=document.getElementById(`rol-dropdown-${campId}`);
+  dd.classList.toggle("open");
+}
+
 function setRol(campId, rol){
-  activeRol[campId]=activeRol[campId]===rol?null:rol;
+  activeRol[campId]=rol===activeRol[campId]?null:rol;
+  document.getElementById(`rol-dropdown-${campId}`)?.classList.remove("open");
   renderRolBtns(campId);
   renderGrid(campId, activeFaction[campId], getSearch(campId));
 }
 
 function renderRolBtns(campId){
-  const cont=document.getElementById(`rol-btns-${campId}`);
-  if(!cont) return;
-  cont.innerHTML="";
+  const dd=document.getElementById(`rol-dropdown-${campId}`);
+  const btn=document.getElementById(`rol-btn-${campId}`);
+  if(!dd) return;
+  dd.innerHTML="";
   const roles=[...new Set(NPCS.filter(n=>n.camp===campId&&n.rol).map(n=>n.rol))].sort();
+  const allOpt=document.createElement("button");
+  allOpt.className="rol-opt"+(activeRol[campId]===null?" active":"");
+  allOpt.textContent="Todos";
+  allOpt.onclick=()=>setRol(campId,null);
+  dd.appendChild(allOpt);
   roles.forEach(r=>{
-    const btn=document.createElement("button");
-    btn.className="sort-btn"+(activeRol[campId]===r?" active":"");
-    btn.textContent=`${ROL_EMOJI[r]||""}${r}`.trim();
-    btn.onclick=()=>setRol(campId,r);
-    cont.appendChild(btn);
+    const opt=document.createElement("button");
+    opt.className="rol-opt"+(activeRol[campId]===r?" active":"");
+    opt.textContent=`${ROL_EMOJI[r]||""} ${r}`.trim();
+    opt.onclick=()=>setRol(campId,r);
+    dd.appendChild(opt);
   });
+  if(btn){ btn.textContent=activeRol[campId]?`${activeRol[campId]} ✕`:"Rol ▾"; btn.classList.toggle("active",!!activeRol[campId]); }
 }
 
 // ─── RENDER TABS & PANELS ───
@@ -945,7 +964,10 @@ function renderPanels(){
         <div class="search-wrap">
           <button class="sort-btn" id="sort-name-${c.id}" onclick="setSort(${c.id},'name')">A–Z</button>
           <button class="sort-btn" id="sort-dp-${c.id}" onclick="setSort(${c.id},'dp')">DP ↓</button>
-          <div id="rol-btns-${c.id}" style="display:flex;gap:4px"></div>
+          <div class="rol-wrap" id="rol-wrap-${c.id}">
+            <button class="sort-btn" id="rol-btn-${c.id}" onclick="toggleRolDropdown(${c.id})">Rol ▾</button>
+            <div class="rol-dropdown" id="rol-dropdown-${c.id}"></div>
+          </div>
           <input type="text" class="search" placeholder="Buscar…" oninput="renderGrid(${c.id},activeFaction[${c.id}],this.value)">
         </div>
       </div>
@@ -2012,6 +2034,12 @@ async function init(){
   campaigns.forEach(c=>{const b=document.getElementById(`btn-add-item-${c.id}`);if(b)b.style.display="none";});
   showToast("✓ Listo");
 }
+
+document.addEventListener("click", e=>{
+  if(!e.target.closest(".rol-wrap")){
+    document.querySelectorAll(".rol-dropdown.open").forEach(d=>d.classList.remove("open"));
+  }
+});
 
 init();
 </script>
