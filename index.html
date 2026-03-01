@@ -652,6 +652,7 @@ let selected = new Set();
 let activeTab = 0;
 let activeFaction = {};
 let activeSort = {}; // per campaign: "name" | "dp" | null
+let activeRol = {};  // per campaign: rol string | null
 let editingId = null;
 let pendingImg = "";
 
@@ -833,6 +834,7 @@ function renderGrid(campId,faction,search){
   if(!grid) return;
   let list=NPCS.filter(n=>n.camp===campId);
   if(faction) list=list.filter(n=>n.faction===faction);
+  if(activeRol[campId]) list=list.filter(n=>(n.rol||"").toLowerCase()===activeRol[campId].toLowerCase());
   if(search) list=list.filter(n=>n.name.toLowerCase().includes(search.toLowerCase()));
   const sort=activeSort[campId];
   if(sort==="name") list.sort((a,b)=>a.name.localeCompare(b.name,"es"));
@@ -883,12 +885,30 @@ function getSearch(campId){
 }
 
 function setSort(campId, type){
-  // toggle off if already active
   activeSort[campId]=activeSort[campId]===type?null:type;
-  // update button styles
   document.getElementById(`sort-name-${campId}`)?.classList.toggle("active", activeSort[campId]==="name");
   document.getElementById(`sort-dp-${campId}`)?.classList.toggle("active", activeSort[campId]==="dp");
   renderGrid(campId, activeFaction[campId], getSearch(campId));
+}
+
+function setRol(campId, rol){
+  activeRol[campId]=activeRol[campId]===rol?null:rol;
+  renderRolBtns(campId);
+  renderGrid(campId, activeFaction[campId], getSearch(campId));
+}
+
+function renderRolBtns(campId){
+  const cont=document.getElementById(`rol-btns-${campId}`);
+  if(!cont) return;
+  cont.innerHTML="";
+  const roles=[...new Set(NPCS.filter(n=>n.camp===campId&&n.rol).map(n=>n.rol))].sort();
+  roles.forEach(r=>{
+    const btn=document.createElement("button");
+    btn.className="sort-btn"+(activeRol[campId]===r?" active":"");
+    btn.textContent=`${ROL_EMOJI[r]||""}${r}`.trim();
+    btn.onclick=()=>setRol(campId,r);
+    cont.appendChild(btn);
+  });
 }
 
 // ─── RENDER TABS & PANELS ───
@@ -925,6 +945,7 @@ function renderPanels(){
         <div class="search-wrap">
           <button class="sort-btn" id="sort-name-${c.id}" onclick="setSort(${c.id},'name')">A–Z</button>
           <button class="sort-btn" id="sort-dp-${c.id}" onclick="setSort(${c.id},'dp')">DP ↓</button>
+          <div id="rol-btns-${c.id}" style="display:flex;gap:4px"></div>
           <input type="text" class="search" placeholder="Buscar…" oninput="renderGrid(${c.id},activeFaction[${c.id}],this.value)">
         </div>
       </div>
@@ -981,7 +1002,7 @@ function renderPanels(){
 function fullRender(){
   renderTabs();
   renderPanels();
-  campaigns.forEach(c=>{renderFactionBtns(c.id);renderGrid(c.id,activeFaction[c.id],null);renderInvGrid(c.id);renderWRPanel(c.id);renderGenDP(c.id);});
+  campaigns.forEach(c=>{renderFactionBtns(c.id);renderRolBtns(c.id);renderGrid(c.id,activeFaction[c.id],null);renderInvGrid(c.id);renderWRPanel(c.id);renderGenDP(c.id);});
   if(!isLoggedIn){
     document.querySelectorAll(".cedit").forEach(b=>b.style.display="none");
     document.querySelectorAll(".edit-cn-btn").forEach(b=>b.style.display="none");
@@ -1002,6 +1023,7 @@ function switchTab(id){
   document.querySelectorAll(".tab-panel").forEach(p=>p.classList.toggle("active",p.id===`panel${id}`));
   selected.clear();
   document.querySelectorAll(".card.selected").forEach(c=>c.classList.remove("selected"));
+  activeRol[id]=null;
   renderTabs();
   updatePanel();
 }
@@ -1980,7 +2002,7 @@ async function init(){
   const wrRows = await sbFetch("war_rooms?select=*&order=id");
   if(wrRows) WAR_ROOMS = wrRows.map(r=>({id:r.id,camp:r.camp,npc_id:r.npc_id||null,dp:r.dp||0}));
 
-  campaigns.forEach(c=>{activeFaction[c.id]=null; activeSort[c.id]=null;});
+  campaigns.forEach(c=>{activeFaction[c.id]=null; activeSort[c.id]=null; activeRol[c.id]=null;});
   fullRender();
   document.querySelectorAll(".cedit").forEach(b=>b.style.display="none");
   document.querySelectorAll(".edit-cn-btn").forEach(b=>b.style.display="none");
