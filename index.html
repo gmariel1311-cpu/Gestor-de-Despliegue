@@ -815,7 +815,7 @@ armtoMuyRaro:r.armto_muy_raro, armtoMuyRaroMas2:r.armto_muy_raro_mas2,
 armtoLegendario:r.armto_legendario, armtoLegendarioMas2:r.armto_legendario_mas2,
 altoPoder:r.alto_poder||0, consumibles:r.consumibles||0,
 tesoroDivino:r.tesoro_divino||0,
-cartasMazo:r.cartas_mazo||0, cartaEstrella:r.carta_estrella||0, cartaArbol:r.carta_arbol||false,
+cartasMazo:r.cartas_mazo||0, cartaEstrella:r.carta_estrella_n||0, cartaArbol:r.carta_arbol||false,
 cartaLanza:r.carta_lanza||false, cartaLanzaHonor:r.carta_lanza_honor||false,
 objAtrib:r.obj_atrib||0, transformacion:r.transformacion||0,
 familiares:r.familiares||false, familiaresAltoPoder:r.familiares_alto_poder||false,
@@ -845,7 +845,7 @@ armto_muy_raro:!!n.armtoMuyRaro, armto_muy_raro_mas2:!!n.armtoMuyRaroMas2,
 armto_legendario:!!n.armtoLegendario, armto_legendario_mas2:!!n.armtoLegendarioMas2,
 alto_poder:n.altoPoder||0, consumibles:n.consumibles||0,
 tesoro_divino:n.tesoroDivino||0,
-cartas_mazo:n.cartasMazo||0, carta_estrella:n.cartaEstrella||0, carta_arbol:!!n.cartaArbol,
+cartas_mazo:n.cartasMazo||0, carta_estrella:!!(n.cartaEstrella>0), carta_estrella_n:n.cartaEstrella||0, carta_arbol:!!n.cartaArbol,
 carta_lanza:!!n.cartaLanza, carta_lanza_honor:!!n.cartaLanzaHonor,
 obj_atrib:n.objAtrib||0, transformacion:n.transformacion||0,
 familiares:!!n.familiares, familiares_alto_poder:!!n.familiaresAltoPoder,
@@ -897,8 +897,7 @@ document.getElementById("login-err").textContent="Usuario o contraseña incorrec
 document.getElementById("login-pass").value="";
 document.getElementById("login-pass").focus();
 }
-}
-function logout(){
+}on logout(){
 if(!confirm("¿Salir del modo edición?")) return;
 isLoggedIn=false;
 const btn=document.getElementById("auth-btn");
@@ -1011,6 +1010,7 @@ let roomsDp=0;
 rooms.forEach(r=>{ roomsDp+=(r.dp||0); });
 return {rosterDp, roomsDp, total:rosterDp+roomsDp, totalNpcs, rooms:rooms.length};
 }
+functi
 function renderGenDP(campId){
 const {rosterDp,roomsDp,total,totalNpcs}=getGeneratedDP(campId);
 const autoN=document.getElementById(`asgn-auto-n${campId}`);
