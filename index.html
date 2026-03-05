@@ -274,7 +274,7 @@ header{position:relative;z-index:10;border-bottom:1px solid var(--border);backgr
 .gen-dp-line{display:flex;align-items:center;gap:8px;padding:5px 14px;background:rgba(76,168,76,.06);border-top:1px solid rgba(76,168,76,.15);font-family:'Cinzel',serif;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--green2)}
 .gen-dp-line span{font-family:'Cinzel Decorative',serif;font-size:14px;font-weight:900}
 /* ─── WAR ROOMS ─── */
-.wr-inner-section{}
+.wr-inner-section{border-top:1px solid rgba(35,47,64,.3)}
 .wr-inner-toggle{width:100%;background:var(--bg3);border:none;padding:11px 16px;display:flex;align-items:center;gap:8px;cursor:pointer;transition:background .15s}
 .wr-inner-toggle:hover{background:rgba(201,76,76,.05)}
 .wr-inner-toggle.open .inv-arr{transform:rotate(180deg)}
@@ -307,6 +307,82 @@ header{position:relative;z-index:10;border-bottom:1px solid var(--border);backgr
 .wr-room-dp-input{width:52px;height:28px;background:var(--bg4);border:1px solid var(--border2);border-radius:6px;color:var(--green2);font-family:'Cinzel Decorative',serif;font-size:13px;font-weight:900;text-align:center;outline:none}
 .wr-room-dp-input:focus{border-color:var(--green2)}
 .wr-room-dp-view{font-family:'Cinzel Decorative',serif;font-size:13px;font-weight:900;color:var(--green2);min-width:32px;text-align:center}
+
+/* ─── BASTIONES ─── */
+.bas-section{margin-top:12px;border:1px solid rgba(138,76,201,.35);border-radius:13px;overflow:hidden;background:var(--bg2)}
+.bas-toggle{width:100%;background:transparent;border:none;padding:14px 18px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:background .2s}
+.bas-toggle:hover{background:rgba(138,76,201,.05)}
+.bas-toggle.open .inv-arr{transform:rotate(180deg)}
+.bas-toggle-title{font-family:'Cinzel',serif;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--purple2);flex:1;text-align:left}
+.bas-body{display:none;border-top:1px solid rgba(138,76,201,.2)}
+.bas-body.open{display:block}
+
+/* Bastión header info */
+.bas-header-box{display:flex;align-items:center;gap:14px;padding:12px 18px;background:var(--bg3);border-bottom:1px solid rgba(35,47,64,.5);flex-wrap:wrap}
+.bas-name-block{flex:1;min-width:180px}
+.bas-name-lbl{font-family:'Cinzel',serif;font-size:8px;letter-spacing:.15em;text-transform:uppercase;color:var(--text3)}
+.bas-name-val{font-family:'Cinzel',serif;font-size:14px;font-weight:700;color:var(--purple2);margin-top:2px}
+.bas-owner-block{flex:1;min-width:140px}
+.bas-edit-btn{background:transparent;border:1px solid rgba(138,76,201,.4);color:var(--purple2);font-family:'Cinzel',serif;font-size:8px;letter-spacing:.1em;text-transform:uppercase;padding:6px 12px;border-radius:7px;cursor:pointer;transition:all .2s}
+.bas-edit-btn:hover{background:rgba(138,76,201,.15)}
+
+/* Subsecciones internas */
+.bas-inner-section{border-bottom:1px solid rgba(35,47,64,.4)}
+.bas-inner-section:last-child{border-bottom:none}
+.bas-inner-toggle{width:100%;background:var(--bg3);border:none;padding:11px 16px;display:flex;align-items:center;gap:8px;cursor:pointer;transition:background .15s}
+.bas-inner-toggle:hover{background:rgba(138,76,201,.05)}
+.bas-inner-toggle.open .inv-arr{transform:rotate(180deg)}
+.bas-inner-title{font-family:'Cinzel',serif;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--purple2);flex:1;text-align:left}
+.bas-inner-count{font-family:'Cinzel',serif;font-size:9px;color:var(--text3);background:var(--bg4);border:1px solid var(--border);border-radius:9px;padding:1px 6px}
+.bas-inner-body{display:none;border-top:1px solid rgba(138,76,201,.12)}
+.bas-inner-body.open{display:block}
+
+/* Instalaciones */
+.bas-inst-list{padding:10px 14px;display:flex;flex-direction:column;gap:6px}
+.bas-inst-card{background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:10px 13px;display:flex;align-items:flex-start;gap:10px}
+.bas-inst-icon{font-size:18px;flex-shrink:0;margin-top:1px}
+.bas-inst-info{flex:1;min-width:0}
+.bas-inst-name{font-family:'Cinzel',serif;font-size:11px;font-weight:700;color:var(--purple2)}
+.bas-inst-meta{font-size:11px;color:var(--text3);margin-top:2px}
+.bas-inst-orden{display:inline-block;font-family:'Cinzel',serif;font-size:8px;letter-spacing:.1em;text-transform:uppercase;padding:2px 7px;border-radius:5px;margin-top:4px;border:1px solid rgba(138,76,201,.35);color:var(--purple2);background:rgba(138,76,201,.07)}
+.bas-inst-orden.activa{border-color:rgba(76,168,76,.4);color:var(--green2);background:rgba(76,168,76,.07)}
+.bas-inst-actions{display:flex;flex-direction:column;gap:4px;flex-shrink:0}
+.bas-inst-edit{background:none;border:none;color:var(--text3);cursor:pointer;font-size:12px;padding:3px 6px;border-radius:5px;transition:color .2s}
+.bas-inst-edit:hover{color:var(--purple2)}
+.bas-inst-warn{font-size:10px;color:var(--orange2);margin-top:4px;font-style:italic}
+.bas-add-row{padding:10px 14px;border-top:1px solid rgba(35,47,64,.4);background:var(--bg3)}
+.bas-add-btn{background:transparent;border:1px dashed rgba(138,76,201,.4);color:var(--purple2);font-family:'Cinzel',serif;font-size:9px;letter-spacing:.1em;text-transform:uppercase;padding:8px 16px;border-radius:7px;cursor:pointer;transition:all .2s;width:100%}
+.bas-add-btn:hover{border-color:var(--purple2);background:rgba(138,76,201,.08)}
+
+/* Defensores */
+.bas-def-list{padding:10px 14px;display:flex;flex-direction:column;gap:5px}
+.bas-def-row{display:flex;align-items:center;gap:8px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:7px 10px}
+.bas-def-status{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.bas-def-status.activo{background:var(--green2)}
+.bas-def-status.herido{background:var(--orange2)}
+.bas-def-status.muerto{background:var(--red2)}
+.bas-def-name{font-size:12px;color:var(--text);flex:1}
+.bas-def-type{font-family:'Cinzel',serif;font-size:8px;color:var(--text3);background:var(--bg4);border:1px solid var(--border);border-radius:5px;padding:1px 6px}
+
+/* Eventos */
+.bas-event-list{padding:10px 14px;display:flex;flex-direction:column;gap:6px;max-height:280px;overflow-y:auto}
+.bas-event-row{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:9px 12px}
+.bas-event-header{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.bas-event-turn{font-family:'Cinzel',serif;font-size:8px;color:var(--text3);letter-spacing:.1em;text-transform:uppercase}
+.bas-event-type{font-family:'Cinzel',serif;font-size:9px;font-weight:700;color:var(--purple2)}
+.bas-event-roll{font-family:'Cinzel Decorative',serif;font-size:12px;color:var(--gold2);margin-left:auto}
+.bas-event-desc{font-size:12px;color:var(--text2);font-style:italic}
+.bas-roll-btn{background:rgba(138,76,201,.12);border:1px solid rgba(138,76,201,.4);color:var(--purple2);font-family:'Cinzel',serif;font-size:9px;letter-spacing:.1em;text-transform:uppercase;padding:8px 16px;border-radius:7px;cursor:pointer;transition:all .2s;margin:10px 14px}
+.bas-roll-btn:hover{background:rgba(138,76,201,.25)}
+
+/* Turno counter */
+.bas-turn-box{display:flex;align-items:center;gap:16px;padding:12px 18px;background:var(--bg3);border-bottom:1px solid rgba(35,47,64,.5)}
+.bas-turn-n{font-family:'Cinzel Decorative',serif;font-size:26px;font-weight:900;color:var(--purple2);text-shadow:0 0 16px rgba(138,76,201,.3);line-height:1}
+.bas-turn-info{flex:1}
+.bas-turn-lbl{font-family:'Cinzel',serif;font-size:8px;letter-spacing:.15em;text-transform:uppercase;color:var(--text3)}
+.bas-turn-sub{font-size:12px;color:var(--text3);font-style:italic;margin-top:2px}
+.bas-turn-btn{background:rgba(138,76,201,.12);border:1px solid rgba(138,76,201,.4);color:var(--purple2);font-family:'Cinzel',serif;font-size:8px;letter-spacing:.1em;text-transform:uppercase;padding:7px 12px;border-radius:7px;cursor:pointer;transition:all .2s}
+.bas-turn-btn:hover{background:rgba(138,76,201,.25)}
 </style>
 </head>
 <body>
@@ -428,6 +504,22 @@ header{position:relative;z-index:10;border-bottom:1px solid var(--border);backgr
       <button class="btn-del" id="item-btn-del" onclick="deleteItem()" style="display:none">🗑 Eliminar</button>
       <button class="btn-can" onclick="closeItemModal()">Cancelar</button>
       <button class="btn-sav" onclick="saveItem()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- BASTIÓN MODAL -->
+<div class="modal-ov" id="basModal">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-hdr">
+      <h2 id="bas-modal-title">Bastión</h2>
+      <button class="mcl" onclick="closeBasModal()">×</button>
+    </div>
+    <div class="mbody" id="bas-modal-body"></div>
+    <div class="modal-ftr">
+      <button class="btn-del" id="bas-btn-del" onclick="deleteBasModal()" style="display:none">🗑 Eliminar</button>
+      <button class="btn-can" onclick="closeBasModal()">Cancelar</button>
+      <button class="btn-sav" onclick="saveBasModal()">Guardar</button>
     </div>
   </div>
 </div>
@@ -986,6 +1078,81 @@ function renderPanels(){
             </div>
           </div>
         </div>
+        <div class="bas-section" id="bas-section${c.id}">
+          <button class="bas-toggle" id="bas-toggle${c.id}" onclick="toggleBas(${c.id})">
+            <span class="bas-toggle-title">🏰 Bastión</span>
+            <span class="wr-count" id="bas-inst-count${c.id}">0 instalaciones</span>
+            <span class="inv-arr">▾</span>
+          </button>
+          <div class="bas-body" id="bas-body${c.id}">
+            <!-- Header info: nombre y dueño -->
+            <div class="bas-header-box" id="bas-header${c.id}">
+              <div class="bas-name-block">
+                <div class="bas-name-lbl">Nombre del Bastión</div>
+                <div class="bas-name-val" id="bas-name-val${c.id}">Sin nombre</div>
+              </div>
+              <div class="bas-owner-block">
+                <div class="bas-name-lbl">Dueño</div>
+                <div class="bas-name-val" id="bas-owner-val${c.id}" style="color:var(--gold2)">—</div>
+              </div>
+              <div class="bas-name-block">
+                <div class="bas-name-lbl">Turno actual</div>
+                <div class="bas-name-val" id="bas-turn-val${c.id}" style="color:var(--teal2)">1</div>
+              </div>
+              <button class="bas-edit-btn bas-cfg-btn" onclick="openBasConfig(${c.id})" style="display:none">⚙️ Configurar</button>
+            </div>
+
+            <!-- Instalaciones -->
+            <div class="bas-inner-section">
+              <button class="bas-inner-toggle" id="bas-inst-toggle${c.id}" onclick="toggleBasInner('bas-inst-body${c.id}','bas-inst-toggle${c.id}')">
+                <span class="bas-inner-title">🏛️ Instalaciones</span>
+                <span class="bas-inner-count" id="bas-inst-badge${c.id}">0</span>
+                <span class="inv-arr">▾</span>
+              </button>
+              <div class="bas-inner-body" id="bas-inst-body${c.id}">
+                <div class="bas-inst-list" id="bas-inst-list${c.id}">
+                  <div style="padding:12px;text-align:center;color:var(--text3);font-style:italic;font-size:13px">Sin instalaciones configuradas.</div>
+                </div>
+                <div class="bas-add-row">
+                  <button class="bas-add-btn bas-add-inst-btn" onclick="openBasInstModal(${c.id})" style="display:none">＋ Agregar instalación</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Defensores -->
+            <div class="bas-inner-section">
+              <button class="bas-inner-toggle" id="bas-def-toggle${c.id}" onclick="toggleBasInner('bas-def-body${c.id}','bas-def-toggle${c.id}')">
+                <span class="bas-inner-title">🛡️ Defensores</span>
+                <span class="bas-inner-count" id="bas-def-badge${c.id}">0</span>
+                <span class="inv-arr">▾</span>
+              </button>
+              <div class="bas-inner-body" id="bas-def-body${c.id}">
+                <div class="bas-def-list" id="bas-def-list${c.id}">
+                  <div style="padding:12px;text-align:center;color:var(--text3);font-style:italic;font-size:13px">Sin defensores registrados.</div>
+                </div>
+                <div class="bas-add-row">
+                  <button class="bas-add-btn bas-add-def-btn" onclick="openBasDefModal(${c.id})" style="display:none">＋ Agregar defensor</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Eventos -->
+            <div class="bas-inner-section">
+              <button class="bas-inner-toggle" id="bas-evt-toggle${c.id}" onclick="toggleBasInner('bas-evt-body${c.id}','bas-evt-toggle${c.id}')">
+                <span class="bas-inner-title">📜 Eventos</span>
+                <span class="bas-inner-count" id="bas-evt-badge${c.id}">0</span>
+                <span class="inv-arr">▾</span>
+              </button>
+              <div class="bas-inner-body" id="bas-evt-body${c.id}">
+                <button class="bas-roll-btn bas-roll-event-btn" onclick="rollBasEvent(${c.id})" style="display:none">🎲 Tirar evento de turno</button>
+                <div class="bas-event-list" id="bas-evt-list${c.id}">
+                  <div style="padding:12px;text-align:center;color:var(--text3);font-style:italic;font-size:13px">Sin eventos registrados.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="asgn-section" id="asgn-section${c.id}">
           <button class="asgn-toggle" id="asgn-toggle${c.id}" onclick="toggleAsgn(${c.id})">
             <span class="asgn-toggle-title">⚡ Generación de DP</span>
@@ -1024,7 +1191,7 @@ function renderPanels(){
 function fullRender(){
   renderTabs();
   renderPanels();
-  campaigns.forEach(c=>{renderFactionBtns(c.id);renderRolBtns(c.id);renderGrid(c.id,activeFaction[c.id],null);renderInvGrid(c.id);renderWRPanel(c.id);renderGenDP(c.id);});
+  campaigns.forEach(c=>{renderFactionBtns(c.id);renderRolBtns(c.id);renderGrid(c.id,activeFaction[c.id],null);renderInvGrid(c.id);renderWRPanel(c.id);renderGenDP(c.id);renderBasPanel(c.id);});
   if(!isLoggedIn){
     document.querySelectorAll(".cedit").forEach(b=>b.style.display="none");
     document.querySelectorAll(".edit-cn-btn").forEach(b=>b.style.display="none");
@@ -1582,6 +1749,11 @@ function doLogin(){
     document.querySelectorAll(".wr-room-dp-input").forEach(b=>b.style.display="");
     document.querySelectorAll(".wr-room-dp-view").forEach(b=>b.style.display="none");
     document.querySelectorAll(".btn-add-room,.btn-del-room").forEach(b=>b.style.display="block");
+    // show bastión controls
+    document.querySelectorAll(".bas-cfg-btn").forEach(b=>b.style.display="");
+    document.querySelectorAll(".bas-add-inst-btn").forEach(b=>b.style.display="");
+    document.querySelectorAll(".bas-add-def-btn").forEach(b=>b.style.display="");
+    document.querySelectorAll(".bas-roll-event-btn").forEach(b=>b.style.display="");
   } else {
     document.getElementById("login-err").textContent="Usuario o contraseña incorrectos.";
     document.getElementById("login-pass").value="";
@@ -1606,6 +1778,8 @@ function logout(){
   document.querySelectorAll(".wr-room-dp-input").forEach(b=>b.style.display="none");
   document.querySelectorAll(".wr-room-dp-view").forEach(b=>b.style.display="");
   document.querySelectorAll(".btn-add-room,.btn-del-room").forEach(b=>b.style.display="none");
+  // hide bastión controls
+  document.querySelectorAll(".bas-cfg-btn,.bas-add-inst-btn,.bas-add-def-btn,.bas-roll-event-btn").forEach(b=>b.style.display="none");
 }
 function openExport(){
   const sel=document.getElementById("exp-camp");
@@ -1983,6 +2157,492 @@ async function deleteItem(){
   showToast("✓ Eliminado"); closeItemModal(); renderInvGrid(campId);
 }
 
+// ─── BASTIONES ───
+let BASTIONES = []; // [{id, camp, name, owner_npc_id, turn}]
+let BAS_INSTALACIONES = []; // [{id, bas_id, camp, nombre, tipo, tamaño, orden_activa, dias_restantes, empleado_npc_id}]
+let BAS_DEFENSORES = []; // [{id, bas_id, camp, nombre, tipo, estado}] estado: activo|herido|muerto
+let BAS_EVENTOS = []; // [{id, bas_id, camp, turno, tirada, tipo, descripcion}]
+
+const basOpen = {};
+const basInnerOpen = {};
+
+// Catálogo de instalaciones especiales con sus requisitos
+const INSTALACIONES_CATALOG = [
+  // Nivel 5
+  {nombre:"Estudio Arcano", nivel:5, orden:"Fabricar", req:"Canalizador arcano + Disciplina Arcana", emoji:"📚"},
+  {nombre:"Armería", nivel:5, orden:"Comerciar", req:"Ninguno", emoji:"⚔️"},
+  {nombre:"Jardín", nivel:5, orden:"Cosechar", req:"Ninguno", emoji:"🌿"},
+  {nombre:"Biblioteca", nivel:5, orden:"Investigar", req:"Ninguno", emoji:"📖"},
+  {nombre:"Herrería", nivel:5, orden:"Fabricar", req:"Ninguno", emoji:"🔨"},
+  {nombre:"Santuario", nivel:5, orden:"Fabricar", req:"Símbolo Sagrado/Canalizador Druídico + Naturaleza Divina/Primordial", emoji:"🕊️"},
+  {nombre:"Almacén", nivel:5, orden:"Comerciar", req:"Ninguno", emoji:"📦"},
+  // Nivel 9
+  {nombre:"Sala de Juegos", nivel:9, orden:"Comerciar", req:"Ninguno", emoji:"🎲"},
+  {nombre:"Invernadero", nivel:9, orden:"Cosechar", req:"Ninguno", emoji:"🌱"},
+  {nombre:"Laboratorio", nivel:9, orden:"Fabricar", req:"Ninguno", emoji:"⚗️"},
+  {nombre:"Sacristía", nivel:9, orden:"Fabricar", req:"Símbolo Sagrado/Canalizador Druídico + Naturaleza Divina/Primordial", emoji:"✝️"},
+  {nombre:"Scriptorium", nivel:9, orden:"Fabricar", req:"Ninguno", emoji:"✍️"},
+  {nombre:"Establo", nivel:9, orden:"Comerciar", req:"Ninguno", emoji:"🐴"},
+  // Nivel 13
+  {nombre:"Archivo", nivel:13, orden:"Investigar", req:"Ninguno", emoji:"🗂️"},
+  {nombre:"Sala de Fieras", nivel:13, orden:"Reclutar", req:"Ninguno", emoji:"🦁"},
+  {nombre:"Observatorio", nivel:13, orden:"Potenciar", req:"Canalizador de conjuros + clase lanzadora completa/Brujo", emoji:"🔭"},
+  {nombre:"Cámara de Meditación", nivel:13, orden:"Potenciar", req:"Ninguno", emoji:"🧘"},
+  {nombre:"Taberna", nivel:13, orden:"Investigar", req:"Ninguno", emoji:"🍺"},
+  // Nivel 17
+  {nombre:"Semiplano", nivel:17, orden:"Potenciar", req:"Canalizador arcano + clase lanzadora completa/Brujo", emoji:"🌀"},
+  {nombre:"Gremios", nivel:17, orden:"Reclutar", req:"Pericia en una Habilidad", emoji:"🏛️"},
+  {nombre:"Sanctum", nivel:17, orden:"Potenciar", req:"Símbolo Sagrado/Canalizador Druídico + Naturaleza Divina/Primordial", emoji:"⛪"},
+];
+
+const ORDENES_COLOR = {
+  "Fabricar":   "#e8a87a",
+  "Cosechar":   "#7ae87a",
+  "Investigar": "#7aaae8",
+  "Comerciar":  "#e8c97a",
+  "Reclutar":   "#e87a7a",
+  "Potenciar":  "#b47ae8",
+  "Mantener":   "#8a9ab0",
+};
+
+const EVENTOS_TABLE = [
+  {min:1,  max:50,  tipo:"Todo va bien",              emoji:"✅"},
+  {min:51, max:55,  tipo:"Ataque",                    emoji:"⚔️"},
+  {min:56, max:58,  tipo:"Empleado criminal",          emoji:"🔍"},
+  {min:59, max:63,  tipo:"Oportunidad extraordinaria", emoji:"💰"},
+  {min:64, max:72,  tipo:"Visitantes amistosos",       emoji:"👥"},
+  {min:73, max:76,  tipo:"Huésped",                   emoji:"🏠"},
+  {min:77, max:79,  tipo:"Empleados perdidos",         emoji:"❓"},
+  {min:80, max:83,  tipo:"Descubrimiento mágico",      emoji:"✨"},
+  {min:84, max:91,  tipo:"Refugiados",                 emoji:"🏕️"},
+  {min:92, max:98,  tipo:"Petición de ayuda",          emoji:"🆘"},
+  {min:99, max:100, tipo:"Tesoro",                     emoji:"💎"},
+];
+
+function getEventoByRoll(roll){
+  return EVENTOS_TABLE.find(e=>roll>=e.min&&roll<=e.max)||EVENTOS_TABLE[0];
+}
+
+function toggleBas(campId){
+  basOpen[campId]=!basOpen[campId];
+  document.getElementById(`bas-body${campId}`).classList.toggle("open",basOpen[campId]);
+  document.getElementById(`bas-toggle${campId}`).classList.toggle("open",basOpen[campId]);
+}
+
+function toggleBasInner(bodyId, toggleId){
+  const body=document.getElementById(bodyId);
+  const btn=document.getElementById(toggleId);
+  if(!body||!btn) return;
+  const open=body.classList.toggle("open");
+  btn.classList.toggle("open", open);
+}
+
+function renderBasPanel(campId){
+  const bas=BASTIONES.find(b=>b.camp===campId);
+  
+  // Header
+  const nameVal=document.getElementById(`bas-name-val${campId}`);
+  const ownerVal=document.getElementById(`bas-owner-val${campId}`);
+  const turnVal=document.getElementById(`bas-turn-val${campId}`);
+  if(nameVal) nameVal.textContent=bas?.name||"Sin nombre";
+  if(turnVal) turnVal.textContent=`Turno ${bas?.turn||1}`;
+  if(ownerVal){
+    const owner=bas?.owner_npc_id?NPCS.find(n=>n.id===bas.owner_npc_id):null;
+    ownerVal.textContent=owner?`${owner.emoji} ${owner.name}`:"—";
+  }
+
+  // Instalaciones
+  const insts=BAS_INSTALACIONES.filter(i=>i.camp===campId);
+  const instList=document.getElementById(`bas-inst-list${campId}`);
+  const instBadge=document.getElementById(`bas-inst-badge${campId}`);
+  const instCount=document.getElementById(`bas-inst-count${campId}`);
+  if(instBadge) instBadge.textContent=insts.length;
+  if(instCount) instCount.textContent=`${insts.length} instalación${insts.length!==1?"es":""}`;
+  if(instList){
+    if(!insts.length){
+      instList.innerHTML=`<div style="padding:12px;text-align:center;color:var(--text3);font-style:italic;font-size:13px">Sin instalaciones configuradas.</div>`;
+    } else {
+      const campNpcs=NPCS.filter(n=>n.camp===campId);
+      instList.innerHTML=insts.map(inst=>{
+        const cat=INSTALACIONES_CATALOG.find(c=>c.nombre===inst.nombre);
+        const emoji=cat?.emoji||"🏛️";
+        const empleado=inst.empleado_npc_id?campNpcs.find(n=>n.id===inst.empleado_npc_id):null;
+        const colorOrden=ORDENES_COLOR[inst.orden_activa]||"var(--text3)";
+        const hasReq=cat?.req&&cat.req!=="Ninguno";
+        const warnHtml=hasReq?`<div class="bas-inst-warn">⚠️ Req: ${cat.req}</div>`:"";
+        const editBtns=isLoggedIn?`<button class="bas-inst-edit" onclick="openBasInstEdit(${campId},'${inst.id}')">✏️</button>`:"";
+        return `<div class="bas-inst-card">
+          <div class="bas-inst-icon">${emoji}</div>
+          <div class="bas-inst-info">
+            <div class="bas-inst-name">${inst.nombre}</div>
+            <div class="bas-inst-meta">Nivel ${cat?.nivel||"?"} · ${inst.tamaño||"Espacioso"} · ${inst.empleados||1} empleado${(inst.empleados||1)!==1?"s":""}</div>
+            <div class="bas-inst-orden${inst.orden_activa&&inst.orden_activa!=="Mantener"?" activa":""}" style="color:${colorOrden};border-color:${colorOrden}40;background:${colorOrden}10">
+              ${inst.orden_activa||"Sin orden"} ${inst.dias_restantes?`· ${inst.dias_restantes} días`:""}
+            </div>
+            ${empleado?`<div style="font-size:11px;color:var(--teal2);margin-top:4px">👤 ${empleado.name}</div>`:""}
+            ${warnHtml}
+          </div>
+          <div class="bas-inst-actions">${editBtns}</div>
+        </div>`;
+      }).join("");
+    }
+  }
+
+  // Defensores
+  const defs=BAS_DEFENSORES.filter(d=>d.camp===campId);
+  const defList=document.getElementById(`bas-def-list${campId}`);
+  const defBadge=document.getElementById(`bas-def-badge${campId}`);
+  if(defBadge) defBadge.textContent=defs.filter(d=>d.estado!=="muerto").length;
+  if(defList){
+    if(!defs.length){
+      defList.innerHTML=`<div style="padding:12px;text-align:center;color:var(--text3);font-style:italic;font-size:13px">Sin defensores registrados.</div>`;
+    } else {
+      defList.innerHTML=defs.map(d=>`
+        <div class="bas-def-row">
+          <div class="bas-def-status ${d.estado||"activo"}"></div>
+          <div class="bas-def-name">${d.nombre}</div>
+          <div class="bas-def-type">${d.tipo||"Guardia"}</div>
+          ${isLoggedIn?`<button class="bas-inst-edit" onclick="openBasDefEdit(${campId},'${d.id}')">✏️</button>`:""}
+        </div>`).join("");
+    }
+  }
+
+  // Eventos
+  const evts=BAS_EVENTOS.filter(e=>e.camp===campId).sort((a,b)=>b.turno-a.turno);
+  const evtList=document.getElementById(`bas-evt-list${campId}`);
+  const evtBadge=document.getElementById(`bas-evt-badge${campId}`);
+  if(evtBadge) evtBadge.textContent=evts.length;
+  if(evtList){
+    if(!evts.length){
+      evtList.innerHTML=`<div style="padding:12px;text-align:center;color:var(--text3);font-style:italic;font-size:13px">Sin eventos registrados.</div>`;
+    } else {
+      evtList.innerHTML=evts.map(ev=>`
+        <div class="bas-event-row">
+          <div class="bas-event-header">
+            <span class="bas-event-turn">Turno ${ev.turno}</span>
+            <span class="bas-event-type">${ev.emoji||""} ${ev.tipo}</span>
+            <span class="bas-event-roll">🎲 ${ev.tirada}</span>
+          </div>
+          <div class="bas-event-desc">${ev.descripcion||""}</div>
+        </div>`).join("");
+    }
+  }
+
+  // Visibilidad de botones de edición
+  document.querySelectorAll(`.bas-cfg-btn`).forEach(b=>b.style.display=isLoggedIn?"":"none");
+  document.querySelectorAll(`.bas-add-inst-btn`).forEach(b=>b.style.display=isLoggedIn?"":"none");
+  document.querySelectorAll(`.bas-add-def-btn`).forEach(b=>b.style.display=isLoggedIn?"":"none");
+  document.querySelectorAll(`.bas-roll-event-btn`).forEach(b=>b.style.display=isLoggedIn?"":"none");
+}
+
+// ─── MODAL BASTIÓN CONFIG ───
+let editingBasCampId = null;
+let editingBasInstId = null;
+let editingBasDefId  = null;
+
+function openBasConfig(campId){
+  editingBasCampId=campId;
+  document.getElementById("bas-btn-del").style.display="none";
+  const bas=BASTIONES.find(b=>b.camp===campId)||{};
+  const campNpcs=NPCS.filter(n=>n.camp===campId);
+  const ownerOpts=`<option value="">— Sin dueño —</option>`+campNpcs.map(n=>`<option value="${n.id}"${n.id===bas.owner_npc_id?" selected":""}>${n.emoji} ${n.name}</option>`).join("");
+  document.getElementById("bas-modal-title").textContent="Configurar Bastión";
+  document.getElementById("bas-modal-body").innerHTML=`
+    <div class="fsec">
+      <div class="fsec-t">Información del Bastión</div>
+      <div class="frow"><div class="fg"><label>Nombre del Bastión</label><input type="text" id="bm_name" value="${bas.name||""}"></div></div>
+      <div class="frow"><div class="fg"><label>Dueño (NPC de esta campaña)</label><select id="bm_owner">${ownerOpts}</select></div></div>
+      <div class="frow"><div class="fg"><label>Turno actual</label><input type="number" id="bm_turn" value="${bas.turn||1}" min="1"></div></div>
+    </div>`;
+  document.getElementById("basModal").classList.add("open");
+}
+
+async function saveBasConfig(){
+  const campId=editingBasCampId;
+  const name=document.getElementById("bm_name")?.value.trim()||"Sin nombre";
+  const owner=document.getElementById("bm_owner")?.value||null;
+  const turn=parseInt(document.getElementById("bm_turn")?.value)||1;
+  const existing=BASTIONES.find(b=>b.camp===campId);
+  if(existing){
+    existing.name=name; existing.owner_npc_id=owner; existing.turn=turn;
+    await sbFetch(`bastiones?id=eq.${existing.id}`,{method:"PATCH",body:JSON.stringify({name,owner_npc_id:owner,turn})});
+  } else {
+    const newId="bas_"+Date.now();
+    await sbFetch("bastiones",{method:"POST",body:JSON.stringify({id:newId,camp:campId,name,owner_npc_id:owner,turn})});
+    BASTIONES.push({id:newId,camp:campId,name,owner_npc_id:owner,turn});
+  }
+  showToast("✓ Bastión guardado");
+  closeBasModal();
+  renderBasPanel(campId);
+}
+
+function openBasInstModal(campId){
+  editingBasCampId=campId;
+  editingBasInstId=null;
+  document.getElementById("bas-btn-del").style.display="none";
+  const campNpcs=NPCS.filter(n=>n.camp===campId);
+  const npcOpts=`<option value="">— Sin asignar —</option>`+campNpcs.map(n=>`<option value="${n.id}">${n.emoji} ${n.name}</option>`).join("");
+  const instOpts=INSTALACIONES_CATALOG.map(c=>`<option value="${c.nombre}">${c.emoji} ${c.nombre} (Niv.${c.nivel} · ${c.orden})</option>`).join("");
+  document.getElementById("bas-modal-title").textContent="Nueva Instalación";
+  document.getElementById("bas-modal-body").innerHTML=`
+    <div class="fsec">
+      <div class="fsec-t">Instalación Especial</div>
+      <div class="frow"><div class="fg"><label>Tipo</label><select id="bm_inst_tipo" onchange="onBasInstTipoChange()">${instOpts}</select></div></div>
+      <div id="bm_inst_req_warn" style="margin:4px 14px 8px;font-size:11px;color:var(--orange2);font-style:italic;display:none"></div>
+      <div class="frow">
+        <div class="fg"><label>Tamaño</label>
+          <select id="bm_inst_tam">
+            <option value="Estrecho">Estrecho (4 casillas)</option>
+            <option value="Espacioso" selected>Espacioso (16 casillas)</option>
+            <option value="Vasto">Vasto (36 casillas)</option>
+            <option value="Colosal">Colosal (80 casillas)</option>
+          </select>
+        </div>
+        <div class="fg"><label>Empleados</label><input type="number" id="bm_inst_empl" value="1" min="1"></div>
+      </div>
+      <div class="frow">
+        <div class="fg"><label>Orden activa</label>
+          <select id="bm_inst_orden">
+            <option value="Mantener">Mantener</option>
+            <option value="Fabricar">Fabricar</option>
+            <option value="Cosechar">Cosechar</option>
+            <option value="Investigar">Investigar</option>
+            <option value="Comerciar">Comerciar</option>
+            <option value="Reclutar">Reclutar</option>
+            <option value="Potenciar">Potenciar</option>
+          </select>
+        </div>
+        <div class="fg"><label>Días restantes</label><input type="number" id="bm_inst_dias" value="7" min="0"></div>
+      </div>
+      <div class="frow"><div class="fg"><label>Empleado asignado (NPC)</label><select id="bm_inst_npc">${npcOpts}</select></div></div>
+      <div id="bm_inst_npc_warn" style="margin:4px 14px 8px;font-size:11px;color:var(--orange2);font-style:italic;display:none"></div>
+      <div class="frow full"><div class="fg"><label>Notas</label><textarea id="bm_inst_notas" rows="2" style="resize:vertical" placeholder="Notas adicionales…"></textarea></div></div>
+    </div>`;
+  onBasInstTipoChange();
+  document.getElementById("basModal").classList.add("open");
+}
+
+function onBasInstTipoChange(){
+  const sel=document.getElementById("bm_inst_tipo");
+  const cat=INSTALACIONES_CATALOG.find(c=>c.nombre===sel?.value);
+  const warn=document.getElementById("bm_inst_req_warn");
+  if(warn && cat?.req && cat.req!=="Ninguno"){
+    warn.textContent=`⚠️ Requisito: ${cat.req}`;
+    warn.style.display="block";
+  } else if(warn){
+    warn.style.display="none";
+  }
+  // Set default orden
+  if(cat){
+    const ord=document.getElementById("bm_inst_orden");
+    if(ord) ord.value=cat.orden;
+  }
+}
+
+function openBasInstEdit(campId, instId){
+  editingBasCampId=campId;
+  editingBasInstId=instId;
+  const inst=BAS_INSTALACIONES.find(i=>i.id===instId);
+  if(!inst) return;
+  const campNpcs=NPCS.filter(n=>n.camp===campId);
+  const npcOpts=`<option value="">— Sin asignar —</option>`+campNpcs.map(n=>`<option value="${n.id}"${n.id===inst.empleado_npc_id?" selected":""}>${n.emoji} ${n.name}</option>`).join("");
+  const instOpts=INSTALACIONES_CATALOG.map(c=>`<option value="${c.nombre}"${c.nombre===inst.nombre?" selected":""}>${c.emoji} ${c.nombre} (Niv.${c.nivel} · ${c.orden})</option>`).join("");
+  const cat=INSTALACIONES_CATALOG.find(c=>c.nombre===inst.nombre);
+  const reqWarn=cat?.req&&cat.req!=="Ninguno"?`<div style="margin:4px 0 8px;font-size:11px;color:var(--orange2);font-style:italic">⚠️ Requisito: ${cat.req}</div>`:"";
+  document.getElementById("bas-modal-title").textContent=`Editar: ${inst.nombre}`;
+  document.getElementById("bas-modal-body").innerHTML=`
+    <div class="fsec">
+      <div class="fsec-t">Instalación Especial</div>
+      <div class="frow"><div class="fg"><label>Tipo</label><select id="bm_inst_tipo" onchange="onBasInstTipoChange()">${instOpts}</select></div></div>
+      ${reqWarn}
+      <div class="frow">
+        <div class="fg"><label>Tamaño</label>
+          <select id="bm_inst_tam">
+            ${["Estrecho","Espacioso","Vasto","Colosal"].map(t=>`<option value="${t}"${t===inst.tamaño?" selected":""}>${t}</option>`).join("")}
+          </select>
+        </div>
+        <div class="fg"><label>Empleados</label><input type="number" id="bm_inst_empl" value="${inst.empleados||1}" min="1"></div>
+      </div>
+      <div class="frow">
+        <div class="fg"><label>Orden activa</label>
+          <select id="bm_inst_orden">
+            ${["Mantener","Fabricar","Cosechar","Investigar","Comerciar","Reclutar","Potenciar"].map(o=>`<option value="${o}"${o===inst.orden_activa?" selected":""}>${o}</option>`).join("")}
+          </select>
+        </div>
+        <div class="fg"><label>Días restantes</label><input type="number" id="bm_inst_dias" value="${inst.dias_restantes||7}" min="0"></div>
+      </div>
+      <div class="frow"><div class="fg"><label>Empleado asignado (NPC)</label><select id="bm_inst_npc">${npcOpts}</select></div></div>
+      <div class="frow full"><div class="fg"><label>Notas</label><textarea id="bm_inst_notas" rows="2" style="resize:vertical">${inst.notas||""}</textarea></div></div>
+    </div>`;
+  document.getElementById("bas-btn-del").style.display="block";
+  document.getElementById("basModal").classList.add("open");
+}
+
+async function saveBasInst(){
+  const campId=editingBasCampId;
+  const bas=BASTIONES.find(b=>b.camp===campId);
+  if(!bas){ showToast("⚠️ Configura el Bastión primero",false); return; }
+  const nombre=document.getElementById("bm_inst_tipo")?.value||"";
+  const tamaño=document.getElementById("bm_inst_tam")?.value||"Espacioso";
+  const empleados=parseInt(document.getElementById("bm_inst_empl")?.value)||1;
+  const orden_activa=document.getElementById("bm_inst_orden")?.value||"Mantener";
+  const dias_restantes=parseInt(document.getElementById("bm_inst_dias")?.value)||0;
+  const empleado_npc_id=document.getElementById("bm_inst_npc")?.value||null;
+  const notas=document.getElementById("bm_inst_notas")?.value||"";
+  const data={bas_id:bas.id,camp:campId,nombre,tamaño,empleados,orden_activa,dias_restantes,empleado_npc_id:empleado_npc_id||null,notas};
+  if(editingBasInstId){
+    await sbFetch(`bas_instalaciones?id=eq.${editingBasInstId}`,{method:"PATCH",body:JSON.stringify(data)});
+    const idx=BAS_INSTALACIONES.findIndex(i=>i.id===editingBasInstId);
+    if(idx>=0) BAS_INSTALACIONES[idx]={...BAS_INSTALACIONES[idx],...data};
+  } else {
+    const newId="basi_"+Date.now();
+    await sbFetch("bas_instalaciones",{method:"POST",body:JSON.stringify({id:newId,...data})});
+    BAS_INSTALACIONES.push({id:newId,...data});
+  }
+  showToast("✓ Instalación guardada");
+  closeBasModal();
+  renderBasPanel(campId);
+}
+
+async function deleteBasInst(){
+  if(!editingBasInstId) return;
+  const inst=BAS_INSTALACIONES.find(i=>i.id===editingBasInstId);
+  if(!confirm(`¿Eliminar "${inst?.nombre}"?`)) return;
+  await sbFetch(`bas_instalaciones?id=eq.${editingBasInstId}`,{method:"DELETE"});
+  BAS_INSTALACIONES=BAS_INSTALACIONES.filter(i=>i.id!==editingBasInstId);
+  showToast("✓ Eliminada");
+  closeBasModal();
+  renderBasPanel(editingBasCampId);
+}
+
+function openBasDefModal(campId){
+  editingBasCampId=campId;
+  editingBasDefId=null;
+  document.getElementById("bas-btn-del").style.display="none";
+  const campNpcs=NPCS.filter(n=>n.camp===campId);
+  document.getElementById("bas-modal-title").textContent="Agregar Defensor";
+  document.getElementById("bas-modal-body").innerHTML=`
+    <div class="fsec">
+      <div class="fsec-t">Defensor del Bastión</div>
+      <div class="frow"><div class="fg"><label>Nombre</label><input type="text" id="bm_def_name" placeholder="ej. Guardia del Norte"></div></div>
+      <div class="frow">
+        <div class="fg"><label>Tipo</label><input type="text" id="bm_def_tipo" placeholder="ej. Mercenario, NPC, Criatura"></div>
+        <div class="fg"><label>Estado</label>
+          <select id="bm_def_estado">
+            <option value="activo">🟢 Activo</option>
+            <option value="herido">🟠 Herido</option>
+            <option value="muerto">🔴 Muerto</option>
+          </select>
+        </div>
+      </div>
+      <div class="frow"><div class="fg"><label>NPC vinculado (opcional)</label>
+        <select id="bm_def_npc">
+          <option value="">— Sin NPC vinculado —</option>
+          ${campNpcs.map(n=>`<option value="${n.id}">${n.emoji} ${n.name}</option>`).join("")}
+        </select>
+      </div></div>
+    </div>`;
+  document.getElementById("basModal").classList.add("open");
+}
+
+function openBasDefEdit(campId, defId){
+  editingBasCampId=campId;
+  editingBasDefId=defId;
+  const def=BAS_DEFENSORES.find(d=>d.id===defId);
+  if(!def) return;
+  const campNpcs=NPCS.filter(n=>n.camp===campId);
+  document.getElementById("bas-modal-title").textContent=`Editar defensor: ${def.nombre}`;
+  document.getElementById("bas-modal-body").innerHTML=`
+    <div class="fsec">
+      <div class="fsec-t">Defensor del Bastión</div>
+      <div class="frow"><div class="fg"><label>Nombre</label><input type="text" id="bm_def_name" value="${def.nombre||""}"></div></div>
+      <div class="frow">
+        <div class="fg"><label>Tipo</label><input type="text" id="bm_def_tipo" value="${def.tipo||""}"></div>
+        <div class="fg"><label>Estado</label>
+          <select id="bm_def_estado">
+            ${["activo","herido","muerto"].map(e=>`<option value="${e}"${e===def.estado?" selected":""}>${e==="activo"?"🟢 Activo":e==="herido"?"🟠 Herido":"🔴 Muerto"}</option>`).join("")}
+          </select>
+        </div>
+      </div>
+      <div class="frow"><div class="fg"><label>NPC vinculado (opcional)</label>
+        <select id="bm_def_npc">
+          <option value="">— Sin NPC vinculado —</option>
+          ${campNpcs.map(n=>`<option value="${n.id}"${n.id===def.npc_id?" selected":""}>${n.emoji} ${n.name}</option>`).join("")}
+        </select>
+      </div></div>
+    </div>`;
+  document.getElementById("bas-btn-del").style.display="block";
+  document.getElementById("basModal").classList.add("open");
+}
+
+async function saveBasDef(){
+  const campId=editingBasCampId;
+  const bas=BASTIONES.find(b=>b.camp===campId);
+  if(!bas){ showToast("⚠️ Configura el Bastión primero",false); return; }
+  const nombre=document.getElementById("bm_def_name")?.value.trim()||"Defensor";
+  const tipo=document.getElementById("bm_def_tipo")?.value.trim()||"Guardia";
+  const estado=document.getElementById("bm_def_estado")?.value||"activo";
+  const npc_id=document.getElementById("bm_def_npc")?.value||null;
+  const data={bas_id:bas.id,camp:campId,nombre,tipo,estado,npc_id:npc_id||null};
+  if(editingBasDefId){
+    await sbFetch(`bas_defensores?id=eq.${editingBasDefId}`,{method:"PATCH",body:JSON.stringify(data)});
+    const idx=BAS_DEFENSORES.findIndex(d=>d.id===editingBasDefId);
+    if(idx>=0) BAS_DEFENSORES[idx]={...BAS_DEFENSORES[idx],...data};
+  } else {
+    const newId="basd_"+Date.now();
+    await sbFetch("bas_defensores",{method:"POST",body:JSON.stringify({id:newId,...data})});
+    BAS_DEFENSORES.push({id:newId,...data});
+  }
+  showToast("✓ Defensor guardado");
+  closeBasModal();
+  renderBasPanel(campId);
+}
+
+async function deleteBasDef(){
+  if(!editingBasDefId) return;
+  const def=BAS_DEFENSORES.find(d=>d.id===editingBasDefId);
+  if(!confirm(`¿Eliminar a "${def?.nombre}"?`)) return;
+  await sbFetch(`bas_defensores?id=eq.${editingBasDefId}`,{method:"DELETE"});
+  BAS_DEFENSORES=BAS_DEFENSORES.filter(d=>d.id!==editingBasDefId);
+  showToast("✓ Eliminado");
+  closeBasModal();
+  renderBasPanel(editingBasCampId);
+}
+
+async function rollBasEvent(campId){
+  const bas=BASTIONES.find(b=>b.camp===campId);
+  if(!bas){ showToast("⚠️ Configura el Bastión primero",false); return; }
+  const tirada=Math.floor(Math.random()*100)+1;
+  const evento=getEventoByRoll(tirada);
+  const desc=prompt(`🎲 Tirada: ${tirada} — ${evento.emoji} ${evento.tipo}\n\nDescripción del evento (opcional):`)||"";
+  const data={bas_id:bas.id,camp:campId,turno:bas.turn,tirada,tipo:evento.tipo,emoji:evento.emoji,descripcion:desc};
+  const newId="basev_"+Date.now();
+  await sbFetch("bas_eventos",{method:"POST",body:JSON.stringify({id:newId,...data})});
+  BAS_EVENTOS.push({id:newId,...data});
+  showToast(`✓ Evento registrado: ${evento.tipo}`);
+  renderBasPanel(campId);
+}
+
+function closeBasModal(){
+  document.getElementById("basModal").classList.remove("open");
+  editingBasInstId=null; editingBasDefId=null;
+}
+
+// Determina qué botón guardar mostrar según el contexto
+function saveBasModal(){
+  // Config general
+  if(document.getElementById("bm_name")) { saveBasConfig(); return; }
+  // Instalación
+  if(document.getElementById("bm_inst_tipo")) { saveBasInst(); return; }
+  // Defensor
+  if(document.getElementById("bm_def_name")) { saveBasDef(); return; }
+}
+
+function deleteBasModal(){
+  if(editingBasInstId){ deleteBasInst(); return; }
+  if(editingBasDefId){ deleteBasDef(); return; }
+}
+
 // ─── INIT ───
 async function init(){
   showToast("Cargando datos…", false);
@@ -2023,6 +2683,19 @@ async function init(){
   // load war rooms from Supabase
   const wrRows = await sbFetch("war_rooms?select=*&order=id");
   if(wrRows) WAR_ROOMS = wrRows.map(r=>({id:r.id,camp:r.camp,npc_id:r.npc_id||null,dp:r.dp||0}));
+
+  // load bastiones from Supabase
+  const basRows = await sbFetch("bastiones?select=*&order=id");
+  if(basRows) BASTIONES = basRows.map(r=>({id:r.id,camp:r.camp,name:r.name||"Sin nombre",owner_npc_id:r.owner_npc_id||null,turn:r.turn||1}));
+
+  const basInstRows = await sbFetch("bas_instalaciones?select=*&order=id");
+  if(basInstRows) BAS_INSTALACIONES = basInstRows.map(r=>({id:r.id,bas_id:r.bas_id,camp:r.camp,nombre:r.nombre||"",tamaño:r.tamano||"Espacioso",empleados:r.empleados||1,orden_activa:r.orden_activa||"Mantener",dias_restantes:r.dias_restantes||0,empleado_npc_id:r.empleado_npc_id||null,notas:r.notas||""}));
+
+  const basDefRows = await sbFetch("bas_defensores?select=*&order=id");
+  if(basDefRows) BAS_DEFENSORES = basDefRows.map(r=>({id:r.id,bas_id:r.bas_id,camp:r.camp,nombre:r.nombre||"",tipo:r.tipo||"Guardia",estado:r.estado||"activo",npc_id:r.npc_id||null}));
+
+  const basEvtRows = await sbFetch("bas_eventos?select=*&order=id");
+  if(basEvtRows) BAS_EVENTOS = basEvtRows.map(r=>({id:r.id,bas_id:r.bas_id,camp:r.camp,turno:r.turno||1,tirada:r.tirada||0,tipo:r.tipo||"",emoji:r.emoji||"",descripcion:r.descripcion||""}));
 
   campaigns.forEach(c=>{activeFaction[c.id]=null; activeSort[c.id]=null; activeRol[c.id]=null;});
   fullRender();
