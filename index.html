@@ -307,6 +307,15 @@ header{position:relative;z-index:10;border-bottom:1px solid var(--border);backgr
 .wr-room-dp-input{width:52px;height:28px;background:var(--bg4);border:1px solid var(--border2);border-radius:6px;color:var(--green2);font-family:'Cinzel Decorative',serif;font-size:13px;font-weight:900;text-align:center;outline:none}
 .wr-room-dp-input:focus{border-color:var(--green2)}
 .wr-room-dp-view{font-family:'Cinzel Decorative',serif;font-size:13px;font-weight:900;color:var(--green2);min-width:32px;text-align:center}
+.wr-room-label{background:var(--bg4);border:1px solid var(--border);border-radius:6px;color:var(--text2);font-family:'Crimson Pro',serif;font-size:13px;padding:4px 8px;outline:none;width:110px}
+.wr-room-label:focus{border-color:var(--gold)}
+.wr-room-label::placeholder{color:var(--text3)}
+.wr-room-label:disabled{opacity:.35;cursor:not-allowed}
+.wr-room-notes-wrap{padding:4px 14px 8px 14px;background:var(--bg2)}
+.wr-room-notes{width:100%;background:var(--bg4);border:1px solid var(--border);border-radius:6px;color:var(--text2);font-family:'Crimson Pro',serif;font-size:12px;padding:5px 9px;outline:none;resize:vertical;min-height:34px}
+.wr-room-notes:focus{border-color:var(--gold)}
+.wr-room-notes::placeholder{color:var(--text3)}
+.wr-room-notes-view{font-size:12px;color:var(--text3);font-style:italic}
 
 /* ─── BASTIONES ─── */
 .bas-section{margin-top:12px;border:1px solid rgba(138,76,201,.35);border-radius:13px;overflow:hidden;background:var(--bg2)}
@@ -1910,37 +1919,99 @@ function renderWRPanel(campId){
   const rooms=WAR_ROOMS.filter(r=>r.camp===campId);
   if(countEl) countEl.textContent=`${rooms.length} sala${rooms.length!==1?"s":""}`;
   renderGenDP(campId);
-  // render room rows
   container.innerHTML="";
-  const assignedIds=new Set(rooms.filter(r=>r.npc_id).map(r=>r.npc_id));
+  const assignedIds=new Set(rooms.filter(r=>r.npc_id&&!(r.label||"").trim()).map(r=>r.npc_id));
   const campNpcs=NPCS.filter(n=>n.camp===campId);
   rooms.forEach((room,i)=>{
-    const npc=NPCS.find(n=>n.id===room.npc_id);
-    const div=document.createElement("div");
-    div.className="wr-room";
+    const hasLabel=!!(room.label||"").trim();
+    const npc=hasLabel?null:NPCS.find(n=>n.id===room.npc_id);
+    const displayName=hasLabel?(room.label||"").trim():(npc?npc.name:"Sin asignar");
+    const isEmpty=!hasLabel&&!npc;
+
     const opts=campNpcs
       .filter(n=>!assignedIds.has(n.id)||n.id===room.npc_id)
       .map(n=>`<option value="${n.id}"${n.id===room.npc_id?" selected":""}>${n.name} (BC ${n.bc||0})</option>`)
       .join("");
+
+    // Wrapper que agrupa la fila principal + notas
+    const wrapper=document.createElement("div");
+    wrapper.style.cssText="border-bottom:1px solid rgba(35,47,64,.35);";
+
+    // Fila principal
+    const div=document.createElement("div");
+    div.className="wr-room";
     div.innerHTML=`
       <span class="wr-room-num">${i+1}</span>
       <div class="wr-room-info">
-        <div class="wr-room-name${npc?"":" empty"}">${npc?npc.name:"Sin asignar"}</div>
+        <div class="wr-room-name${isEmpty?" empty":""}">${displayName}</div>
       </div>
       ${npc?`<span class="wr-room-bc">BC ${npc.bc||0}</span>`:""}
       <span class="wr-room-dp-view">+${room.dp||0}</span>
       <input type="number" class="wr-room-dp-input" value="${room.dp||0}" min="0">
-      <select class="wr-room-sel">
+      <input type="text" class="wr-room-label" placeholder="Texto libre…" value="${room.label||""}">
+      <select class="wr-room-sel"${hasLabel?" disabled":""}>
         <option value="">— Sin asignar —</option>
         ${opts}
       </select>`;
+
+    // Fila de notas
+    const notesWrap=document.createElement("div");
+    notesWrap.className="wr-room-notes-wrap";
+    const hasNotes=!!(room.notes||"").trim();
+    if(isLoggedIn){
+      const ta=document.createElement("textarea");
+      ta.className="wr-room-notes";
+      ta.placeholder="Notas de esta sala…";
+      ta.value=room.notes||"";
+      ta.rows=2;
+      ta.addEventListener("change",async()=>{
+        room.notes=ta.value;
+        await sbFetch(`war_rooms?id=eq.${room.id}`,{method:"PATCH",body:JSON.stringify({notes:room.notes})});
+      });
+      notesWrap.appendChild(ta);
+    } else if(hasNotes){
+      const view=document.createElement("div");
+      view.className="wr-room-notes-view";
+      view.textContent=room.notes||"";
+      notesWrap.appendChild(view);
+    }
+
+    wrapper.appendChild(div);
+    wrapper.appendChild(notesWrap);
+    container.appendChild(wrapper);
+
+    // Referencias
     const sel=div.querySelector(".wr-room-sel");
     const dpInput=div.querySelector(".wr-room-dp-input");
     const dpView=div.querySelector(".wr-room-dp-view");
-    // visibility based on login state
+    const labelInput=div.querySelector(".wr-room-label");
+    const nameDiv=div.querySelector(".wr-room-name");
+
+    // Visibilidad según login
     sel.style.display=isLoggedIn?"":"none";
     dpInput.style.display=isLoggedIn?"":"none";
     dpView.style.display=isLoggedIn?"none":"";
+    labelInput.style.display=isLoggedIn?"":"none";
+
+    // Label: texto gana; si hay texto el selector se deshabilita
+    labelInput.addEventListener("input",()=>{
+      const val=labelInput.value.trim();
+      sel.disabled=!!val;
+      if(val){ sel.value=""; room.npc_id=null; }
+      const currentNpc=val?null:NPCS.find(n=>n.id===room.npc_id);
+      nameDiv.textContent=val||(currentNpc?currentNpc.name:"Sin asignar");
+      nameDiv.className="wr-room-name"+((!val&&!room.npc_id)?" empty":"");
+      const bcEl=div.querySelector(".wr-room-bc");
+      if(bcEl) bcEl.style.display=(!val&&room.npc_id)?"":"none";
+    });
+    labelInput.addEventListener("change",async()=>{
+      room.label=labelInput.value;
+      const payload={label:room.label};
+      if(room.label.trim()) payload.npc_id=null;
+      await sbFetch(`war_rooms?id=eq.${room.id}`,{method:"PATCH",body:JSON.stringify(payload)});
+    });
+
+    // DP
     dpInput.addEventListener("change",async()=>{
       const dp=parseInt(dpInput.value)||0;
       room.dp=dp;
@@ -1949,6 +2020,8 @@ function renderWRPanel(campId){
       renderGenDP(campId);
       updatePanel();
     });
+
+    // NPC selector
     sel.addEventListener("change",async()=>{
       const npcId=sel.value||null;
       room.npc_id=npcId;
@@ -1956,7 +2029,6 @@ function renderWRPanel(campId){
       renderWRPanel(campId);
       updatePanel();
     });
-    container.appendChild(div);
   });
   if(!rooms.length){
     container.innerHTML=`<div style="padding:12px;text-align:center;color:var(--text3);font-style:italic;font-size:13px">Sin salas configuradas.</div>`;
@@ -1967,7 +2039,7 @@ async function addWRRoom(campId){
   const newRoom={camp:campId,npc_id:null,dp:0};
   const res=await sbFetch("war_rooms",{method:"POST",body:JSON.stringify(newRoom)});
   const rows=await sbFetch(`war_rooms?camp=eq.${campId}&order=id`);
-  if(rows) WAR_ROOMS=WAR_ROOMS.filter(r=>r.camp!==campId).concat(rows.map(r=>({id:r.id,camp:r.camp,npc_id:r.npc_id||null,dp:r.dp||0})));
+  if(rows) WAR_ROOMS=WAR_ROOMS.filter(r=>r.camp!==campId).concat(rows.map(r=>({id:r.id,camp:r.camp,npc_id:r.npc_id||null,dp:r.dp||0,label:r.label||"",notes:r.notes||""})));
   renderWRPanel(campId);
   updatePanel();
 }
@@ -2682,7 +2754,7 @@ async function init(){
 
   // load war rooms from Supabase
   const wrRows = await sbFetch("war_rooms?select=*&order=id");
-  if(wrRows) WAR_ROOMS = wrRows.map(r=>({id:r.id,camp:r.camp,npc_id:r.npc_id||null,dp:r.dp||0}));
+  if(wrRows) WAR_ROOMS = wrRows.map(r=>({id:r.id,camp:r.camp,npc_id:r.npc_id||null,dp:r.dp||0,label:r.label||"",notes:r.notes||""}));
 
   // load bastiones from Supabase
   const basRows = await sbFetch("bastiones?select=*&order=id");
